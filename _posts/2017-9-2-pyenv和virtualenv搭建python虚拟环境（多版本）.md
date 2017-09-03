@@ -92,7 +92,7 @@ pyenv uninstall x.x.x
 victualenv原本是一个独立工具
 
 
-官网：https://pypi.python.org/pypi/virtualen
+[virtualenv官网]：https://pypi.python.org/pypi/virtualen
 
 但按之前的安装方式的话，virtualenv已经作为插件安装好了，可直接使用。
 
@@ -132,5 +132,5 @@ rm -rf ~/.pyenv/versions/env2712/	#删除env2712虚拟环境
 
 ##致谢
 
->本文参考自雷子——晓飞爸，发布于http://www.cnblogs.com/npumenglei/
+>本文参考自雷子——晓飞爸，发布于 http://www.cnblogs.com/npumenglei/
 如需转载，请注明出处。
