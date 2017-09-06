@@ -38,11 +38,11 @@ export PYENV_ROOT="${HOME}/.pyenv"
 
 if [-d "${PYENV_ROOT" ]; then
 	export PATH="${PYENV_ROOT}/bin:${PATH}"
-	eval "${pyenv init -}"
+	eval "$(pyenv init -)"
 if
 ```
 
-这段代码主要指明pyenv的位置，保存之后就可以在命令行里面运行pyenv命令。保存在`~/.bashrc`文件中是为了每次1用户登录后自动生效。
+这段代码主要指明pyenv的位置，保存之后就可以在命令行里面运行pyenv命令。保存在`~/.bashrc`文件中是为了每次用户登录后自动生效。
 之后运行一下命令：
 
 ```
@@ -53,6 +53,15 @@ source ~/.bashrc	#该命令使上面对`~/.bashrc`文件的修改生效
 
 ```
 sudo apt build-dep pythin2.7	#之后安装其他版本Python时可能需要这些包
+```
+
+若是安装错误可以尝试安装以下包（在Ubuntu系统下）：
+
+```
+sudo apt-get update
+sudo apt-get install make build-essential libssl-dev zlib1g-dev
+sudo apt-get install libbz2-dev libreadline-dev libsqlite3-dev wget curl
+sudo apt-get install llvm libncurses5-dev libncursesw5-dev
 ```
 
 ## pyenv的使用
@@ -68,6 +77,23 @@ pyenv install --list	#查看有哪些版本的Python可以安装
 ```
 pyenv install <py-version>
 #最后的`<py-version>`是所要安装的Python的版本号
+```
+
+安装可能会出现如下错误：
+
+```
+Error:
+E: 无法获得锁 /var/lib/dpkg/lock - open (11: Resource temporarily unavailable)
+E: 无法锁定管理目录(/var/lib/dpkg/)，是否有其他进程正占用它？
+```
+
+对于这种错误可以采用以下操作：
+
+```
+px -aux | grep apt
+# 找出占用apt的root进程的PID
+
+kill -9 <PID>	#杀死指定进程
 ```
 
 ```
@@ -132,5 +158,13 @@ rm -rf ~/.pyenv/versions/env2712/	#删除env2712虚拟环境
 
 ## 致谢
 
-本文参考自雷子——晓飞爸，发布于 http://www.cnblogs.com/npumenglei/
+本文参考自以下链接：
+
+
+雷子——晓飞爸，发布于 http://www.cnblogs.com/npumenglei/
+
+东亮博客，发布于：http://blog.csdn.net/ldl22847/article/details/8612660
+
+方法SEO顾问，发布于：https://seofangfa.com/python-note/python-pyenv.html
+
 如需转载，请注明出处。
