@@ -9,6 +9,7 @@ catalog: true
 tags:
     - OpenCV
     - Machine Learning
+    - Linux
 ---
 
 >近期由于项目需要，要用到计算机视觉识别，所以折腾起了OPenCV，虽然安装过程曲折漫长，但是配合Python使用起来体验还是相当不错的。
