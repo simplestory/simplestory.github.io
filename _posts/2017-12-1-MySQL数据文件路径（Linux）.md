@@ -4,7 +4,7 @@ title:      MySQL数据文件路径（Linux）
 subtitle:   
 date:       2017-12-1
 author:     Simplestory
-header-img: img/2017-12-1-mysql.jpg
+header-img: img/2017-12-1-mysql.png
 catalog: False
 tags:
     - Linux
