@@ -22,7 +22,7 @@ git --version
 ```
 结果如图：
 
-![install git]{https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/install.png}
+![install git](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/install.png)
 
 ## 配置git
 
@@ -34,7 +34,7 @@ git config --global user.email "<email>"
 
 结果如下图：
 
-![config git]{https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/config.png}
+![config git](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/config.png)
 
 ## 创建公钥
 
@@ -46,12 +46,12 @@ ssh-keygen -C '1195997479@qq.com' -t rsa
 
 结果如下图：
 
-![ssh git]{https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/keygen.png}
+![ssh git](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/keygen.png)
 
 创建完公钥，需要上传。使用`cd ~/.ssh`进入`~/.ssh`文件夹，使用`cat`查看`id_rsa.pub`内容。
 结果如图：
 
-![ssh id]{https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/id_rsa.png}
+![ssh id](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/id_rsa.png)
 
 访问github帐号，添加ssh key，标题栏可以随意填写，内容将`cat`的内容复制进去即可。
 
@@ -61,4 +61,4 @@ ssh -v git@github.com
 ```
 看到以下信息则表示验证成功：
 
-![git]{https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/success.png}
+![git](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/success.png)
