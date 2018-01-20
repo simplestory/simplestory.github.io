@@ -4,7 +4,7 @@ SEOTitle: 我的博客 | My Blog
 header-img: img/post-bg-coffee.jpeg
 email: chouxiaozi07@gmail.com
 description: "My great Blog"
-keyword: "Blog, simplestory, student, engineering, programme"
+keyword: "Blog, simplestory, student, engineering, programmer"
 url: "http://simplestory.github.io"          # your host, for absolute URL
 baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
 github_repo: "https://github.com/simplestory/simplestory.github.io.git" # you code repository
@@ -92,16 +92,16 @@ service-worker: true
 
 
 # Friends
-friends: [
+#friends: [
       {
         #title: "",
         #href: "http://zhengwuyang.com"
     },{
-        title: "Linux",
-        href: "http://www.linux.org/"
+        #title: "Linux",
+        #href: "http://www.linux.org/"
     },{
-        title: "Miscrosoft",
-        href: "https://miscrosoft.com/zh-cn"
+        #title: "Miscrosoft",
+        #href: "https://miscrosoft.com/zh-cn"
     },{
         #title: "",
         #href: "https://developer.apple.com/"
