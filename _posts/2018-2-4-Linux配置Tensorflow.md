@@ -42,7 +42,9 @@ pip install tensorflow
 pip install tensorflow-1.6.0rc0-cp36-cp36m-manylinux1_x86_64.whl    #这里文件名字以自己的为准
 ```
 3. 验证安装
+
 进入pytohn环境中,进行测试:
+
 ```
 $ python
 
@@ -76,6 +78,7 @@ conda create -n tensorflow_gpu python=3.6
 大家可以先将[CUDA文档](http://developer.download.nvidia.com/compute/cuda/9.0/Prod/docs/sidebar/CUDA_Installation_Guide_Linux.pdf)下载下来，但是不要急于安装，先将NVIDIA给出的官方指导手册仔细看一下，然后再找几篇好的博客看一下，大致了解一下CUDA的安装过程，对安装过程中可能出现的问题要大致有一个了解。
 ***
 2. 安装条件
+
 + 验证电脑是否有支持CUDA的GPU:
 
 在终端下输入命令`lspci | grep -i nvidia`，查看输出。如果没有输出，可以尝试`update-pciids`（该命令一般在`/sbin`目录下）更新一下电脑的PCI硬件数据库，之后再次输入之前的查询命令。最后输出类似下图，如果你的GPU是来自Nvidia制造商且在[CUDA列表](https://developer.nvidia.com/cuda-gpus)中，则表示你拥有一块支持CUDA的GPU。
