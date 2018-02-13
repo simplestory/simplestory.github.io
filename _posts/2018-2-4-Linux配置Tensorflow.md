@@ -43,7 +43,9 @@ pip install tensorflow
 pip install tensorflow-1.6.0rc0-cp36-cp36m-manylinux1_x86_64.whl
 ```
 3. 验证安装
+
 进入pytohn环境中,进行测试:
+
 ```
 $ python
 
