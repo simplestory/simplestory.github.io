@@ -1,8 +1,8 @@
 ---
 layout:     post
-title:      Linux配置Tensorflow
+title:      Ubuntu配置Django
 subtitle:   
-date:       2018-2-4
+date:       2018-2-19
 author:     Simplestory
 header-img: img/2018-2-19-django
 catalog: true
