@@ -4,7 +4,7 @@ title:      Ubuntu配置Django
 subtitle:   
 date:       2018-2-19
 author:     Simplestory
-header-img: img/2018-2-19-django
+header-img: img/2018-2-19-django.jpg
 catalog: true
 tags:
     - Linux
