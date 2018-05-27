@@ -16,7 +16,7 @@ tags:
 
 进入Mysql后,可用如下命令查询相关文件的储存路径:
 ```
-select variables like '%dir%';
+show variables like '%dir%';
 ```
 
 输出如下图:
