@@ -17,6 +17,7 @@ tags:
 给定数据集$D=\{(x_1,y_1),(x_2,y_2),...,(x_m,y_m)\}$，其中$x_i=(x_{i1};x_{i2};...;x_{id}), y_{i} \in R$. 线性回归试图学得一个线性模型
 
 $$f(x_i)=wx_i+b$$
+
 使得$f(x_i)\simeq y_i$.
 
 ## 推导过程
@@ -71,18 +72,22 @@ F(x)=P(X \leq x)=\frac{1}{1+e^{-(x-\mu)/\gamma}} \\
 f(x)=F\prime(x)=\frac{e^{-(x-\mu)/\gamma}}{\gamma(1+e^(x-\mu)/\gamma)^2}
 \end{cases}
 $$
+
 式中$\mu$为位置参数，$\gamma > 0$为形状参数
 
 二项逻辑斯蒂回归模型是如下的条件概率：
 
 $$P(Y=1|x)=\frac{exp(w\cdot x+b)}{1+exp(w\cdot x+b)}$$
+
 $$P(Y=0|x)=\frac{1}{1+exp(w\cdot x+b)}$$
+
 这里$x\in R^n$是输入，$Y\in \{0,1\}$是输出，$w\in R^n$为权值向量，$b\in R$为偏置，$w\cdot x$为內积.
 
 为了表达方便，将w,b进行合并可得：
 
 $$P(Y=1|x)=\frac{exp(w\cdot x)}{1+exp(w\cdot x)}$$
 $$P(Y=0|x)=\frac{1}{1+exp(w\cdot x)}$$
+
 由前面这些假设和推论可得，逻辑斯蒂回归模型返回的是样本为正例的概率。即$P(Y=1|x)$
 
 ## 推导过程
@@ -90,6 +95,7 @@ $$P(Y=0|x)=\frac{1}{1+exp(w\cdot x)}$$
 由极大似然函数有损失函数$L(w)$:
 
 $$L(w)=\prod_{i=1}^N P(Y=1|x_i)^{y_i}[1-P(Y=0|x_i)]^{1-y_i}$$
+
 为防止因连乘而导致溢出，取对数可得：
 
 $$L(w)=\sum_{i=1}^N [y_i\log{P(Y=1|x_i)}+(1-y_i)\log{1-P(Y=0|x_i)}]$$
