@@ -110,3 +110,7 @@ $$L(w)=\sum_{i=1}^N [y_i(w\cdot x_i)-\log{(1+exp(w\cdot x_i))}]$$
 
 [sklearn.linear_model.LogistRegression](http://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html)
 
+## 致谢
+
+本文参考自：
+周志华的西瓜书，李航的统计学习方法
