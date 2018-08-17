@@ -14,7 +14,7 @@ tags:
 
 # 线性回归
 
-给定数据集$D=\{(x_1,y_1),(x_2,y_2),...,(x_m,y_m)\}$，其中$x_i=(x_{i1};x_{i2};...;x_{id}), y_{i} \in R$. 线性回归试图学得一个线性模型
+给定数据集$D=\{(\mathbf{x_1},y_1),(\mathbf{x_2},y_2),...,(\mathbf{x_m},y_m)\}$，其中$\mathbf{x_i}=(x_{i1};x_{i2};...;x_{id}), \ y_{i} \in R$. 线性回归试图学得一个线性模型
 
 $$f(x_i)=wx_i+b$$
 
@@ -25,15 +25,19 @@ $$f(x_i)=wx_i+b$$
 考虑使用MSE（均方差误差）来衡量模型好坏，则有损失函数$L(w,b)$:
 
 $$
-  L(w,b)=\sum_{i=1}^m (f(x_i)-y_i)^2
-  =\sum_{i-1}^m (y_i-wx_i-b)^2
+\begin{aligned}
+L(w,b) & =\sum_{i=1}^m (f(x_i)-y_i)^2  \\
+& =\sum_{i-1}^m (y_i-wx_i-b)^2
+\end{aligned}
 $$
 
 目标函数为：
 
 $$
-  (w^*,b^*)=argmin_{(w,b)} L(w,b)
-  =argmin_{(w,b)} \sum_{i=1}^m (y_i-w_i-b)^2
+\begin{aligned}
+(w^*,b^*) & =argmin_{(w,b)} L(w,b)  \\
+& =argmin_{(w,b)} \sum_{i=1}^m (y_i-w_i-b)^2
+\end{aligned}
 $$
 
 将$L(w,b)$分别对$w,b$求偏导，并令导数为零联立可求解
@@ -64,7 +68,7 @@ $$b=\frac{1}{m}\sum_{i=1}^m (y_i-wx_i)$$
 
 Logistic分布：
 
-设X是连续随机变量，X服从逻辑斯蒂分布是指X具有下列分布函数和密度函数：
+设X是连续随机变量，$\mathbf{X}$服从逻辑斯蒂分布是指$\mathbf{X}$具有下列分布函数和密度函数：
 
 $$
 \begin{cases}
