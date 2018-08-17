@@ -86,6 +86,7 @@ $$P(Y=0|x)=\frac{1}{1+exp(w\cdot x+b)}$$
 为了表达方便，将w,b进行合并可得：
 
 $$P(Y=1|x)=\frac{exp(w\cdot x)}{1+exp(w\cdot x)}$$
+
 $$P(Y=0|x)=\frac{1}{1+exp(w\cdot x)}$$
 
 由前面这些假设和推论可得，逻辑斯蒂回归模型返回的是样本为正例的概率。即$P(Y=1|x)$
