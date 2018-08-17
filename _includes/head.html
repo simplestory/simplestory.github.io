@@ -48,9 +48,20 @@
     <![endif]-->
 
     <!-- ga & ba script hoook -->
+   
+	<!-- MathJax Support -->
+    <!-- Use '$' for inline math mode -->
     <script type="text/x-mathjax-config">
-	MathJax.Hub.Config({
-				tes2jax: {inlineMath: [['$'.'$'],['\\(', '\\)']]}
-				});
-	</script>
+    MathJax.Hub.Config({
+      tex2jax: { 
+        inlineMath: [ ['$','$'], ['\\(','\\)'] ],
+        processEscapes: true
+      }
+    });
+    </script>
+    <!-- Use cdnjs as CDN provider -->
+    <script type="text/javascript" async
+      src="https://cdnjs.cloudflare.com/ajax/libs/mathjax/2.7.2/MathJax.js?config=TeX-MML-AM_CHTML">
+    </script>
+
 </head>
