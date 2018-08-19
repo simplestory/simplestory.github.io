@@ -1,6 +1,6 @@
 ---
 layout:     post
-title:      Linux下安装OPenCV
+title:      Linux下安装OpenCV
 subtitle:   
 date:       2017-10-20
 author:     Simplestory
