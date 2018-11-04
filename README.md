@@ -88,7 +88,7 @@ tags:
 # Sidebar settings
 sidebar: true  #添加侧边栏
 sidebar-about-description: "简单的描述一下你自己"
-sidebar-avatar: /img/avatar-by.jpg     #你的大头贴，请使用绝对地址.注意：名字区分大小写！后缀名也是
+sidebar-avatar: /img/avatar_Sim.jpg     #你的大头贴，请使用绝对地址.注意：名字区分大小写！后缀名也是
 ```
 
 侧边栏是响应式布局的，当屏幕尺寸小于992px的时候，侧边栏就会移动到底部。具体请见bootstrap栅格系统 <http://v3.bootcss.com/css/>
@@ -170,9 +170,9 @@ iframe在不同的设备中，将会自动的调整大小。保留内边距是�
 
 #### Comment
 
-博客不仅支持多说[Duoshuo](http://duoshuo.com)评论系统,支持[Disqus](http://disqus.com)评论系统。
+博客采用[Gitalk](https://github.com/gitalk/gitalk)评论系统，同时博客支持多说[Duoshuo](http://duoshuo.com)评论系统,支持[Disqus](http://disqus.com)评论系统。
 
->多说即将关闭: 多说将于2017年6月1日正式关停服务, 所以还是用 Disqus 把！
+>多说即将关闭: 多说将于2017年6月1日正式关停服务, Disqus也不是太好玩！
 
 `Disqus`优点是：国际比较流行，界面也很大气、简介，如果有人评论，还能实时通知，直接回复通知的邮件就行了；缺点是：评论必须要去注册一个disqus账号，分享一般只有Facebook和Twitter，另外在墙内加载速度略慢了一点。想要知道长啥样，可以看以前的版本点[这里](http://brucezhaor.github.io/about.html) 最下面就可以看到。
 
@@ -180,6 +180,9 @@ iframe在不同的设备中，将会自动的调整大小。保留内边距是�
 ~~`多说` 优点是：支持国内各主流社交软件(微博，微信，豆瓣，QQ空间 ...)一键分享按钮功能，另外登陆比较方便，管理界面也是纯中文的，相对于disqus全英文的要容易操作一些；缺点是：就是界面丑了一点。
 当然你是可以自定义界面的css的，详情请看多说开发者文档 <http://dev.duoshuo.com/docs/5003ecd94cab3e7250000008>。~~
 
+Gitalk评论系统相对于前面两种，相应较快，邮件通知评论，使用Github账号进行登陆和评论，具体操作见下方连接：
+
+[为博客添加 Gitalk 评论插件](http://qiubaiying.top/2017/12/19/%E4%B8%BA%E5%8D%9A%E5%AE%A2%E6%B7%BB%E5%8A%A0-Gitalk-%E8%AF%84%E8%AE%BA%E6%8F%92%E4%BB%B6/)
 
 
 
