@@ -58,7 +58,15 @@ layout: default
                 col-md-10 col-md-offset-1
                 post-container">
 
-				{{ content }}
+				{{ content }}e>e>
+                <div class="container">
+                    <div class="row">
+            
+                <!-- Post Container -->
+                <div class="container">
+                    <div class="row">
+            
+                <!-- Post Container -->
 
                 <hr style="visibility: hidden;">
 
@@ -226,6 +234,23 @@ layout: default
 <!-- disqus 公共JS代码 end -->
 {% endif %}
 
+<!-- gitment 公共JS代码 start-->
+<div id="gitmentContainer"></div>
+<link rel="stylesheet" href="https://billts.site/extra_css/gitment.css">
+<script src="https://billts.site/js/gitment.js"></script>
+<script>
+    var gitment = new Gitment({
+		id: '<%= page.date %>',
+        owner: 'simplestory',
+        repo: 'simplestory.github.io',
+        oauth: {
+            client_id: 'eaf88fa0ae0bd84b82ed',
+            client_secret: '72572b6a0ff5aaa65e6cf9237b04e5a310e3ee13',
+        },
+    });
+    gitment.render('gitmentContainer')
+</script>
+<!-- gitment 公共JS代码 end-->
 
 {% if site.anchorjs %}
 <!-- async load function -->

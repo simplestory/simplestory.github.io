@@ -55,14 +55,13 @@ kramdown:
 
 
 # 评论系统
-# Disqus settings（https://disqus.com/）
-disqus_username: simplestory
+# gitcoment settings
+comment_gitment_repo: simplestory.github.io
+comment_gitment_clientId: eaf88fa0ae0bd84b82ed
+comment_gitment_clientSecret: 72572b6a0ff5aaa65e6cf9237b04e5a310e3ee13
 
-# 多说 将于2017年6月1日正式关停服务，建议使用 Disqus（http://dev.duoshuo.com/threads/58d1169ae293b89a20c57241）
-# Duoshuo settings
-# duoshuo_username: qiubaiying
 # Share component is depend on Comment so we can NOT use share only.
-# duoshuo_share: true                     # set to false if you want to use Comment without Sharing
+# valine_share: False                     # set to false if you want to use Comment without Sharing
 
 
 
