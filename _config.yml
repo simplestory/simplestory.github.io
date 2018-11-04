@@ -4,38 +4,31 @@ SEOTitle: 我的博客 | Simplestory
 header-img: img/post-bg-coffee.jpeg
 email: chouxiaozi07@gmail.com
 description: "My great Blog"
-keyword: "Blog, simplestory, student"
-url: "http://simplestory.github.io"          # your host, for absolute URL
-baseurl: ""      # for example, '/blog' if your blog hosted on 'host/blog'
+keyword: "Blog, Programmer, Student"
+url: "http://simplestory.github.io"         # your host, for absolute URL
+baseurl: ''      # for example, '/blog' if your blog hosted on 'host/blog'
 github_repo: "https://github.com/simplestory/simplestory.github.io.git" # you code repository
 
 # Sidebar settings
 sidebar: true                           # whether or not using Sidebar.
 sidebar-about-description: "Help the God to change the world"
-sidebar-avatar: /img/avatar-Sim.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
-
-
+sidebar-avatar: /img/avatar_Sim.jpg      # use absolute URL, seeing it's used in both `/` and `/about/`
 
 # SNS settings
 RSS: false
-# weibo_username:
+#weibo_username:
 #zhihu_username:
 github_username:    simplestory
 #facebook_username:
 #jianshu_username:
 #twitter_username:
 
-
-
-
 # Build settings
 # from 2016, 'pygments' is unsupported on GitHub Pages. Use 'rouge' for highlighting instead.
-highlighter: rouge
 permalink: pretty
-paginate: 8
+paginate: 10
 exclude: ["less","node_modules","Gruntfile.js","package.json","README.md"]
-anchorjs: true                          # if you want to customize anchor. check out line:181 of `post.html`
-
+anchorjs: true                # if you want to customize anchor. check out line:181 of `post.html`
 
 
 # Gems
@@ -43,28 +36,27 @@ anchorjs: true                          # if you want to customize anchor. check
 gems: [jekyll-paginate]
 
 
-
 # Markdown settings
 # replace redcarpet to kramdown,
 # although redcarpet can auto highlight code, the lack of header-id make the catalog impossible, so I switch to kramdown
 # document: http://jekyllrb.com/docs/configuration/#kramdown
 markdown: kramdown
+highlighter: rouge
 kramdown:
-  input: GFM                            # use Github Flavored Markdown !important
-
-
+  input: GFM                   # use Github Flavored Markdown !important
 
 # 评论系统
-# gitcoment settings
-comment_gitment_repo: simplestory.github.io
-comment_gitment_clientId: eaf88fa0ae0bd84b82ed
-comment_gitment_clientSecret: 72572b6a0ff5aaa65e6cf9237b04e5a310e3ee13
+# Disqus（https://disqus.com/）
 
-# Share component is depend on Comment so we can NOT use share only.
-# valine_share: False                     # set to false if you want to use Comment without Sharing
-
-
-
+# Gitalk
+gitalk:
+  enable: true    #是否启用Gitalk评论
+  clientID: eaf88fa0ae0bd84b82ed
+  clientScecret: 72572b6a0ff5aaa65e6cf9237b04e5a310e3ee13
+  repo: simplestory.github.io
+  owner: simplestory
+  admin: simplestory
+  distracyionFreeMode: true   #是否启用类似FB的阴影遮罩
 
 # Analytics settings
 # Baidu Analytics
@@ -74,35 +66,21 @@ ba_track_id: f4ceef9ccf4caa1b456d8373672cfa7e
 ga_track_id: 'UA-101212832-1'            # Format: UA-xxxxxx-xx
 ga_domain: auto
 
-
-
-
-
 # Featured Tags
 featured-tags: ture                     # whether or not using Feature-Tags
 featured-condition-size: 4              # A tag will be featured if the size of it is more than this condition value
-
-
 
 # Progressive Web Apps
 chrome-tab-theme-color: "#000000"
 service-worker: true
 
-
-
 # Friends
 # friends: [
 #      {
-#        title: "",
-#        href: "http://zhengwuyang.com"
-#    },{
 #        title: "Linux",
 #        href: "http://www.linux.org/"
 #    },{
 #        title: "Miscrosoft",
 #        href: "https://miscrosoft.com/zh-cn"
-#    },{
-#        title: "",
-#        href: "https://developer.apple.com/"
 #    }
 # ]

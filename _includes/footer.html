@@ -6,7 +6,7 @@
                 <ul class="list-inline text-center">
                     {% if site.RSS %}
                     <li>
-                        <a href='{{ "/feed.xml" | prepend: site.baseurl }}'>
+                        <a href="{{ "/feed.xml" | prepend: site.baseurl }}">
                             <span class="fa-stack fa-lg">
                                 <i class="fa fa-circle fa-stack-2x"></i>
                                 <i class="fa fa-rss fa-stack-1x fa-inverse"></i>
@@ -14,7 +14,7 @@
                         </a>
                     </li>
                     {% endif %}
-                    <!-- add jianshu add target = "_blank" to <a> by BY -->
+                    <!-- add jianshu, teitter add target = "_blank" to <a> by BY -->
                     {% if site.jianshu_username %}
                             <li>
                                 <a target="_blank" href="https://www.jianshu.com/u/{{ site.jianshu_username }}">
@@ -106,13 +106,13 @@
 </footer>
 
 <!-- jQuery -->
-<script src='{{ "/js/jquery.min.js " | prepend: site.baseurl }}'></script>
+<script src="{{ "/js/jquery.min.js " | prepend: site.baseurl }}"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src='{{ "/js/bootstrap.min.js " | prepend: site.baseurl }}'></script>
+<script src="{{ "/js/bootstrap.min.js " | prepend: site.baseurl }}"></script>
 
 <!-- Custom Theme JavaScript -->
-<script src='{{ "/js/hux-blog.min.js " | prepend: site.baseurl }}'></script>
+<script src="{{ "/js/hux-blog.min.js " | prepend: site.baseurl }}"></script>
 
 <!-- Service Worker -->
 {% if site.service-worker %}
