@@ -2,7 +2,7 @@
 layout:     post
 title:      pyenv和virtualenv搭建Python虚拟环境（多版本）
 subtitle:   
-date:       2017-9-2
+date:       2017-09-02
 author:     Simplestory
 header-img: img/20170902-python.jpg
 catalog: true

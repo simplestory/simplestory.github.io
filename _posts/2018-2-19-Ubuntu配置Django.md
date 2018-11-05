@@ -2,7 +2,7 @@
 layout:     post
 title:      Ubuntu配置Django
 subtitle:   
-date:       2018-2-19
+date:       2018-02-19
 author:     Simplestory
 header-img: img/2018-2-19-django.jpg
 catalog: true

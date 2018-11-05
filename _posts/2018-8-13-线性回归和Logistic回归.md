@@ -2,7 +2,7 @@
 layout:     post
 title:      线性回归和Logistic回归
 subtitle:   
-date:       2018-8-13
+date:       2018-08-13
 author:     Simplestory
 header-img: img/post-bg-debug.png
 catalog: true
