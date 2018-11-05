@@ -2,7 +2,7 @@
 layout:     post
 title:      Anaconda部分命令
 subtitle:   
-date:       2018-1-5
+date:       2018-01-05
 author:     Simplestory
 header-img: img/Anaconda.jpg
 catalog: true

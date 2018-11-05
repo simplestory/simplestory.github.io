@@ -2,7 +2,7 @@
 layout:     post
 title:      MySQL数据文件路径（Linux）
 subtitle:   
-date:       2017-12-1
+date:       2017-12-01
 author:     Simplestory
 header-img: img/2017-12-1-mysql.jpg
 catalog: False

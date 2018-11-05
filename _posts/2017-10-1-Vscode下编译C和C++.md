@@ -2,7 +2,7 @@
 layout:     post
 title:      Vscode下编译C/C++
 subtitle:   
-date:       2017-10-1
+date:       2017-10-01
 author:     Simplestory
 header-img: img/20171001-Vscode.jpg
 catalog:    false

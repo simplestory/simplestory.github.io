@@ -2,7 +2,7 @@
 layout:     post
 title:      Linux配置Tensorflow
 subtitle:   
-date:       2018-2-4
+date:       2018-02-04
 author:     Simplestory
 header-img: img/2018-2-4/2018-2-4-tensorflow.jpg
 catalog: true
