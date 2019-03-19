@@ -14,7 +14,7 @@ tags:
 
 # 线性回归
 
-给定数据集$D=\{(\mathbf{x_1},y_1),(\mathbf{x_2},y_2),...,(\mathbf{x_m},y_m)\}$，其中$\mathbf{x_i}=(x_{i1};x_{i2};...;x_{id}), \ y_{i} \in R$. 线性回归试图学得一个线性模型
+给定数据集$D=\\{(\mathbf{x_1},y_1),(\mathbf{x_2},y_2),...,(\mathbf{x_m},y_m)\\}$，其中$\mathbf{x_i}=(x_{i1};x_{i2};...;x_{id}), \ y_{i} \in R$. 线性回归试图学得一个线性模型
 
 $$f(x_i)=wx_i+b$$
 
@@ -85,7 +85,7 @@ $$P(Y=1|x)=\frac{exp(w\cdot x+b)}{1+exp(w\cdot x+b)}$$
 
 $$P(Y=0|x)=\frac{1}{1+exp(w\cdot x+b)}$$
 
-这里$x\in R^n$是输入，$Y\in \{0,1\}$是输出，$w\in R^n$为权值向量，$b\in R$为偏置，$w\cdot x$为內积.
+这里$x\in R^n$是输入，$Y\in \\{0,1\\}$是输出，$w\in R^n$为权值向量，$b\in R$为偏置，$w\cdot x$为內积.
 
 为了表达方便，将w,b进行合并可得：
 
