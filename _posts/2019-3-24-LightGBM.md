@@ -28,7 +28,7 @@ tags:
 
 接下来就是降低特征维度的问题了。其实我们可以发现具有高维度特征的数据通常都是离散的，而且在离散的特征空间中，许多特征都是相互独立的，所以我们可以将这些独立的特征捆绑在一起作为一个单独的特征。具体算法如下：
 
-![Greedy Bunding]((https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2019-03-24/2019-03-24-Lightgbm_greedy.png)
+![Greedy Bunding](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2019-03-24/2019-03-24-Lightgbm_greedy.png)
 
 首先我们建立一张带权图，其中的边的权值表示连接的两个特征之间的冲突量（即不相互独立的程度）。然后按照度对特征进行降序排序。最后遍历排序后的特征序列，检查特征是否能加入已有的捆绑中（由冲突量确定），否则新建一个捆绑。
 
@@ -36,7 +36,7 @@ tags:
 
 以上已将特征放在捆绑中，接下来就是合并同一捆绑中的特征。这一步的关键在于原始特征值可以从捆绑中区分出来。因为基于直方图的算法存储离散的条形而不是连续的特征值。这一点可以通过偏移量来实现。具体如下：
 
-![Merge Exclusive Features]((https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2019-03-24/2019-03-24-Lightgbm_merge.png)
+![Merge Exclusive Features](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2019-03-24/2019-03-24-Lightgbm_merge.png)
 
 **详细的数学推导见下方论文**
 
