@@ -4,7 +4,7 @@ title:      Linux配置Tensorflow
 subtitle:   
 date:       2018-02-04
 author:     Simplestory
-header-img: img/2018-2-4/2018-2-4-tensorflow.jpg
+header-img: img/2018-02-04/2018-2-4-tensorflow.jpg
 catalog: true
 tags:
     - Linux
@@ -87,13 +87,13 @@ conda create -n tensorflow_gpu python=3.6
 
 在终端下输入命令`lspci | grep -i nvidia`，查看输出。如果没有输出，可以尝试`update-pciids`（该命令一般在`/sbin`目录下）更新一下电脑的PCI硬件数据库，之后再次输入之前的查询命令。最后输出类似下图，如果你的GPU是来自Nvidia制造商且在[CUDA列表](https://developer.nvidia.com/cuda-gpus)中，则表示你拥有一块支持CUDA的GPU。
 
-![lspci_nvidia](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/lspci_nvidia.png)
+![lspci_nvidia](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/lspci_nvidia.png)
 
 + 验证Linux版本是否支持CUDA:
 
 用命令`uname -m && cat /etc/*release`可进行查看(ubuntu16.04受支持)
 
-![uname_cat](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/uname_cat.png)
+![uname_cat](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/uname_cat.png)
 
 + 验证系统是否安装gcc:
 
@@ -103,7 +103,7 @@ conda create -n tensorflow_gpu python=3.6
 
 `uname -r`命令可查看内核版本，之后可运行命令`sudo apt-get install linux-headers-$(uname -r)`进行安装，假如你已经安装了，终端会提示并终止安装。
 
-![linux_headers](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/linux_headers.png)
+![linux_headers](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/linux_headers.png)
 
 ---
 以上各项均符合时，即可开始安装CUDA。
@@ -116,11 +116,11 @@ CUDA提供两种安装方式：package manager安装和runfile安装。我在其
 
 首先在[CUDA下载页面](https://developer.nvidia.com/cuda-toolkit-archive)上选择CUDA版本,我选择的是CUDA 9.0版本
 
-![cuda_9.0](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/cuda_9_0.png)
+![cuda_9.0](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/cuda_9_0.png)
 
 然后按照页面指示的安装步骤进行安装
 
-![cuda_install](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/cuda_install.png)
+![cuda_install](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/cuda_install.png)
 
 页面中还有一个path1包是CUDA9.0的补丁,安装好CUDA9.0后可以使用`dpkg -i`命令进行安装
 
@@ -154,15 +154,15 @@ export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRAR
 
 在`samples/`下执行命令`make`进行编译，编译成功会显示`Finished building CUDA samples`
 
-![make_samples](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/make_samples.png)
+![make_samples](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/make_samples.png)
 
 编译好后，进入目录`/samples/bin/x86_64/linux/release`，执行`./deviceQuery`，结果大致如下：
 
-![deviceQuery](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/deviceQuery.png)
+![deviceQuery](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/deviceQuery.png)
 
 然后检查一下系统和CUDA-Capable device的连接情况，执行`./bandwidthTest`命令，输出结果大概如下：
 
-![bandwidthTest](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/bandwidthTest.png)
+![bandwidthTest](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/bandwidthTest.png)
 
 若以上各项均通过，恭喜你，成功安装了CUDA！接下来是安装cuDNN
 
@@ -170,7 +170,7 @@ export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRAR
 
 首先需要注册一个Nvidia官网帐号用于下载cuDNN包，之后选择相应的安装包下载（注意要适配所安装的CUDA版本）
 
-![cudnn_download](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/cudnn_download.png)
+![cudnn_download](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/cudnn_download.png)
 
 下载后用`tar`命令解压，解压后把相应的文件拷贝到对应的CUDA目录下即可
 ```
@@ -195,7 +195,7 @@ $ pip install https://pypi.python.org/pypi/tensorflow-gpu/tensorflow_gpu-1.6.0rc
 
 在虚拟环境下的python中导入tensorflow模块并运行`sess = tf.Session()`，输出大致如下：
 
-![tf_session](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-2-4/tf_session.png)
+![tf_session](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/tf_session.png)
 
 OK了，漫长的tensorflow GPU版本安装就结束了，接下来可以实践那些神奇的人工智能算法啦！
 
