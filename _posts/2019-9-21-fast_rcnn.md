@@ -28,7 +28,7 @@ $RoI \ pooling$将$h \times w$的$RoI$区域划分为$h/H \times w/W$规格的�
 
 对于网络的初始化，作者使用了三个预训练的$ImageNet$的模型，并进行了如下更改：
 
-- 原网络最后一个$max pooling$层用$RoI pooling$层替代并指定参数$H \times W$以适应网络的第一个全连接层的尺寸；
+- 原网络最后一个$max \ pooling$层用$RoI \ pooling$层替代并指定参数$H \times W$以适应网络的第一个全连接层的尺寸；
 - 原网络最后一个全连接网络和$softmax$层替代为两个分支网络；
 - 原网络修正为两个输入
 
@@ -57,7 +57,13 @@ $$
 
 这里采用$L_1$损失与$RCNN$采用的$L_2$相比少了些敏感性。多项任务损失函数中的超参数$\lambda$控制着两个单一损失函数的平衡。作者在论文的实验中对真实实例的边界框进行了标准化（使其均值为0，方差为1），损失函数中的超参数选为1。
 
-关于$minibatch$的采样这里就不再细讲，具体可看看作者的论文。接下来说一下$RoI \ pooling$池化层的后向传播，令$x_i \in R$为$RoI \ pooling$的第i个输入，$y_{rj}$为第r个$RoI$的第j个输出，则$RoI \ pooling$的计算公式可以表示为$y_{rj}=x_{i^*(i,j)}$，其中$i^*(r,j)=argmax_{i^'\in R(r,j)}x_i^'$，$R(r,j)$是输入子窗口的索引集。一个$x_i$可能对应着多个不同的输出$y_{rj}$。其后向传播形式为：
+关于$minibatch$的采样这里就不再细讲，具体可看看作者的论文。接下来说一下$RoI \ pooling$池化层的后向传播。令$x_i \in R$为$RoI \ pooling$的第i个输入，$y_{rj}$为第r个$RoI$的第j个输出，则$RoI \ pooling$的计算公式可以表示为
+
+$$
+y_{rj}=x_{i^*(i,j)}
+$$
+
+其中$i^*(r,j)=argmax_{i^\prime\in R(r,j)}x_i^\prime$，$R(r,j)$是输入子窗口的索引集。一个$x_i$可能对应着多个不同的输出$y_{rj}$。其后向传播形式为：
 
 $$
 \frac{\partial{L}}{\partial{x_i}} = \sum_r\sum_j[i=i^*(r,j)]\frac{\partial{L}}{\partial{y_{rj}}}
