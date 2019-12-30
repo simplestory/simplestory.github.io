@@ -12,13 +12,13 @@ tags:
 
 >上文提到了一个高效的树集成算法[Xgboost模型](https://simplestory.github.io/2019/03/17/Xgboost/)，但是在处理特征维度和数据量较大的数据时，效率仍然是低迷的。相比于GBDT和Xgboost等模型，微软开源的Lightgbm模型采用了各种手段来降低数据量和数据特征维度，从而大大提高了模型的训练速度也确保了准确率。
 
-## 问题来了
+## How to do
 
 为了降低因大量的实例数和较高的特征维度对模型训练的影响，一个自然的想法就是减少数据实例数和特征维度。而Lightgbm模型采取的方案分别为：Gradient-based One-Side Sampling(GOSS)和Exclusive Feature Bundling(EFB)。
 
 ## GOSS
 
-这其实是一种采样方法。微软在实验中发现如果一个实例有着较小的梯度，那么它对模型训练的贡献也校少，因为小梯度意为这这个样本已经训练完全。GOSS通过保存大梯度样本，随机选取小梯度样本，并为其弥补上一个常数权重。这样，GOSS更关注训练不足的样本，同时也不会过多改变原始。相关算法如下：
+这其实是一种采样方法。微软在实验中发现如果一个实例有着较小的梯度，那么它对模型训练的贡献也校少，因为小梯度意味着这个样本已经训练完全。GOSS通过保存大梯度样本，随机选取小梯度样本，并为其弥补上一个常数权重。这样，GOSS更关注训练不足的样本，同时也不会过多地改变原始分布。相关算法如下：
 
 ![Gradient-based One-Side Sampling](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2019-03-24/2019-03-24-Lightgbm_goss.png)
 
