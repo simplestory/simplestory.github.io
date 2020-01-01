@@ -14,6 +14,15 @@ tags:
 
 **本文所用系统为ubuntu16.04LTS**
 
+# UPDATE
+
+2018.1.1
+
+**现推荐使用Anaconda来实现多个python环境隔离**
+
+安装和使用都很方便，具体可参考我的另一篇[博文](https://simplestory.github.io/2018/01/05/Anaconda%E9%83%A8%E5%88%86%E5%91%BD%E4%BB%A4/)
+
+---
 
 ## 安装pyenv
 
