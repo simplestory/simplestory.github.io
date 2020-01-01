@@ -106,6 +106,17 @@ conda config --set show_channel_urls yes
 
 执行完上述命令后，会生成~/.condarc(Linux/Mac)或C:UsersUSER_NAME.condarc文件(Windows)，记录我们对conda的配置。
 
+## 附言
+
+安装完anaconda后会自动激活一个叫base的虚拟环境，可以通过一下命令将其关闭：
+
+```
+# 关闭自动激活基础环境
+conda config --set auto_activate_base false
+
+# 开启自动激活基础环境
+conda config --set auto_activate_base true
+```
 
 **附上一份`Conda`文档**
 
