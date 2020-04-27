@@ -51,7 +51,7 @@ bottleneck大致的结构如下图所示：
 
 如图
 
-![mobilenet2](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-04-26/modelnet2.png)
+![mobilenet2](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-04-26/mobilenet2.png)
 
 首先是一个包含有32个卷积核的标准卷积层，之后是19个残差bottleneck模块（但论文表格上却只有17个，官方复现中也是按表格来的）。激活函数使用的是ReLU6，卷积核参数为$3\times 3$。除了第一个bottleneck外，作者在整个网络中都使用了恒定的扩展速率（实验得出5到10之间模型鲁棒性会比较好）
 
