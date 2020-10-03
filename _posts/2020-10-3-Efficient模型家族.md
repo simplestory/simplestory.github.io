@@ -26,7 +26,7 @@ tags:
 首先对于卷积模型，我们可以表示为：
 
 $$
-\mathcal{N} = \underset{{i=1\cdots s}}{\bigodot}\mathcal{F}_i^{L_i}(X_{\langle H_i, W_i, C_i\rangle})
+\mathcal{N} = \underset{i=1...s}{\bigodot}\mathcal{F}_i^{L_i}(X_{\langle H_i, W_i, C_i\rangle})
 $$
 
 其中，$\mathcal{F}_i^{L_i}$表示在网络块$i$中，网络层$F_i$重复$L_i$次，而$\langle H_i,W_i,C_i\rangle$表示第$i$层的输入尺寸，$\mathcal{N}$则为整个卷积网络模型。
@@ -36,7 +36,7 @@ $$
 $$
 \begin{aligned}
 \underset{d,w,r}{max} &\ Accuracy(\mathcal{N}(d,w,r)) \\
-s.t. &\ \mathcal{N} = \underset{{i=1\cdots s}}{\bigodot}\hat{\mathcal{F}}_i^{d\cdot \hat{L}_i}(X_{\langle r\cdot \hat{H}_i, r\cdot \hat{W}_i, w\cdot \hat{C}_i\rangle}) \\
+s.t. &\ \mathcal{N} = \underset{i=1...s}{\bigodot}\hat{\mathcal{F}}_i^{d\cdot \hat{L}_i}(X_{\langle r\cdot \hat{H}_i, r\cdot \hat{W}_i, w\cdot \hat{C}_i\rangle}) \\
 &\ \text{Memory}(\mathcal{N}) \le target\_memory \\
 &\ \text{FLOPS}(\mathcal{N}) \le target\_flops
 \end{aligned}
@@ -49,11 +49,11 @@ $$
 
 $$
 \begin{aligned}
-    \text{depth: } &\ d=\alpha^\phi \\
-    \text{width: } &\ w=\beta^\phi \\
-    \text{resolution: } &\ r=\gamma^\phi \\
-    s.t. &\ \alpha\cdot\beta^2\cdot\gamma^2 \approx 2 \\
-    &\ \alpha \ge 1, \beta \ge 1, \gamma \ge 1 \\
+\text{depth: } &\ d=\alpha^\phi \\
+\text{width: } &\ w=\beta^\phi \\
+\text{resolution: } &\ r=\gamma^\phi \\
+s.t. &\ \alpha\cdot\beta^2\cdot\gamma^2 \approx 2 \\
+&\ \alpha \ge 1, \beta \ge 1, \gamma \ge 1 \\
 \tag{2}
 \end{aligned}
 $$
