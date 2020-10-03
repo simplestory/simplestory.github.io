@@ -49,11 +49,11 @@ $$
 
 $$
 \begin{aligned}
-depth:\  & \ d=\alpha^\phi \\
-width:\  & \ w=\beta^\phi \\
-resolution:\  & \ r=\gamma^\phi \\
-s.t.\  & \ \alpha\cdot\beta^2\cdot\gamma^2 \approx 2 \\
-& \ \alpha \ge 1, \beta \ge 1, \gamma \ge 1 \\
+\text{depth:} & \ d = \alpha^\phi \\
+\text{width:} & \ w = \beta^\phi \\
+\text{resolution:} & \ r = \gamma^\phi \\
+s.t. & \ \alpha \cdot \beta^2 \cdot \gamma^2 \approx 2 \\
+& \ \alpha \ge 1,\beta \ge 1,\gamma \ge 1 \\
 \tag{2}
 \end{aligned}
 $$
@@ -116,7 +116,6 @@ $$
 \begin{aligned}
 W_{bifpn} & = 64 \cdot 1.35^\phi \\
 D_{bifpn} & = 3 + \phi
-\tag{3}
 \end{aligned}
 $$
 
