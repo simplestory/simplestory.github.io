@@ -54,8 +54,8 @@ $$
 \text{resolution:} & \ r = \gamma^\phi \\
 s.t. & \ \alpha \cdot \beta^2 \cdot \gamma^2 \approx 2 \\
 & \ \alpha \ge 1,\beta \ge 1,\gamma \ge 1 \\
-\tag{2}
 \end{aligned}
+\tag{2}
 $$
 
 其中，$\alpha,\beta,\gamma$为一个常数，可通过小型网格搜索确定。对于作者给出的约束条件$\alpha\cdot\beta^2\cdot\gamma^2\approx 2$，这里表示缩放后的模型大致会是原模型的浮点计算量的$2^\phi$左右，因为模型深度的两倍将扩大模型计算量的两倍，而模型宽度或分辨率的两倍将扩大计算量的四倍，即有模型计算量的扩大基数为$\alpha\cdot\beta^2\cdot\gamma^2$。
