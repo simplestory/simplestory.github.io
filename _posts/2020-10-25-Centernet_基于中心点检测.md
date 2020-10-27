@@ -112,9 +112,9 @@ $$
 
 其中$N$表示图片中目标中心点的个数，$\alpha$和$\beta$为超参数，作者选用了$\alpha=2$和$\beta=4$。$Y_{xyc}$表示真实标注热图上对应位置的取值，而$\hat{Y}_{xyc}$表示模型预测的热图上对应位置的取值。
 
-整体上看这是一个改进后的focal loss函数。当$Y_{xyc}=1$时，通过$(1-{Y}_{xyc})^\alpha$来改变对应的权重，若模型预测值$\hat{Y}_{xyc}$已经接近1，表明该样本对于模型来说属于容易样本，则对应的损失权重会降低，反之属于困难样本，权重上升。
+从整体上看，这是一个改进后的$focal \ loss$函数。当$Y_{xyc}=1$时，可以通过$(1-\hat{Y}_{xyc})^\alpha$来改变对应的权重，若模型预测值已经接近$1$，表明该样本对于模型来说属于容易样本，则对应的损失权重会降低，反之属于困难样本，权重上升。
 
-当$Y_{xyc}\neq 1$时，这里可以分为两种情况，一种是预测点离目标点较近即$1-Y_{xyc}$较小，此时模型预测值应该为0，若模型预测值$\hat{Y}_{xyc}$接近1，对应样本损失的权重上升，但该点离目标点较近，模型在该点取得的预测值较大是可以接受的，所以用$(1-Y_{xyc})^\alpha$下降权重进行平衡；另一种是预测点离目标点较远即$1-Y_{xyc}$较大，在$(1-Y_{xyc})^\alpha$的作用下，对应样本损失的权重会增大，但该点离目标点较远，模型在该点取得的预测值较小是可以接受的，所以用$\hat{Y}_{xyc}^\beta$来降低权重进行平衡。
+当$Y_{xyc}\neq 1$时，这里可以分为两种情况，一种是预测点离目标点较近即$1-Y_{xyc}$较小，此时模型预测值应该为0，若模型预测值接近1，对应样本损失的权重上升，但该点离目标点较近，模型在该点取得的预测值较大是可以接受的，所以用$(1-Y_{xyc})^\beta$来下降权重进行平衡；另一种是预测点离目标点较远，即$1-Y_{xyc}$较大，在$(1-Y_{xyc})^\beta$的作用下，对应样本损失的权重会增大，但该点离目标点较远，模型在该点取得的预测值较小是可以接受的，所以用$\hat{Y}_{xyc}^\alpha$来降低权重进行平衡。
 
 ### 中心点偏差损失
 
@@ -123,7 +123,7 @@ $$
 $$
 \begin{aligned}
     L_{off} &= \frac{1}{N}\sum_p\lvert \hat{O}_{\hat{p}} - (\frac{p}{R}-\hat{p})\rvert \\
-    &= \frac{1}{N}\sum_p\lvert \hat{O}_{\hat{p}} - (\frac{p}{R}-\lfloor \frac{p}{R}\rfloor\rvert)
+    &= \frac{1}{N}\sum_p\lvert \hat{O}_{\hat{p}} - (\frac{p}{R}-\lfloor \frac{p}{R}\rfloor)\rvert)
     \end{aligned}
 $$
 
@@ -155,8 +155,8 @@ $$
 
 $$
 \begin{aligned}
-    &(\hat{x}_i+\delta\hat{x}_i-\hat{w}_i/2, \hat{y}_i+\delta\hat{y}_i-\hat{h}_i/2\\
-    &\hat{x}_i+\delta\hat{x}_i+\hat{w}_i/2, \hat{y}_i+\delta\hat{y}_i+\hat{h}_i/2)
+    &(\hat{x}_i+\delta\hat{x}_i-\hat{w}_i/2,\  \hat{y}_i+\delta\hat{y}_i-\hat{h}_i/2\\
+    &\hat{x}_i+\delta\hat{x}_i+\hat{w}_i/2,\  \hat{y}_i+\delta\hat{y}_i+\hat{h}_i/2)
 \end{aligned}
 $$
 
