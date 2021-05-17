@@ -1,11 +1,12 @@
 ---
 layout:     post
-title:      Faster RCNN
-subtitle:   目标检测识别算法
+title:      "Faster RCNN"
+subtitle:   "目标检测识别算法"
 date:       2019-09-22
-author:     Simplestory
-header-img: img/set_of_rcnn.jpg
+author:     "Simplestory"
+header-style: text
 catalog: True
+mathjax: true
 tags:
     - Deep Learning
 ---
@@ -16,7 +17,7 @@ tags:
 
 在$Fast \ RCNN$中，并没有对候选框的提出方法进行过任何讨论，只是提及到了使用$selective \ search$进行候选框的选择，后期这也成为了拖慢模型运行速度的主要原因。作者在$Faster \ RCNN$这个模型中进行了改进，提出了一种新的候选框提取方法，即$RPN$。结合了这种方法后模型的运行速度得到了大幅提升，同时准确率也有了提高。$Faster \ RCNN$的大致结构如下：
 
-![architecture of faster rcnn](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2019-09-22/architecture_of_fasterrcnn.png)
+![architecture of faster rcnn](/img/in_posts/20190922/architecture_of_fasterrcnn.png)
 
 它的结构主要包含两部分，首先是一个深度全卷积网络用于生成候选区域，之后是$Fast \ RCNN$模型用于分类和边界框回归。$RPN$使用在经过卷积后的特征图上。
 
@@ -24,7 +25,7 @@ tags:
 
 $RPN$网络以任意尺寸的图像作为输入计算输出一组对象候选框以及分类分数。为了生成候选区域，$RPN$在卷积特阵图上滑动一个小网络，这个小网络将特征图上的$n \times n$窗口作为输入。每一个滑窗生成一个低维特征，这个特征输入到两个分支中，一个是边界框回归层（$reg$），一个是框分类层（$cls$）。结构大致如下：
 
-![architecture of RPN](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2019-09-22/architecture_of_rpn.png)
+![architecture of RPN](/img/in_posts/20190922/architecture_of_rpn.png)
 
 这里有一个重点，那就是$Anchor$。在每个滑窗的位置，我们需要同步地预测多个候选框，定义每个位置候选框的最大数量为$k$，所以$reg$层的输入为$4k$（编码了候选框的坐标），$cls$层的输入为$2k$（即候选框是否为目标）。而$Anchor$实际上是滑动窗口的中心，并和尺度和长宽比有关（个人理解是当前滑窗中心在原像素空间上的映射点即为$Anchor$）。论文实验中采用了3组尺度和3组长宽比，即每个滑窗位置生成9个$anchor$，对于尺寸为$W \times H$的卷积特征图，则一共生成$WHK$个$anchors$。跟以往的图像金字塔和特征金字塔相比，基于$Anchors$我们设计的多尺度检测只依赖于单一尺度的图像和特征映射，并使用单一尺寸的特征图上的滑动窗口。
 

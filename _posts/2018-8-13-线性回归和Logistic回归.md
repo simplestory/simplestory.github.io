@@ -1,11 +1,13 @@
 ---
 layout:     post
-title:      线性回归和Logistic回归
+title:      "线性回归和Logistic回归"
 subtitle:   
 date:       2018-08-13
-author:     Simplestory
-header-img: img/post-bg-debug.png
+author:     "Simplestory"
+header-img: img/post_bg_debug.png
+header-mask: 0.3
 catalog: true
+mathjax: true
 tags:
     - Machine Learning
 ---
@@ -117,5 +119,4 @@ $$L(w)=\sum_{i=1}^N [y_i(w\cdot x_i)-\log{(1+exp(w\cdot x_i))}]$$
 
 ## 致谢
 
-本文参考自：
-周志华的西瓜书，李航的统计学习方法
+> 周志华的西瓜书，李航的统计学习方法

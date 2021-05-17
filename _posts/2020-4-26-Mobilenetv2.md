@@ -1,11 +1,12 @@
 ---
 layout:     post
-title:      MobileNetV2
-subtitle:   Inverted Residuals and Linear Bottlenecks
+title:      "MobileNetV2"
+subtitle:   "Inverted Residuals and Linear Bottlenecks"
 date:       2020-04-26
-author:     Simplestory
-header-img: img/2020-04-26/mbn2.jpg
+author:     "Simplestory"
+header-style: text
 catalog: False
+mathjax: true
 tags:
     - Deep Learning
 ---
@@ -41,17 +42,17 @@ tags:
 
 受到bottleneck的启发，bottleneck实际上包含了所有必要的信息，而扩展层仅充当张量的非线性转换的实现细节，所以作者直接在瓶颈之间使用快捷连接的方式。具体如下图所示。
 
-![inverted residual](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-04-26/inverted_residual.png)
+![inverted residual](/img/in_posts/20200426/inverted_residual.png)
 
 bottleneck大致的结构如下图所示：
 
-![bottleneck](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-04-26/bottleneck.png)
+![bottleneck](/img/in_posts/20200426/bottleneck.png)
 
 ## 模型结构
 
 如图
 
-![mobilenet2](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-04-26/mobilenet2.png)
+![mobilenet2](/img/in_posts/20200426/mobilenet2.png)
 
 首先是一个包含有32个卷积核的标准卷积层，之后是19个残差bottleneck模块（但论文表格上却只有17个，官方复现中也是按表格来的）。激活函数使用的是ReLU6，卷积核参数为$3\times 3$。除了第一个bottleneck外，作者在整个网络中都使用了恒定的扩展速率（实验得出5到10之间模型鲁棒性会比较好）
 

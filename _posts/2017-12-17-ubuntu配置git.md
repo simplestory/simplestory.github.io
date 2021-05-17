@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      Ubuntu配置Git
+title:      "Ubuntu配置Git"
 subtitle:   
 date:       2017-12-17
-author:     Simplestory
-header-img: img/post-bg-github.jpg
+author:     "Simplestory"
+header-style: text
 catalog:
 tags:
     - Git
@@ -16,29 +16,32 @@ tags:
 ## 安装git
 
 首先是安装git，大多数Linux系统都会预装git，但版本可能不高，需要升级更新。我的ubuntu16.04并没有预装git，可以用apt安装
-```
+
+```shell
 sudo apt-get install git
 git --version
 ```
+
 结果如图：
 
-![install git](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/install.png)
+![install git](/img/in_posts/20171217/install.png)
 
 ## 配置git
 
 输入以下指令进行配置：
-```
+
+```shell
 git config --global user.name "<name>"
 git config --global user.email "<email>"
 ```
 
 结果如下图：
 
-![config git](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/config.png)
+![config git](/img/in_posts/20171217/config.png)
 
 ## 创建公钥
 
-```
+```shell
 ssh-keygen -C '1195997479@qq.com' -t rsa
 ```
 
@@ -46,19 +49,20 @@ ssh-keygen -C '1195997479@qq.com' -t rsa
 
 结果如下图：
 
-![ssh git](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/keygen.png)
+![ssh git](/img/in_posts/20171217/keygen.png)
 
 创建完公钥，需要上传。使用`cd ~/.ssh`进入`~/.ssh`文件夹，使用`cat`查看`id_rsa.pub`内容。
 结果如图：
 
-![ssh id](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/id_rsa.png)
+![ssh id](/img/in_posts/20171217/id_rsa.png)
 
 访问github帐号，添加ssh key，标题栏可以随意填写，内容将`cat`的内容复制进去即可。
 
 上传完后使用以下命令进行测试：
-```
+
+```shell
 ssh -v git@github.com
 ```
 看到以下信息则表示验证成功：
 
-![git](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-17/success.png)
+![git](/img/in_posts/20171217/success.png)

@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      Linux配置Tensorflow
+title:      "Linux配置Tensorflow"
 subtitle:   
 date:       2018-02-04
-author:     Simplestory
-header-img: img/2018-02-04/2018-2-4-tensorflow.jpg
+author:     "Simplestory"
+header-style: text
 catalog: true
 tags:
     - Linux
@@ -21,34 +21,37 @@ tags:
 - Nvidia卡：Geforce 920M（如果没有Nvidia卡，则只能安装CPU版本）
 
 # Tensorflow安装
+
 tensorflow分为两个CPU/GPU两个版本，我建立了两个python虚拟环境，分别安装了这两个版本。在此记录一下安装的痛苦过程
 
 ## tensorflow CPU
 
 1. 建立虚拟环境
-```
+```shell
 conda create -n tensorflow python=3.6
 source activate tensorflow  # 进入虚拟环境
 ```
 
 2. 安装tensorflow
 CPU版本的安装还是比较简单的，直接使用pip安装即可
-```
+
+```shell
 pip install tensorflow
 ```
 若安装报错，可选择下载安装：
 到[pypi](https://pypi.python.org/pypi/tensorflow)选择相应版本下载,在文件放置路径下执行以下命令:
-```
+
+```shell
 #这里文件名字以自己的为准
 pip install tensorflow-1.6.0rc0-cp36-cp36m-manylinux1_x86_64.whl
 ```
+
 3. 验证安装
 
 进入pytohn环境中,进行测试:
 
-```
+```shell
 $ python
-
 
 >>> import tensorflow as tf
 >>> hello = tf.constant('Hello TensorFlow!')
@@ -61,6 +64,7 @@ Hello Tensorflow!
 35
 >>>
 ```
+
 至此，tensorflow CPU版本安装完成
 
 ## tensorflow GPU
@@ -69,7 +73,7 @@ Hello Tensorflow!
 
 ### 建立虚拟环境
 
-```
+```shell
 conda create -n tensorflow_gpu python=3.6
 ```
 
@@ -87,13 +91,13 @@ conda create -n tensorflow_gpu python=3.6
 
 在终端下输入命令`lspci | grep -i nvidia`，查看输出。如果没有输出，可以尝试`update-pciids`（该命令一般在`/sbin`目录下）更新一下电脑的PCI硬件数据库，之后再次输入之前的查询命令。最后输出类似下图，如果你的GPU是来自Nvidia制造商且在[CUDA列表](https://developer.nvidia.com/cuda-gpus)中，则表示你拥有一块支持CUDA的GPU。
 
-![lspci_nvidia](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/lspci_nvidia.png)
+![lspci_nvidia](/img/in_posts/20180204/lspci_nvidia.png)
 
 + 验证Linux版本是否支持CUDA:
 
 用命令`uname -m && cat /etc/*release`可进行查看(ubuntu16.04受支持)
 
-![uname_cat](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/uname_cat.png)
+![uname_cat](/img/in_posts/20180204/uname_cat.png)
 
 + 验证系统是否安装gcc:
 
@@ -103,7 +107,7 @@ conda create -n tensorflow_gpu python=3.6
 
 `uname -r`命令可查看内核版本，之后可运行命令`sudo apt-get install linux-headers-$(uname -r)`进行安装，假如你已经安装了，终端会提示并终止安装。
 
-![linux_headers](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/linux_headers.png)
+![linux_headers](/img/in_posts/20180204/linux_headers.png)
 
 ---
 以上各项均符合时，即可开始安装CUDA。
@@ -116,18 +120,19 @@ CUDA提供两种安装方式：package manager安装和runfile安装。我在其
 
 首先在[CUDA下载页面](https://developer.nvidia.com/cuda-toolkit-archive)上选择CUDA版本,我选择的是CUDA 9.0版本
 
-![cuda_9.0](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/cuda_9_0.png)
+![cuda_9.0](/img/in_posts/20180204/cuda_9_0.png)
 
 然后按照页面指示的安装步骤进行安装
 
-![cuda_install](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/cuda_install.png)
+![cuda_install](/img/in_posts/20180204/cuda_install.png)
 
 页面中还有一个path1包是CUDA9.0的补丁,安装好CUDA9.0后可以使用`dpkg -i`命令进行安装
 
 - 配置CUDA:
 
 以上步骤结束后，还需要配置系统环境变量，用超级权限编辑家目录下的`.bashrc`文件，将以下内容添加至文件中，保存退出。
-```
+
+```shell
 export PATH="/usr/local/cuda-9.0/bin${PATH:+:${PATH}}"
 export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRARY_PATH}}"
 ```
@@ -154,15 +159,15 @@ export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRAR
 
 在`samples/`下执行命令`make`进行编译，编译成功会显示`Finished building CUDA samples`
 
-![make_samples](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/make_samples.png)
+![make_samples](/img/in_posts/20180204/make_samples.png)
 
 编译好后，进入目录`/samples/bin/x86_64/linux/release`，执行`./deviceQuery`，结果大致如下：
 
-![deviceQuery](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/deviceQuery.png)
+![deviceQuery](/img/in_posts/20180204/deviceQuery.png)
 
 然后检查一下系统和CUDA-Capable device的连接情况，执行`./bandwidthTest`命令，输出结果大概如下：
 
-![bandwidthTest](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/bandwidthTest.png)
+![bandwidthTest](/img/in_posts/20180204/bandwidthTest.png)
 
 若以上各项均通过，恭喜你，成功安装了CUDA！接下来是安装cuDNN
 
@@ -170,10 +175,11 @@ export LD_LIBRARY_PATH="/usr/local/cuda-9.0/lib64${LD_LIBRARY_PATH:+:${LD_LIBRAR
 
 首先需要注册一个Nvidia官网帐号用于下载cuDNN包，之后选择相应的安装包下载（注意要适配所安装的CUDA版本）
 
-![cudnn_download](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/cudnn_download.png)
+![cudnn_download](/img/in_posts/20180204/cudnn_download.png)
 
 下载后用`tar`命令解压，解压后把相应的文件拷贝到对应的CUDA目录下即可
-```
+
+```shell
 sudo cp cuda/include/cudnn.h /usr/local/cuda-9.0/include/
 sudo cp cuda/lib64/libcudnn* /usr/local/cuda-9.0/lib64/
 sudo chmod a+r /usr/local/cuda-9.0/include/cudnn.h
@@ -187,7 +193,8 @@ sudo chmod a+r /usr/local/cuda-9.0/lib64/libcudnn*
 可以到[pypi](https://pypi.python.org/pypi/tensorflow-gpu)选择相应版本下载，之后用`pip install`安装。
 
 也可以直接用相应的安装包连接进行安装
-```
+
+```shell
 $ pip install https://pypi.python.org/pypi/tensorflow-gpu/tensorflow_gpu-1.6.0rc0-cp36-cp36m-manylinux1_x86_64.whl
 ```
 
@@ -195,7 +202,7 @@ $ pip install https://pypi.python.org/pypi/tensorflow-gpu/tensorflow_gpu-1.6.0rc
 
 在虚拟环境下的python中导入tensorflow模块并运行`sess = tf.Session()`，输出大致如下：
 
-![tf_session](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2018-02-04/tf_session.png)
+![tf_session](/img/in_posts/20180204/tf_session.png)
 
 OK了，漫长的tensorflow GPU版本安装就结束了，接下来可以实践那些神奇的人工智能算法啦！
 

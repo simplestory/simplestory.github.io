@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      Vscode下编译C/C++
+title:      "Vscode下编译C/C++"
 subtitle:   
 date:       2017-10-01
-author:     Simplestory
-header-img: img/20171001-Vscode.jpg
+author:     "Simplestory"
+header-style: text
 catalog:    false
 tags:
     - C/C++
@@ -20,7 +20,7 @@ tags:
 
 用`ctrl+shift+P`调出命令行,搜索C++,找到微软官方发布的那个插件,如图:
 
-![C/C++](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-10-01/2017-10-01-C++.jpg)
+![C/C++](/img/in_posts/20171001/C++.jpg)
 
 ## 编辑C/C++源文件
 
@@ -28,7 +28,7 @@ tags:
 
 现在写一个简单的cpp文件实验一下:
 
-```
+```c++
 // hello.cpp
 
 # include<iostream>
@@ -52,19 +52,19 @@ int main()
 有些可能还需要修改`"cwd"`项,改为:`"${workspaceRoot}"`
 修改后如下图:
 
-![launch.json](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-10-01-lauch_json.jpg)
+![launch.json](/img/in_posts/20171001/launch_json.jpg)
 
-2. 配置tasks.json文件
+1. 配置tasks.json文件
 
 配置好launch.json文件后依然不能顺利执行编译,还需要配置tasks.json文件
 用`ctrl+shift+P`打开命令行,输入`tasks runner`,选择`configure tasks`项回车打开
 修改`"task"`项下的`"taskName"`,`"command"`并添加`"args"`项,结果如图:
 
-![tasks.json](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-10-01/2017-10-01-tasks_json.jpg)
+![tasks.json](/img/in_posts/20171001/tasks_json.jpg)
 
 两个文件均配置并保存好后即可编译运行,点击调试,可以看见终端一闪而过,在windows下我们为了看清终端显示的结果,会在cpp文件中加一语句:`system(pasue)`,但在linux系统中`pasue`不再是一条命令,故并不生效.可以改用`getchar()`实现相同功能.
 
-```
+```c++
 # include<iostream>
 # include<stdio.h>
 using namespace std;
@@ -79,4 +79,4 @@ int main()
 
 附上一张结果图:
 
-![last](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-10-01/2017-10-01-last.jpg)
+![last](/img/in_posts/20171001/last.jpg)

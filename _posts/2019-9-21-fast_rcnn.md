@@ -1,11 +1,12 @@
 ---
 layout:     post
-title:      Fast RCNN
-subtitle:   经典目标检测识别算法
+title:      "Fast RCNN"
+subtitle:   "经典目标检测识别算法"
 date:       2019-09-21
-author:     Simplestory
-header-img: img/set_of_rcnn.jpg
+author:     "Simplestory"
+header-style: text
 catalog: True
+mathjax: true
 tags:
     - Deep Learning
 ---
@@ -20,7 +21,7 @@ tags:
 
 $Fast \ RCNN$是一个单阶段训练的模型。它将整个图像和一组候选框都作为输入，模型首先用一组卷积层和最大池化层对整张图像进行特征提取，再在提取出的特征图上，针对每一个候选框用$RoI \ pooling$池化层提取出一个固定长度的特征向量，之后送入全连接层最终分成两个分支分别进行目标识别和边界框回归。具体框架如下：
 
-![architecture of fast rcnn](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/architecture_of_fastrcnn.png)
+![architecture of fast rcnn](/img/in_posts/20190921/architecture_of_fastrcnn.png)
 
 $RoI \ pooling$将$h \times w$的$RoI$区域划分为$h/H \times w/W$规格的子窗口，再在各个子窗口上应用$max \ pooling$从而输出一个固定长度的特征向量。
 

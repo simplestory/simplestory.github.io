@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      Anaconda部分命令
+title:      "Anaconda部分命令"
 subtitle:   
 date:       2018-01-05
-author:     Simplestory
-header-img: img/Anaconda.jpg
+author:     "Simplestory"
+header-style: text
 catalog: true
 tags:
     - Python
@@ -21,7 +21,7 @@ tags:
 
 Conda的环境管理功能允许我们同时安装若干不同版本的Python，并能自由切换。
 
-```
+```shell
 # 创建一个新的虚拟Python环境
 # 以下命令创建一个python3.5版本的环境
 # 环境名字为python_env
@@ -46,7 +46,7 @@ conda info -e
 
 这部分的功能与`pip`类似。
 
-```
+```shell
 # 查看已安装的packages
 # 最新版的conda是从site-packages文件夹中搜索已安装的包
 # 可以显示通过各种方式安装的包，并不依赖于pip
@@ -72,7 +72,7 @@ conda remove -n <env-name> <packages>
 
 conda将conda、python等都视为package，因此，完全可以使用conda来管理conda和python的版本
 
-```
+```shell
 # 更新conda
 conda update conda
 
@@ -96,7 +96,7 @@ Anaconda.org的服务器在国外，所以由于某种原因`conda`的下载速�
 
 [清华大学镜像](https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/)
 
-```
+```shell
 # 添加Anaconda的TUNA镜像
 conda config --add channels https://mirrors.tuna.tsinghua.edu.cn/anaconda/pkgs/free/
  
@@ -110,7 +110,7 @@ conda config --set show_channel_urls yes
 
 安装完anaconda后会自动激活一个叫base的虚拟环境，可以通过一下命令将其关闭：
 
-```
+```shell
 # 关闭自动激活基础环境
 conda config --set auto_activate_base false
 

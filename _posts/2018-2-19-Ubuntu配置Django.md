@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      Ubuntu配置Django
+title:      "Ubuntu配置Django"
 subtitle:   
 date:       2018-02-19
-author:     Simplestory
-header-img: img/2018-2-19-django.jpg
+author:     "Simplestory"
+header-style: text
 catalog: true
 tags:
     - Linux
@@ -38,7 +38,8 @@ $ python -c "import django; print(django.__path__)"
 - 安装APR：
 
 下载[APR安装包](http://apr.apache.org/),解压后在解压文件夹（文件夹的名字不要包含版本号）里执行以下命令安装：
-```
+
+```shell
 $ ./configure --prefix=/usr/local/apr
 $ make 
 $ make install 
@@ -47,7 +48,8 @@ $ make install
 - 安装APR-Util：
 
 同样下载[APR-Util安装包](http://apr.apache.org/)，解压后在解压文件夹（文件夹的名字不要包含版本号）里执行以下命令安装：
-```
+
+```shell
 $ ./configure --prefix=/usr/local/apr-util --with-apr=/usr/local/apr 
 $ make 
 $ make install
@@ -56,7 +58,8 @@ $ make install
 - 安装Pcre：
 
 下载[Pcre安装包](https://ftp.pcre.org/pub/pcre/)，注意是pcre而非pcre2。之后解压并在解压文件夹中执行：
-```
+
+```shell
 $ ./configure --prefix=/usr/local/pcre
 $ make
 $ make install
@@ -65,7 +68,8 @@ $ make install
 - 安装Apache2：
 
 下载[Apache2安装包](http://httpd.apache.org/download.cgi#apache24)，解压后进入文件中执行以下命令：
-```
+
+```shell
 $ ./configure --prefix=/usr/local/apache2 --with-apr=/usr/local/apr --with-apr-util=/usr/local/apr-util/  --with-pcre=/usr/local/pcre
 $ make
 $ make install
@@ -74,7 +78,8 @@ $ make install
 #### 安装mod_wsgi
 
 使用以下命令安装：
-```
+
+```shell
 $ sudo apt-get install apache2-dev
 $ sudo pip install mod_wsgi
 ```
@@ -83,13 +88,13 @@ $ sudo pip install mod_wsgi
 
 首先创建虚拟环境：
 
-```
+```shell
 $ conda create -n django_py36 python=3.6
 ```
 
 在虚拟环境中安装Django：
 
-```
+```shell
 (django_py36)$ sudo pip install Django
 ```
 

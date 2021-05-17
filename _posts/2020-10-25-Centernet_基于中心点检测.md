@@ -1,11 +1,12 @@
 ---
 layout:     post
-title:      Anchor free--Centernet
-subtitle:   Objects as Points
+title:      "Anchor free--Centernet"
+subtitle:   "Objects as Points"
 date:       2020-10-25
-author:     Simplestory
-header-img: img/2020-10-25/post-bg-YesOrNo.jpg
+author:     "Simplestory"
+header-style: text
 catalog: False
+mathjax: true
 tags:
     - Deep Learning
 ---
@@ -16,7 +17,7 @@ tags:
 
 Centernet主要是借用关键点检测的操作来检测目标的中心位置，再扩展到目标检测领域上，即通过回归得到框的大小。该算法可以方便地扩展到其它领域，例如论文里提到的目标检测、3D框预测、姿态等。在backbone方面作者主要采用了hourglass、resnet和DLA模型，对于目标检测，则在backbone后面加上三个分支，主要是：Heat maps分支用于获取目标中心点、Center offset用于矫正目标中心点、Box size用于回归目标框大小。大致结构如下（其中的cls表示检测的类别数）：
 
-![center architecture](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-10-25/center_arch.jpg)
+![center architecture](/img/in_posts/20201025/center_arch.jpg)
 
 ## 数据流
 
@@ -30,7 +31,7 @@ Centernet主要是借用关键点检测的操作来检测目标的中心位置�
 
 **标记框全外切目标框**
 
-![radius one](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-10-25/radius_1.png)
+![radius one](/img/in_posts/20201025/radius_1.png)
 
 由上图可计算出IoU：
 
@@ -51,7 +52,7 @@ $$
 
 **标记框全内切目标框**
 
-![radius two](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-10-25/radius_2.png)
+![radius two](/img/in_posts/20201025/radius_2.png)
 
 由上图可计算出IoU：
 
@@ -72,7 +73,7 @@ $$
 
 **标记框半外切半内切目标款**
 
-![radius three](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-10-25/radius_3.png)
+![radius three](/img/in_posts/20201025/radius_3.png)
 
 可计算IoU如下：
 
