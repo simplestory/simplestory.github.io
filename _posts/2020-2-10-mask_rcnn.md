@@ -1,11 +1,12 @@
 ---
 layout:     post
-title:      Mask RCNN
-subtitle:   without bells and whistles
+title:      "Mask RCNN"
+subtitle:   "without bells and whistles"
 date:       2020-02-10
-author:     Simplestory
-header-img: img/set_of_rcnn.jpg
+author:     "Simplestory"
+header-style: text
 catalog: False
+mathjax: true
 tags:
     - Deep Learning
 ---
@@ -40,7 +41,7 @@ $$
 
 与其它分支不同，mask分支保留了输入图像的空间信息，实现了像素级的对应，这要求roi特征能很好地对齐并保留先前的像素对应空间位置。此前faster rcnn有一步roipool的操作对roi特征图进行了量化。这些量化会引入roi区域与提取特征之间的不对齐性，这对分类结果可能没有影响，但对像素级的分割任务有着很大的负面影响。所以作者去除了roipool里的量化操作，提出了ROIAlign层。该网络层可以对齐输入图像与提取的特征。它避免了roipool中所有的量化操作，取而代之的是双线性差值，利用双线性差值来计算对应点的像素值，如下图所示：
 
-![roialign](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-02-10/maskrcnn_roialign.png)
+![roialign](/img/in_posts/20200210/maskrcnn_roialign.png)
 
 roialign的提出可以说是这篇论文的一大贡献，前期的roipool在实例上执行的核心操作是粗略的空间量化以进行特征提取，而roialign则忠实地保留了确切的空间位置，同时roialign对最大/平均池化不敏感。它极大程度了解决了使用大步长特征的检测和分割长期面临的问题
 
@@ -57,7 +58,7 @@ roialign的提出可以说是这篇论文的一大贡献，前期的roipool在�
 
 **对于模型检测头网络。**作者选用faster rcnn with resnet和faster rcnn with fpn的检测头，再加上一个只包含卷积层的mask分支。细节附上论文图例：
 
-![head architecture](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2020-02-10/maskrcnn_head_architecture.png)
+![head architecture](/img/in_posts/20200210/maskrcnn_head_architecture.png)
 
 ## 实现细节
 

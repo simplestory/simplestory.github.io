@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      Linux下安装OpenCV
+title:      "Linux下安装OpenCV"
 subtitle:   
 date:       2017-10-20
-author:     Simplestory
-header-img: img/Linux_OpenCV.jpg
+author:     "Simplestory"
+header-style: text
 catalog: true
 tags:
     - OpenCV
@@ -12,8 +12,7 @@ tags:
     - Linux
 ---
 
->近期由于项目需要，要用到计算机视觉识别，所以折腾起了OPenCV，虽然安装过程曲折漫长，但是配合Python使用起来体验还是相当不错的。
-在此记录OpenCV安装过程。
+>近期由于项目需要，要用到计算机视觉识别，所以折腾起了OPenCV，虽然安装过程曲折漫长，但是配合Python使用起来体验还是相当不错的。在此记录OpenCV安装过程。
 
 **系统环境：Ubuntu16.04**
 
@@ -21,52 +20,52 @@ tags:
 
 ## 更新系统安装包：
 
-```
+```shell
 $ sudo apt update
 $ sudo apt upgrade
 ```
 
 ## 安装一些开发者工具：
 
-```
+```shell
 $ sudo apt-get install build-essential cmake pkg-config
 ```
 
 其中pkg-config包很有可能已经默认安装了，以防万一，还是将它添加进去。cmake程序是用来之后编译OpenCV的。
 
-```
+```shell
 $ sudo apt-get install libjpeg8-dev libtiff5-dev
 $ sudo apt-get install libjasper-dev libpng12-dev
 ```
 
 以上安装包用于OpenCV处理JPEG，PNG，TIFF等图片。对于视频，可以用以下安装的包进行逐帧处理。
 
-```
+```shell
 $ sudo apt-get install libavcodec-dev libavformat-dev libswscale-dev
 $ sudo apt-get install libv4l-dev libxvidcore-dev libx264-dev
 ```
 
 处理OpenCV GUI操作的模块highgui依赖于GTK库，所以还要安装GTK库
 
-```
+```shell
 $ sudo apt-get install libgtk-3-dev
 ```
 
 安装优化模块
 
-```
+```shell
 $ sudo apt-get install libatlas-base-dev gfortran
 ```
 
 安装Python开发相关文件和库
 
-```
+```shell
 $ sudo apt-get install python2.7-dev python3.5-dev
 ```
 
 ## 下载OpenCV源代码：
 
-```
+```shell
 $ cd ~
 $ wget -O opencv.zip https://github.com/Itseez/openCV/archive/3.3.0.zip
 $ unzip opencv.zip
@@ -78,7 +77,7 @@ $ unzip opencv.zip
 
 还需要下载opencv_contrib库
 
-```
+```shell
 $ wget -O opencv_contrib.zip https://github.com/Itseez/opencv_contrib/archive/3.3.0.zip
 $ unzip opencv_contrib.zip
 ```
@@ -97,14 +96,14 @@ $ unzip opencv_contrib.zip
 
 安装相关工具：
 
-```
+```shell
 $ sudo pip install virtualenv virtualenvwrappper
 $ sudo rm -rf ~/.cache/pip
 ```
 
 之后我们需要更新一下用户主目录下的`.bashrc`,打开该文件，在文件末尾添加如下内容：
 
-```
+```shell
 # virtualenv and virtualenvwrapper
 export $WORKON_HOME=$HOME/.virtualenvs
 source /usr/local/bin/virtualenvwrapper.sh
@@ -112,7 +111,7 @@ source /usr/local/bin/virtualenvwrapper.sh
 
 最后重新执行`.bashrc`时，可能会报错：
 
-```
+```shell
 /usr/bin/python: No module named virtualenvwrapper  
 virtualenvwrapper.sh: There was a problem running the initialization hooks.   
 If Python could not import the module virtualenvwrapper.hook_loader, 
@@ -123,7 +122,7 @@ set properly.
 
 由于ubuntu安装有两个版本的Python，而安装virtualenvwrapper是用的是pip3，但系统默认运行的是Python2,Python2中缺少一些模块。virtualenvwrapper.sh文件部分代码如下：
 
-```
+```shell
 # Locate the global Python where virtualenvwrapper is installed.  
 if [ "$VIRTUALENVWRAPPER_PYTHON" = "" ] then  
     VIRTUALENVWRAPPER_PYTHON="$(command \which python)"  
@@ -132,20 +131,22 @@ fi
 
 当不存在VIRTUALENVWRAPPER_PYTHON环境时，会默认选择使用`which python`
 所以还需要添加环境变量：
-```
+
+```shell
 VIRTUALENVWRAPPER_PYTHON=/usr/bin/python3
 ```
 
 选择依赖的Python版本（Python2或Python3）创建虚拟环境
 
-```
+```shell
 $ mkvirtualenv opencvwork -p python2
 ```
 
 这里我选择Python2,创建名为opencvwork的虚拟环境,相关目录在`~/.virtualenv`下
 
 然后进入虚拟环境
-```
+
+```shell
 $ workon opencvwork
 ```
 
@@ -153,7 +154,7 @@ $ workon opencvwork
 
 安装Numpy（在虚拟环境下）
 
-```
+```shell
 $ pip install numpy
 ```
 
@@ -161,7 +162,7 @@ $ pip install numpy
 
 **在虚拟环境下**
 
-```
+```shell
 $ cd ~/opencv-3.3.0/
 $ mkdir build
 $ cd build
@@ -181,20 +182,21 @@ $ cmake -D CMAKE_BUILD_TYPE=RELEASE \
 安装后返回的界面中Python项应该有Interpreter，Libraries，numpy以及packages path项目列出（对应于你所选的Python版本）
 
 确认CMake执行无误后，就可以编译OPenCV了：
-```
+
+```shell
 $ make -j4
 ```
 
 其中数字4可以换为你电脑上的cpu核心数
 
-```
+```shell
 $ make clean
 $ make
 ```
 
 执行成功后就可以将OPenCV安装到Ubuntu上：
 
-```
+```shell
 $ sudo make install
 $ sudo ldconfig
 ```
@@ -213,7 +215,7 @@ $ ln -s /usr/local/lib/python2.7/site-packages/cv2.so cv2.so
 
 ## 简单的检测OPenCV安装状况：
 
-```
+```shell
 $ cd ~
 $ workon opencvwork
 $ python
@@ -232,6 +234,7 @@ Type "help", "copyright", "credits" or "license" for more information.
 [OpenCV3.3.0](https://docs.opencv.org/master/d9/df8/tutorial_root.html)
 
 ## 致谢：
+
 >[Adrian Rosebrock](https://www.pyimagesearch.com/2016/10/24/ubuntu-16-04-how-to-install-opencv/)
 
 >[小小攻城狮](http://blog.csdn.net/github_33934628/article/details/53122208)

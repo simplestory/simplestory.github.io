@@ -1,13 +1,13 @@
 {
-  "name": "BY Blog",
-  "short_name": "BY Blog",
+  "name": "Simplestory",
+  "short_name": "Simplestory",
   "description": "A personal blog by engineer",
   "icons": [{
-    "src": "icons/pwa_icon_128.png",
+    "src": "icons/128.png",
     "sizes": "96x96",
     "type": "image/png"
   }, {
-    "src": "icons/pwa_icon_512.png",
+    "src": "icons/512.png",
     "sizes": "128x128",
     "type": "image/png"
   }],

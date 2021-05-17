@@ -1,10 +1,10 @@
 ---
 layout:     post
-title:      MySQL数据文件路径（Linux）
+title:      "MySQL数据文件路径（Linux）"
 subtitle:   
 date:       2017-12-01
-author:     Simplestory
-header-img: img/2017-12-1-mysql.jpg
+author:     "Simplestory"
+header-style: text
 catalog: False
 tags:
     - Linux
@@ -15,13 +15,14 @@ tags:
 **Server version: 5.7.20-0ubuntu0.16.04.1 (Ubuntu)**
 
 进入Mysql后,可用如下命令查询相关文件的储存路径:
-```
+
+```sql
 show variables like '%dir%';
 ```
 
 输出如下图:
 
-![MySQL](https://raw.githubusercontent.com/simplestory/simplestory.github.io/master/img/2017-12-1-mysql查询相关文件路.png)
+![MySQL](/img/in_posts/20171201/mysql查询相关文件路径.png)
 
 通常有:
 数据库文件默认位置为: `/usr/share/mysql/`
