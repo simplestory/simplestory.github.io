@@ -93,13 +93,13 @@ $$
 
 将RGB图像信息与点云信息结合进行检测。主要流程是先通过目标检测模型得到2D图像上的目标框，将目标框映射到3D点云中，得到frustnum proposal，再使用基于点云的模型对frustum proposal区域进行实例分割和3D边界框回归。大致结构如下：
 
-![frustum_pointnet.png](./img/in_posts/20210807/frustum_pointnet.png)
+![frustum_pointnet.png](/img/in_posts/20210807/frustum_pointnet.png)
 
 图中第一部分就是2D目标检测网络，得到目标框及其类别，然后将目标框映射为3D的frustum proposal。第二部分是实例分割部分，将上一部分得到的frustum proposal中的点采样到$N$个，对应维度为$N\times C$，与之前得到的类别one-hot向量一起作为实例分割网络的输入，输出一个掩码。最后一部分，将被上一步掩码过滤过的$M$个点作为输入，先由T-Net进行校正对齐，然后通过另一个网络回归预测出3D边界框。
 
 在将2D检测框映射到3D点云生成frustum proposal时，由于每个frustum proposal的朝向都不一样，因此论文里将其旋转到与相机正交的方向，增加了后续算法的旋转不变性。如下a到b所示。
 
-![coordinate.png](./img/in_posts/20210807/coordinate.png)
+![coordinate.png](/img/in_posts/20210807/coordinate.png)
 
 仅使用frustum proposal时，得到的点云包含有大量的背景点。所以第二部分的实例分割将前景从背景中分离出来，对于分割出来的前景点还要将其中心化来引入平移不变性，如上图c所示。
 
@@ -107,7 +107,7 @@ $$
 
 2D检测网络之后模型各部分的详细结构大致如下：（包含有两个版本，分别对应于使用PointNet和PointNet++来提取点云特征）
 
-![net_arch.png](./img/in_posts/20210807/net_arch.png)
+![net_arch.png](/img/in_posts/20210807/net_arch.png)
 
 实际中3D边界框的尺寸和角度共同决定了边界框的信息，所以论文还提出了边界框的corner loss：
 
