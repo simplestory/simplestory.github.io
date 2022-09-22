@@ -1,7 +1,5 @@
-#### Version: 1.8.1
+## Simplestory's Blog
 
-Power by [Hux Blog](https://huangxuan.me)
+There is a [Hexo](https://hexo.io/) blog based on [archer](https://github.com/fi3ework/hexo-theme-archer) theme.
 
-click the [link](https://github.com/Huxpro/huxpro.github.io) to find more detail.
-
-Thanks for his contribution.
+Using `blog_archer.dockerfile`, you can build a docker image to render your blog before publishing.
