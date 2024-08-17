@@ -1,0 +1,2266 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="以往的diffusion model（DM）一般会在全图范围内进行操作，这样在运行DM模型所需的显存会变得非常大。而latent diffusion model（LDM）则是将输入通过预训练好的autoencoder encoder映射到潜在空间，在潜在空间上进行DM操作，最后得到的输出再通过autoencoder decoder部分映射回原图空间。作者还通过cross attention的方式将">
+<meta property="og:type" content="article">
+<meta property="og:title" content="LDM">
+<meta property="og:url" content="http://example.com/2024/08/17/2024-08-17-LDM/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="以往的diffusion model（DM）一般会在全图范围内进行操作，这样在运行DM模型所需的显存会变得非常大。而latent diffusion model（LDM）则是将输入通过预训练好的autoencoder encoder映射到潜在空间，在潜在空间上进行DM操作，最后得到的输出再通过autoencoder decoder部分映射回原图空间。作者还通过cross attention的方式将">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-08-17T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-17T14:15:14.351Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="deep learning">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>LDM · simplestory&#39;s blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+        <script>
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?f4ceef9ccf4caa1b456d8373672cfa7e";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+    
+    <!-- 谷歌统计  -->
+    
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNYWTSM2GG"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-DNYWTSM2GG');
+        </script>
+    
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Simplestory's Blog</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Simplestory&#39;s Blog</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">LDM</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post_bg.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                LDM
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+                    Latent Diffusion Models
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="deep learning">deep learning</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">2.3k</span>Reading time: <span class="post-count reading-time">9 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2024/08/17</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>以往的diffusion
+model（DM）一般会在全图范围内进行操作，这样在运行DM模型所需的显存会变得非常大。而latent
+diffusion model（LDM）则是将输入通过预训练好的autoencoder
+encoder映射到潜在空间，在潜在空间上进行DM操作，最后得到的输出再通过autoencoder
+decoder部分映射回原图空间。作者还通过cross
+attention的方式将限制条件引入DM中，从而实现可控的图像生成。</p>
+<h2 id="autoencoder">Autoencoder</h2>
+<p>Autoencoder是一类神经网络，采用无监督的方式进行学习。训练方式是生成的图片与原图做比较，即关注的是模型<strong>重建</strong>的能力，AE模型也不具备生成能力。该网络包含两部分：</p>
+<ul>
+<li>Encoder：将原始high-dimension输入数据转换为latent low- dimension
+code。输入尺寸大于输出尺寸。</li>
+<li>Decoder：将上面Encoder得到的latent low-dimension
+code恢复为原始的输入数据。</li>
+</ul>
+<p>在LDM中，作者<strong>为了避免latent空间很可能出现的大方差使用了两种可选的正则化方式<span
+class="math inline">\(\text{KL-reg}\)</span>和<span
+class="math inline">\(\text{VQ-reg}\)</span>。损失函数使用的是感知损失函数（perceptual
+loss）以及包含对抗训练过程的Discriminator loss。</strong></p>
+<ul>
+<li>KL-reg：该惩罚项下的自编码模型称为AutoencoderKL，可以说是标准的VAE（带KL损失）。该模型是通过对学习的隐变量添加一个较小的KL惩罚，以使隐变量接近标准正态分布。</li>
+<li>VQ-reg：这个自编码模型可以视为VQ-GAN，但是向量量化层（vector
+quantized layer）被放进decoder中。</li>
+</ul>
+<h3 id="loss-function">Loss function</h3>
+<p>LDM中的感知损失是利用可学习的感知图像块相似度（LPIPS，Learned
+Perceptual Image Patch
+Similarity）来衡量两张图片之间的差别。而Discriminator
+loss则是借鉴了taming transformer的训练过程。</p>
+<h4 id="lpips">LPIPS</h4>
+<p>在计算图像相似度中，传统方式如L2、SSIM和PSNR与人类认为的会有较大的出入，特别是当图片平滑时，传统方式大概率会失效。作者使用了深度学习网络特征来度量图像相似度，并通过大量的实验验证了该设计的有效性。这里作者引入了两个新的评价指标：</p>
+<ul>
+<li>2AFC（two alternative forced
+choice）：给实验员一张原始图像与两张经过变化的图像，然后判断哪一张更接近原始图像。这种评价指标有个问题就是实验员可能会有意识地选择自己关注哪些方面的相似度。</li>
+<li>JND（just noticeable
+difference）：先后给实验员两张图片，每张展示1秒，中间有250毫秒的间隔，然后让实验员判断两张图片是否相同。只让实验员判断两张图是否相似一定程度上避免了两个图像都部分相似的时候实验员选择的主观性。</li>
+</ul>
+<p>LPIPS的结构如下图所示：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/lpips.png"
+title="lpips" /></p>
+<ul>
+<li>将两个patch <span class="math inline">\(\mathbf{x}\)</span>和<span
+class="math inline">\(\mathbf{x}_0\)</span>分别输入到特征提取模型<span
+class="math inline">\(\mathcal{F}\)</span>中，<span
+class="math inline">\(\mathcal{F}\)</span>可以是VGG、AlexNet等网络（在LDM中是VGG-16）</li>
+<li>提取<span
+class="math inline">\(\mathcal{F}\)</span>中不同层（准确说应该是不同阶段）的输出并沿channel维度做归一化得到<span
+class="math inline">\(\hat{y}^l, \hat{y}^l \in \mathbb{R}^{H_l\times
+W_l\times C_l}\)</span>，其中<span
+class="math inline">\(l\)</span>表示提取的是第<span
+class="math inline">\(l\)</span>层</li>
+<li>使用<span
+class="math inline">\(w^l\in\mathbb{R}^{C_l}\)</span>对<span
+class="math inline">\(\hat{y}^l\)</span>和<span
+class="math inline">\(\hat{y}^l\)</span>按channel进行缩放，之后计算它们的L2距离。最后取平均值即可得到结果</li>
+</ul>
+<p>公示描述如下：</p>
+<p><span class="math display">\[
+d(x,x_0)=\sum_l\frac{1}{H_lW_l}\sum_{h,w}\vert\vert
+w_l\odot(\hat{y}^l_{hw} - \hat{y}^l_{0hw})\vert\vert_2^2
+\]</span></p>
+<p>当对<span class="math inline">\(\forall l\)</span>，有<span
+class="math inline">\(w_l=1\)</span>，上式可以看为余弦距离。</p>
+<p>训练时如上图，主要是把两个距离作为小型网络<span
+class="math inline">\(\mathcal{G}\)</span>的输入计算得分<span
+class="math inline">\(\hat{h}\in(0,1)\)</span>，然后用交叉熵损失进行训练，图中的<span
+class="math inline">\(h\)</span>即是作者引入的新指标，这里用的是2AFC。</p>
+<p>在LPIPS论文中，作者给出了三种模型训练方式：</p>
+<ul>
+<li>lin: 固定<span
+class="math inline">\(\mathcal{F}\)</span>预训练权重，只训练<span
+class="math inline">\(w\)</span>权重</li>
+<li>tune: 加载<span
+class="math inline">\(\mathcal{F}\)</span>预训练权重，并和<span
+class="math inline">\(w\)</span>一起进行训练</li>
+<li>scratch: 使用随机高斯分布来初始化模型权重，重新开始训练</li>
+</ul>
+<h4 id="discriminator-loss">Discriminator loss</h4>
+<p>使用PatchGAN的判别器获取图片patch级别的真实性评价并利用对抗损失函数进行优化。参考VQ-GAN，其损失函数大致可以表示如下：</p>
+<p><span class="math display">\[
+L_D = [\log(D(x)) + \log(1-D(\hat{x}))]
+\]</span></p>
+<p>其中<span class="math inline">\(D\)</span>是判别器，<span
+class="math inline">\(x\)</span>是真实样本，<span
+class="math inline">\(\hat{x}\)</span>则为生成样本。这部分的详细内容可以参考VQ-GAN。</p>
+<h2 id="conditoinal-denoiser">Conditoinal Denoiser</h2>
+<p>DM部分与DDPM类似，也是由UNet来预测噪声。Latent Diffusion
+Model和Stable
+Diffusion都采用了带time-conditional的UNet结构来预测每一步的噪声，但官方文件并没有给出详细的UNet结构图。这里参考了另外一篇<a
+target="_blank" rel="noopener" href="https://arxiv.org/pdf/2306.09762.pdf">论文</a>，获得time-conditional
+UNet的大致结构如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/time_conditional_unet.png"
+title="time conditional unet" /></p>
+<p><strong>注意：该结构是基于SD2.1版本的，且使用的条件约束是text
+condition。跟SD1.5相比，主要更改的点是将text encoder从CLIP
+ViT-L/14替换为OpenCLIP-ViT/H，其余基本一致。</strong></p>
+<p>从上图可看出，与原始UNet相比，主要是将原本的卷积结构替换为了<code>Cross Attention Down Block</code>，<code>Down Block</code>，<code>Cross Attention Mid Block</code>，<code>Up Block</code>，<code>Cross Attention Up Block</code>模块以及添加了time
+embedding和condition embedding（在上图中为text
+embedding）作为额外输入。</p>
+<h3 id="额外输入">额外输入</h3>
+<p>首先是time embedding。依据diffusion
+model的前向过程，我们会有一个时间步（timestep），而UNet的目标是预测前向过程中每个timestep所添加的随机噪声，所以timestep对UNet来说是一个必要的信息。这里参考了transformer对timestep做了正弦位置编码（Sinusoidal
+Positional Embedding），之后经过两层线性层得到time embedding。</p>
+<p>condition
+embedding则需要依据不同类型的条件约束使用不同的网络提取特征得到condition
+embedding。如图中是文本类型，对应使用的模型是OpenCLIP。</p>
+<h3 id="额外模块">额外模块</h3>
+<p>对于<code>Cross Attention Down Block</code>和<code>Cross Attention Up Block</code>模块。其中Cross
+Attention Down Block的结构如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/unet_cross_attn_down.png"
+title="unet cross attention down block" /></p>
+<p>Cross Attention Up Block的结构如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/unet_cross_attn_up.png"
+title="unet cross attention up block" /></p>
+<p>上面两个模块中，time embedding都是只与ResNet Block做操作，而condition
+embedding则是通过交叉注意力参与到Transformer Model中。</p>
+<p>ResNet Block详细结构如下。time
+embedding会通过线性层映射到合适的尺寸以便与卷积层的输出进行逐元素相加。最后的<span
+class="math inline">\(1\times
+1\)</span>卷积是可选项，目的是用于调整输出特征图的通道数。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/unet_resnet_block.png"
+title="unet resnet block" /></p>
+<p>Transformer
+Model详细结构如下。该结构可以分为三部分。第一部分将输入的特征图转为一维向量输出到transformer中。第二部分则是一个常规的transformer，其中第二个Multi-Head
+Attention中的K，V值由condition
+embedding产生。第三部分则是将transformer输出的一维向量转换为与输入相同尺寸的特征图。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/unet_transformer.png"
+title="unet transformer" /></p>
+<p>其余模块（Up Block、Down Block和Cross Attention Mid
+Block）的结构如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/unet_small_modules.png"
+title="unet small modules" /></p>
+<h2 id="appendix">Appendix</h2>
+<p>Latent diffusion model与Stable diffusion
+model的区别（两个模型结构上基本是一样的）：</p>
+<ul>
+<li>相比Latent diffusion的训练数据（LAION-400M），stable
+diffusion使用了更大量的数据（LAION-2B-en）进行训练，同时数据也有经过初步筛选，质量会高一些</li>
+<li>Latent diffusion model中使用的text
+encoder是随机初始化的transformer（即从零开始训练），而stable diffusion
+model则是通过预训练的CLIP模型</li>
+<li>训练的尺寸也有所不同。例如Latent diffusion model只是在<span
+class="math inline">\(256\times 256\)</span>的分辨率上训练，而stable
+diffusion model会先在<span class="math inline">\(256\times
+256\)</span>上预训练，之后在<span class="math inline">\(512\times
+512\)</span>上微调</li>
+</ul>
+<p>更详细的回答可以参考<a
+target="_blank" rel="noopener" href="https://www.zhihu.com/question/575509366">这里</a></p>
+<p>Stable diffusion各版本的区别。自stable
+diffusion发布以来，官方已经推出了许多版本的SD模型，但这些模型原理结构上的改变其实并不大，更多的可能是生成风格上的差别。</p>
+<ul>
+<li>SD 1.x 版本的text encoder采用的是OpenAI的CLIP
+ViT-L/14模型，其模型参数量为123.65M；而SD 2.0采用了更大的text
+encoder：基于OpenCLIP在laion-2b数据集上训练的CLIP
+ViT-H/14模型，其参数量为354.03M</li>
+<li>在text encoder中，SD 1.x
+提取的是倒数第一层的特征。由于倒数第一层的特征之后就是CLIP的对比学习任务，所以倒数第一层的特征可能部分丢失细粒度语义信息。SD
+2.0提取的是text encoder倒数第二层的特征</li>
+<li>SD 2.0不同stage的attention模块是固定attention head dim为64，而SD 1.x
+则是不同stage的attention模块采用固定attention head数量，明显SD
+2.0的这种设定更常用，但是这个变动不会影响模型参数</li>
+<li>训练数据上，SD 1.x
+版本其实最后主要采用LAION-2B中美学评分为5以上的子集来训练，而SD
+2.0版本采用评分在4.5以上的子集，相当于扩大了训练数据集</li>
+</ul>
+<p>更详细内容可以参考<a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/617134893">这里</a></p>
+<h2 id="参考">参考</h2>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://arxiv.org/abs/2112.10752">High-Resolution Image
+Synthesis with Latent Diffusion Models</a></p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1801.03924.pdf">The Unreasonable
+Effectiveness of Deep Features as a Perceptual Metric</a></p>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/2306.09762.pdf">The Big Data Myth:
+Using Diffusion Models for Dataset Generation to Train Deep Detection
+Models</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://www.bilibili.com/video/BV1tY4y1Z7eR/?spm_id_from=333.1007.top_right_bar_window_history.content.click&amp;vd_source=438a1ccf5843c267f6db0f282ceb2d64">Latent
+Diffusion(Stable-Diffusion) Model (video)</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://web.cs.ucla.edu/~patricia.xiao/files/Win2023_Math_Reading_Group_Stable_Diffusion.pdf">Latent
+Diffusion(Stable-Diffusion) Model (pdf)</a></p>
+<p><a target="_blank" rel="noopener" href="https://jalammar.github.io/illustrated-stable-diffusion">The
+Illustrated Stable Diffusion</a></p>
+<p><a target="_blank" rel="noopener" href="https://lilianweng.github.io/posts/2018-08-12-vae">From
+Autoencoder to Beta-VAE</a></p>
+<p><a target="_blank" rel="noopener" href="https://blog.evjang.com/2016/08/variational-bayes.html">A
+Beginner's Guide to Variational Methods: Mean-Field
+Approximation</a></p>
+</blockquote>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2024/08/17/2024-08-17-DDPM/" title="DDPM">
+                    <div class="nextTitle">DDPM</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2024/08/11/2024-08-11-GAN/" title="GAN">
+                    <div class="prevTitle">GAN</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+    <script src='//unpkg.com/@waline/client@v2/dist/waline.js'></script>
+    <link href='//unpkg.com/@waline/client@v2/dist/waline.css' rel='stylesheet' />
+    <div id="comment"></div>
+    <script>
+    Waline.init({
+        el: '#comment' ,
+        serverURL: "https://waline-vercel.nasaka3000.fun",
+        wordLimit: "600",
+        login: "enable",
+        dark: ""
+    });
+    </script>
+
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+        
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script>
+
+
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:guijiaguai@foxmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/simplestory" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#autoencoder"><span class="toc-number">1.</span> <span class="toc-text">Autoencoder</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#loss-function"><span class="toc-number">1.1.</span> <span class="toc-text">Loss function</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#lpips"><span class="toc-number">1.1.1.</span> <span class="toc-text">LPIPS</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#discriminator-loss"><span class="toc-number">1.1.2.</span> <span class="toc-text">Discriminator loss</span></a></li></ol></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#conditoinal-denoiser"><span class="toc-number">2.</span> <span class="toc-text">Conditoinal Denoiser</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%9D%E5%A4%96%E8%BE%93%E5%85%A5"><span class="toc-number">2.1.</span> <span class="toc-text">额外输入</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E9%A2%9D%E5%A4%96%E6%A8%A1%E5%9D%97"><span class="toc-number">2.2.</span> <span class="toc-text">额外模块</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#appendix"><span class="toc-number">3.</span> <span class="toc-text">Appendix</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">4.</span> <span class="toc-text">参考</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 63
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDIM/">DDIM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDPM/">DDPM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-LDM/">LDM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-GAN/">GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VAE/">VAE</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_GAN/">VQ-GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_VAE/">VQ-VAE</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/24</span>
+            <a class="archive-post-title" href="/2023/06/24/2023-06-24-LSS/">LSS</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-MonoRCNN/">MonoRCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-YOLOStereo3D/">YOLOStereo3D</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/05</span>
+            <a class="archive-post-title" href="/2023/03/05/2023-03-05-VoxelNet_&&_SECOND/">VoxelNet and SECOND</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2023/01/27/2023-01-27-Stereo_RCNN/">Stereo RCNN</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/06</span>
+            <a class="archive-post-title" href="/2022/10/06/2022-10-06-OTA/">OTA</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/07</span>
+            <a class="archive-post-title" href="/2021/08/07/2021-08-07-PointNet%E7%B3%BB%E5%88%97/">PointNet系列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/06</span>
+            <a class="archive-post-title" href="/2021/08/06/2021-08-06-MV3D/">Multi-View 3D Object Detection Network</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span>
+            <a class="archive-post-title" href="/2021/08/05/2021-08-05-SORT_&&_DeepSORT/">SORT && DeepSORT</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/04</span>
+            <a class="archive-post-title" href="/2021/08/04/2021-08-04-%E5%8A%A8%E6%80%81%E7%BD%91%E7%BB%9C%E5%A4%B4/">Dynamic Head</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/03</span>
+            <a class="archive-post-title" href="/2021/08/03/2021-08-03-%E5%8A%A8%E6%80%81%E5%8D%B7%E7%A7%AF%E4%B8%8E%E5%8A%A8%E6%80%81ReLU/">动态卷积与动态ReLU</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/16</span>
+            <a class="archive-post-title" href="/2021/05/16/2021-05-16-CRF%E5%8F%8A%E5%85%B6%E5%9C%A8%E5%88%86%E5%89%B2%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8/">CRF及其在分割领域上的应用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/30</span>
+            <a class="archive-post-title" href="/2021/04/30/2021-04-30-%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C/">图像分割基础网络</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/20</span>
+            <a class="archive-post-title" href="/2020/11/20/2020-11-20-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B20%E5%B9%B4/">Object Detection</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/25</span>
+            <a class="archive-post-title" href="/2020/10/25/2020-10-25-Centernet_%E5%9F%BA%E4%BA%8E%E4%B8%AD%E5%BF%83%E7%82%B9%E6%A3%80%E6%B5%8B/">Anchor free--Centernet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/18</span>
+            <a class="archive-post-title" href="/2020/10/18/2020-10-18-%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">一些常见的损失函数</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2020/10/03/2020-10-03-Efficient%E6%A8%A1%E5%9E%8B%E5%AE%B6%E6%97%8F/">Efficient模型家族</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/26</span>
+            <a class="archive-post-title" href="/2020/09/26/2020-09-26-%E5%87%A0%E7%B1%BBIOU%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">几种IOU损失</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/26</span>
+            <a class="archive-post-title" href="/2020/04/26/2020-04-26-Mobilenetv2/">MobileNetV2</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2020/02/10/2020-02-10-mask_rcnn/">Mask RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span>
+            <a class="archive-post-title" href="/2020/01/17/2020-01-15-yolov3/">YOLO_v3</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/10</span>
+            <a class="archive-post-title" href="/2020/01/10/2020-01-10-yolov2/">YOLO_v2 and YOLO9000</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-emmm/">额。。。</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-yolov1/">YOLO_v1</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2019 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2019/10/03/2019-10-03-SSD/">SSD</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span>
+            <a class="archive-post-title" href="/2019/09/22/2019-09-22-faster_rcnn/">Faster RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/21</span>
+            <a class="archive-post-title" href="/2019/09/21/2019-09-21-fast_rcnn/">Fast RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span>
+            <a class="archive-post-title" href="/2019/09/19/2019-09-19-RCNN/">RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/10</span>
+            <a class="archive-post-title" href="/2019/09/10/2019-09-10-ResNet/">ResNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2019/08/11/2019-08-11-%E5%8C%BA%E5%88%86%E5%87%A0%E7%A7%8D%E5%BD%92%E4%B8%80%E5%8C%96%E7%AE%97%E6%B3%95/">区分几种归一化算法</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/30</span>
+            <a class="archive-post-title" href="/2019/07/30/2019-07-30-VGG/">VGG</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/22</span>
+            <a class="archive-post-title" href="/2019/07/22/2019-07-22-AlexNet/">AlexNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/21</span>
+            <a class="archive-post-title" href="/2019/07/21/2019-07-21-NOTICE/">NOTICE~~~</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/24</span>
+            <a class="archive-post-title" href="/2019/03/24/2019-03-24-LightGBM/">LightGBM模型</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/17</span>
+            <a class="archive-post-title" href="/2019/03/17/2019-03-17-Xgboost/">Xgboost模型</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2018 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/03</span>
+            <a class="archive-post-title" href="/2018/11/03/2018-11-03-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%BC%98%E5%8C%96/">深度学习优化</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/28</span>
+            <a class="archive-post-title" href="/2018/10/28/2018-10-28-FFM%E6%A8%A1%E5%9E%8B/">FFM模型原理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/29</span>
+            <a class="archive-post-title" href="/2018/08/29/2018-08-29-%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/26</span>
+            <a class="archive-post-title" href="/2018/08/26/2018-08-26-sklearn%E8%B0%83%E5%8C%85%E5%90%88%E9%9B%86/">Scikit-learn调包合集</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/19</span>
+            <a class="archive-post-title" href="/2018/08/19/2018-08-19-%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB/">贝叶斯分类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/16</span>
+            <a class="archive-post-title" href="/2018/08/16/2018-08-16-SVM%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA/">SVM支持向量机</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span>
+            <a class="archive-post-title" href="/2018/08/13/2018-08-13-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E5%92%8CLogistic%E5%9B%9E%E5%BD%92/">线性回归和Logistic回归</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/02</span>
+            <a class="archive-post-title" href="/2018/03/02/2018-03-02-g++%E4%B8%8Egdb%E4%BD%BF%E7%94%A8/">g++与gdb使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2018/02/19/2018-02-19-Ubuntu%E9%85%8D%E7%BD%AEDjango/">Ubuntu配置Django</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/04</span>
+            <a class="archive-post-title" href="/2018/02/04/2018-02-04-Linux%E9%85%8D%E7%BD%AETensorflow/">Linux配置Tensorflow</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/20</span>
+            <a class="archive-post-title" href="/2018/01/20/2018-01-20-Linux%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%91%BD%E4%BB%A4/">Linux渗透测试命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/05</span>
+            <a class="archive-post-title" href="/2018/01/05/2018-01-05-Anaconda%E9%83%A8%E5%88%86%E5%91%BD%E4%BB%A4/">Anaconda部分命令</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2017 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/17</span>
+            <a class="archive-post-title" href="/2017/12/17/2017-12-17-ubuntu%E9%85%8D%E7%BD%AEgit/">Ubuntu配置Git</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2017/12/01/2017-12-01-Linux%E4%B8%8B%E7%9A%84MySQL%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84/">Linux下的MySQL数据文件路径</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2017/11/07/2017-11-07-Linux%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/">Linux一些命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/05</span>
+            <a class="archive-post-title" href="/2017/11/05/2017-11-04-Opencv%E5%AE%9E%E7%8E%B0%E6%B1%BD%E8%BD%A6%E8%BF%9D%E8%A7%84%E6%A3%80%E6%B5%8B%E8%AF%86%E5%88%AB/">Opencv实现汽车违规检测识别</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/20</span>
+            <a class="archive-post-title" href="/2017/10/20/2017-10-20-Linux%E4%B8%8B%E5%AE%89%E8%A3%85OpenCV/">Linux下安装OpenCV</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/01</span>
+            <a class="archive-post-title" href="/2017/10/01/2017-10-01-Vscode%E4%B8%8B%E7%BC%96%E8%AF%91C%E5%92%8CC++/">Vscode下编译C/C++</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/20</span>
+            <a class="archive-post-title" href="/2017/08/20/2017-08-20-Python%E4%B9%8B%E7%B1%BB/">Python的类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/10</span>
+            <a class="archive-post-title" href="/2017/08/10/2017-08-10-Python%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">Python，面向对象</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/04</span>
+            <a class="archive-post-title" href="/2017/07/04/2017-07-04-Git%E4%BD%BF%E7%94%A8%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/">GIT使用基础教程</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="git">
+                <span class="iconfont-archer">&#xe606;</span>
+                git
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="C/C++">
+                <span class="iconfont-archer">&#xe606;</span>
+                C/C++
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="opencv">
+                <span class="iconfont-archer">&#xe606;</span>
+                opencv
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="machine learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                machine learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="mysql">
+                <span class="iconfont-archer">&#xe606;</span>
+                mysql
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tensorflow">
+                <span class="iconfont-archer">&#xe606;</span>
+                tensorflow
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="django">
+                <span class="iconfont-archer">&#xe606;</span>
+                django
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="deep learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                deep learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="talk">
+                <span class="iconfont-archer">&#xe606;</span>
+                talk
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="math">
+                <span class="iconfont-archer">&#xe606;</span>
+                math
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="2017">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2017
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2018">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2018
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2019">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2019
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2020">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2020
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2021">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2021
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2022">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2022
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2023">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2023
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2024">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2024
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+            <script src='https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js'></script>
+            <script>
+                if (window.mermaid) {
+                    mermaid.initialize({theme: 'dark'});
+                }
+            </script>
+        
+    </body>
+</html>

@@ -1,0 +1,2563 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="这是一个diffusion model类型的图像生成模型，简单地概括就是通过在原图\(\mathbf{x}_0\)上不断地叠加高斯噪声（一共\(T\)轮），最终可以将\(\mathbf{x}_0\)变为纯高斯噪声\(\mathbf{x}_T\)，而模型负责将\(\mathbf{x}_T\)还原为\(\mathbf{x}_0\)。图示如下：  其中\(\mathbf{x}_0\)到\(\mathbf">
+<meta property="og:type" content="article">
+<meta property="og:title" content="DDPM">
+<meta property="og:url" content="http://example.com/2024/08/17/2024-08-17-DDPM/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="这是一个diffusion model类型的图像生成模型，简单地概括就是通过在原图\(\mathbf{x}_0\)上不断地叠加高斯噪声（一共\(T\)轮），最终可以将\(\mathbf{x}_0\)变为纯高斯噪声\(\mathbf{x}_T\)，而模型负责将\(\mathbf{x}_T\)还原为\(\mathbf{x}_0\)。图示如下：  其中\(\mathbf{x}_0\)到\(\mathbf">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2024-08-17T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-17T14:15:14.351Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="deep learning">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>DDPM · simplestory&#39;s blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+        <script>
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?f4ceef9ccf4caa1b456d8373672cfa7e";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+    
+    <!-- 谷歌统计  -->
+    
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNYWTSM2GG"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-DNYWTSM2GG');
+        </script>
+    
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Simplestory's Blog</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Simplestory&#39;s Blog</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">DDPM</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post_bg.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                DDPM
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+                    Denoising Diffusion Probabilistic Models
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="deep learning">deep learning</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">4.1k</span>Reading time: <span class="post-count reading-time">21 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2024/08/17</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <p>这是一个<strong>diffusion
+model</strong>类型的图像生成模型，简单地概括就是通过在原图<span
+class="math inline">\(\mathbf{x}_0\)</span>上不断地叠加高斯噪声（一共<span
+class="math inline">\(T\)</span>轮），最终可以将<span
+class="math inline">\(\mathbf{x}_0\)</span>变为纯高斯噪声<span
+class="math inline">\(\mathbf{x}_T\)</span>，而模型负责将<span
+class="math inline">\(\mathbf{x}_T\)</span>还原为<span
+class="math inline">\(\mathbf{x}_0\)</span>。图示如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/ddpm_instruction.png"
+title="ddpm instruction" /></p>
+<p>其中<span class="math inline">\(\mathbf{x}_0\)</span>到<span
+class="math inline">\(\mathbf{x}_T\)</span>的过程称为前向过程，而<span
+class="math inline">\(\mathbf{x}_T\)</span>到<span
+class="math inline">\(\mathbf{x}_0\)</span>的过程为逆向过程或推断过程。</p>
+<p><strong>本文大部分内容参考自<a
+target="_blank" rel="noopener" href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/">What
+are Diffusion Models</a>。</strong></p>
+<h1 id="前向过程forward">前向过程（forward）</h1>
+<p>输入图片<span class="math inline">\(\mathbf{x}_0 \sim
+q(\mathbf{x})\)</span>，进行<span
+class="math inline">\(T\)</span>次高斯噪声的叠加得到<span
+class="math inline">\(\mathbf{x}_1\)</span>、<span
+class="math inline">\(\mathbf{x}_2\)</span>、<span
+class="math inline">\(\dots\)</span>、<span
+class="math inline">\(\mathbf{x}_T\)</span>。这个过程中<span
+class="math inline">\(\mathbf{x}_t\)</span>只与<span
+class="math inline">\(\mathbf{x}_{t-1}\)</span>有关，所以可以认为是一个马尔科夫过程。有下式：</p>
+<p><span class="math display">\[
+\begin{aligned}
+q(\mathbf{x}_t \vert \mathbf{x}_{t-1}) &amp;= \mathcal{N}(\mathbf{x}_t;
+\sqrt{1 - \beta_t} \mathbf{x}_{t-1}, \beta_t\mathbf{I}) \\
+q(\mathbf{x}_{1:T} \vert \mathbf{x}_0) &amp;= \prod^T_{t=1}
+q(\mathbf{x}_t \vert \mathbf{x}_{t-1})
+\end{aligned}
+\]</span></p>
+<p>其中<span class="math inline">\(\{\beta_t\in (0,
+1)\}^T_{t=1}\)</span>是给定的超参数，表示一系列高斯分布的方差。实际中<span
+class="math inline">\(\beta_t\)</span>会随着<span
+class="math inline">\(t\)</span>的增大而增大。</p>
+<p>令<span class="math inline">\(\alpha_t = 1 -
+\beta_t\)</span>，且<span class="math inline">\(\overline{\alpha}_t =
+\Pi_{i=1}^t\alpha_i\)</span>。使用<strong>重参数化</strong>技巧有：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbf{x}_t
+&amp;= \sqrt{\alpha_t}\mathbf{x}_{t-1} + \sqrt{1 -
+\alpha_t}\boldsymbol{\epsilon}_{t-1}  \\
+&amp;= \sqrt{\alpha_t \alpha_{t-1}} \mathbf{x}_{t-2} + \sqrt{1 -
+\alpha_t \alpha_{t-1}} \bar{\boldsymbol{\epsilon}}_{t-2} &amp; \\
+&amp;= \dots \\
+&amp;= \sqrt{\bar{\alpha}_t}\mathbf{x}_0 + \sqrt{1 -
+\bar{\alpha}_t}\boldsymbol{\epsilon} \\
+q(\mathbf{x}_t \vert \mathbf{x}_0) &amp;= \mathcal{N}(\mathbf{x}_t;
+\sqrt{\bar{\alpha}_t} \mathbf{x}_0, (1 - \bar{\alpha}_t)\mathbf{I})
+\end{aligned}
+\]</span></p>
+<p>其中<span class="math inline">\(\boldsymbol{\epsilon}_{t-1},
+\boldsymbol{\epsilon}_{t-2}, \dots \sim \mathcal{N}(\mathbf{0},
+\mathbf{I})\)</span>，<span
+class="math inline">\(\bar\epsilon_{t-2}\)</span>表示两个高斯分布的合并，即通过独立高斯分布的可加性来进行合并：</p>
+<p><span class="math display">\[
+\mathcal{N}(\mathbf{0}, \sigma_2^2\mathbf{I}) + \mathcal{N}(\mathbf{0},
+\sigma_2^2\mathbf{I}) \sim \mathcal{N}(\mathbf{0},
+(\sigma^2_1+\sigma^2_2)\mathbf{I})
+\]</span></p>
+<p>综上我们可以得到：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathbf{x}_t = \sqrt{\overline{\alpha}_t}\mathbf{x}_0 +
+\sqrt{1-\overline{\alpha}_t}\boldsymbol\epsilon
+\end{aligned}
+\tag{1}
+\]</span></p>
+<p>即任意时刻的<span
+class="math inline">\(\mathbf{x}_t\)</span>可由<span
+class="math inline">\(\mathbf{x}_0\)</span>和<span
+class="math inline">\(\beta\)</span>表示。同时通过<span
+class="math inline">\((1)\)</span>式可以看到随着<span
+class="math inline">\(t\)</span>增大，<span
+class="math inline">\(\beta_t\)</span>也会增大，<span
+class="math inline">\(\overline\alpha_t\)</span>则越接近于0，所以<span
+class="math inline">\(\mathbf{x}_t\)</span>也越接近于标准的高斯分布<span
+class="math inline">\(\mathcal{N}(\mathbf{0}, \mathbf{I})\)</span>。</p>
+<h1 id="逆向过程reverse">逆向过程（reverse）</h1>
+<p>假如我们可以得到逆转后的分布<span
+class="math inline">\(q(\mathbf{x}_{t-1} \vert
+\mathbf{x}_t)\)</span>，就可以从完全的标准高斯分布<span
+class="math inline">\(\mathbf{x}_t\sim\mathcal{N}(\mathbf{0},
+\mathbf{I})\)</span>还原出<span
+class="math inline">\(\mathbf{x}_0\)</span>。注意当<span
+class="math inline">\(\beta_t\)</span>足够小时，<span
+class="math inline">\(q(\mathbf{x}_{t-1}\vert\mathbf{x}_t)\)</span>仍然为高斯分布，但通常我们无法简单地推断出<span
+class="math inline">\(q(\mathbf{x}_{t-1}\vert\mathbf{x}_t)\)</span>，所以我们使用深度学习模型（以<span
+class="math inline">\(\theta\)</span>为参数，目前主流结构为Unet+Attention）去预测一个分布<span
+class="math inline">\(p_\theta\)</span>来近似分布<span
+class="math inline">\(q(\mathbf{x}_{t-1}\vert\mathbf{x}_t)\)</span>。</p>
+<p><span class="math display">\[
+\begin{aligned}
+p_\theta(\mathbf{x}_{0:T}) &amp;= p(\mathbf{x}_T) \prod^T_{t=1}
+p_\theta(\mathbf{x}_{t-1} \vert \mathbf{x}_t) \\
+p_\theta(\mathbf{x}_{t-1} \vert \mathbf{x}_t) &amp;=
+\mathcal{N}(\mathbf{x}_{t-1}; \boldsymbol{\mu}_\theta(\mathbf{x}_t, t),
+\boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t))
+\end{aligned}
+\]</span></p>
+<p>通过上式可以得知，为了得到分布<span
+class="math inline">\(p_\theta\)</span>，需要获得<span
+class="math inline">\(\boldsymbol{\mu}_\theta(\mathbf{x}_t,
+t)\)</span>和<span
+class="math inline">\(\boldsymbol{\Sigma}_\theta(\mathbf{x}_t,
+t)\)</span>。</p>
+<p>对于逆转后的分布<span
+class="math inline">\(q(\mathbf{x}_{t-1}\vert\mathbf{x}_t)\)</span>，将<span
+class="math inline">\(\mathbf{x}_0\)</span>作为已知条件加入，有：</p>
+<p><span class="math display">\[
+q(\mathbf{x}_{t-1} \vert \mathbf{x}_t, \mathbf{x}_0) =
+\mathcal{N}(\mathbf{x}_{t-1}; {\tilde{\boldsymbol{\mu}}}(\mathbf{x}_t,
+\mathbf{x}_0), {\tilde{\beta}_t} \mathbf{I})
+\]</span></p>
+<p>这里的方差用<span
+class="math inline">\(\tilde{\beta_t}\)</span>是因为DDPM论文做了简化，将<span
+class="math inline">\(\boldsymbol{\Sigma}_\theta(\mathbf{x}_t,
+t)\)</span>直接取值为<span
+class="math inline">\(\tilde{\beta_t}\)</span>。</p>
+<p>由贝叶斯公式可得：</p>
+<p><span class="math display">\[
+q(\mathbf{x}_{t-1}\vert\mathbf{x}_t,\mathbf{x}_0) =
+\frac{q(\mathbf{x}_t\vert\mathbf{x}_{t-1},\mathbf{x}_0)q(\mathbf{x}_{t-1}\vert\mathbf{x}_0)}{q(\mathbf{x}_t\vert\mathbf{x}_0)}
+\]</span></p>
+<p>即将<strong>逆向过程全部转换为了前向过程</strong>。代入高斯分布的密度函数可得：</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; q(\mathbf{x}_{t-1} \vert \mathbf{x}_t, \mathbf{x}_0) \\
+= &amp;
+\frac{q(\mathbf{x}_t\vert\mathbf{x}_{t-1},\mathbf{x}_0)q(\mathbf{x}_{t-1}\vert\mathbf{x}_0)}{q(\mathbf{x}_t\vert\mathbf{x}_0)}
+\\
+\propto &amp; \exp\Big( -\frac{1}{2} \big( (\frac{\alpha_t}{\beta_t} +
+\frac{1}{1 - \bar{\alpha}_{t-1}}) \mathbf{x}_{t-1}^2 -
+(\frac{2\sqrt{\alpha_t}}{\beta_t} \mathbf{x}_t +
+\frac{2\sqrt{\bar{\alpha}_{t-1}}}{1 - \bar{\alpha}_{t-1}} \mathbf{x}_0)
+\mathbf{x}_{t-1} + C(\mathbf{x}_t, \mathbf{x}_0) \big) \Big)
+\end{aligned}
+\]</span></p>
+<p>通常的高斯分布<span class="math inline">\(\mathcal{N}(\mu,
+\sigma^2)\)</span>密度函数如下：</p>
+<p><span class="math display">\[
+\begin{aligned}
+f(x) &amp;=
+\frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{(x-\mu)^2}{2\sigma^2}) \\
+&amp;=\frac{1}{\sqrt{2\pi}\sigma}\exp(-\frac{1}{2}(\frac{1}{\sigma^2}x^2-\frac{2\mu}{\sigma^2}x+\frac{\mu^2}{\sigma^2}))
+\end{aligned}
+\]</span></p>
+<p>对照上式，有：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\frac{1}{\sigma^2} &amp;= \frac{1}{\tilde{\beta}_t} =
+\frac{\alpha_t}{\beta_t}+\frac{1}{1-\bar\alpha_{t-1}} \\
+&amp;\Rightarrow \tilde{\beta}_t =
+\frac{1-\bar\alpha_{t-1}}{1-\bar\alpha_t}\cdot\beta_t \\
+\frac{2\mu}{\sigma^2} &amp;= \frac{2\sqrt{\alpha_t}}{\beta_t}
+\mathbf{x}_t + \frac{2\sqrt{\bar{\alpha}_{t-1}}}{1 - \bar{\alpha}_{t-1}}
+\mathbf{x}_0 \\
+&amp;\Rightarrow \tilde\mu_t(\mathbf{x}_t, \mathbf{x}_0) =
+\frac{\sqrt{\alpha_t}(1-\bar\alpha_{t-1})}{1-\bar\alpha_t}\mathbf{x}_t+\frac{\sqrt{\bar\alpha_{t-1}}\beta_t}{1-\bar\alpha_t}\mathbf{x}_0
+\end{aligned}
+\]</span></p>
+<p>可知方差<span
+class="math inline">\(\tilde{\beta}_t\)</span>是一个定量，而均值<span
+class="math inline">\(\tilde\mu_t\)</span>与<span
+class="math inline">\(\mathbf{x}_t\)</span>和<span
+class="math inline">\(\mathbf{x}_0\)</span>有关。由<span
+class="math inline">\((1)\)</span>式可得<span
+class="math inline">\(\mathbf{x}_0 =
+\frac{1}{\sqrt{\bar{\alpha}_t}}(\mathbf{x}_t - \sqrt{1 -
+\bar{\alpha}_t}\boldsymbol{\epsilon}_t)\)</span>，代入上式有：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\tilde{\boldsymbol{\mu}}_t =\frac{1}{\sqrt{\alpha_t}} \Big( \mathbf{x}_t
+- \frac{1 - \alpha_t}{\sqrt{1 - \bar{\alpha}_t}} \boldsymbol{\epsilon}_t
+\Big)
+\end{aligned}
+\tag{2}
+\]</span></p>
+<p>其中高斯分布<span
+class="math inline">\(\boldsymbol{\epsilon}_t\)</span>在模型中则为预测的噪声分布，为<span
+class="math inline">\(\boldsymbol{\epsilon}_\theta(\mathbf{x}_t,
+t)\)</span>，则有：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\boldsymbol{\mu}_\theta(\mathbf{x}_t, t) =\frac{1}{\sqrt{\alpha_t}}
+\Big( \mathbf{x}_t - \frac{1 - \alpha_t}{\sqrt{1 - \bar{\alpha}_t}}
+\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t) \Big)
+\end{aligned}
+\tag{3}
+\]</span></p>
+<p>综合上面的逆向过程，我们可以得到模型推断的步骤如下：</p>
+<ul>
+<li>通过<span class="math inline">\(\mathbf{x}_t\)</span>和<span
+class="math inline">\(t\)</span>由模型预测出高斯噪声<span
+class="math inline">\(\boldsymbol{\epsilon}_\theta(\mathbf{x}_t,
+t)\)</span>，之后由<span class="math inline">\((3)\)</span>式得到<span
+class="math inline">\(\boldsymbol{\mu}_\theta(\mathbf{x}_t,
+t)\)</span></li>
+<li>计算方差<span class="math inline">\(\Sigma_\theta(\mathbf{x}_t,
+t)\)</span>。<a target="_blank" rel="noopener" href="http://arxiv.org/abs/2006.11239">DDPM</a>用<span
+class="math inline">\(\tilde\beta_t\)</span>来代替<span
+class="math inline">\(\Sigma_\theta(\mathbf{x}_t,
+t)\)</span>，且认为<span class="math inline">\(\beta_t\)</span>与<span
+class="math inline">\(\tilde\beta_t\)</span>近似</li>
+<li>由<span class="math inline">\(p_\theta(\mathbf{x}_{t-1} \vert
+\mathbf{x}_t) = \mathcal{N}(\mathbf{x}_{t-1};
+\boldsymbol{\mu}_\theta(\mathbf{x}_t, t),
+\boldsymbol{\Sigma}_\theta(\mathbf{x}_t,
+t))\)</span>以及重参数法可以得到<span
+class="math inline">\(\mathbf{x}_{t-1}\)</span></li>
+</ul>
+<p>DDPM的推断流程如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/ddpm_sampling.png"
+title="ddpm sampling" /></p>
+<h1 id="训练过程training">训练过程（training）</h1>
+<p>上面提到我们使用模型去预测一个分布<span
+class="math inline">\(p_\theta(\mathbf{x}_{t-1}\vert\mathbf{x}_t)\)</span>来近似表达逆转后的分布<span
+class="math inline">\(q(\mathbf{x}_{t-1}\vert\mathbf{x}_t)\)</span>。针对该问题一般有两种方法，一种是优化负对数的最大似然概率<span
+class="math inline">\(-\log
+p_\theta(\mathbf{x}_0)\)</span>；另一种是优化预测分布与真实分布的交叉熵<span
+class="math inline">\(\mathbb{E}_{q(\mathbf{x}_0)}[-\log
+p_\theta(\mathbf{x}_0)]\)</span>。两种方法直接进行优化都比较困难，所以考虑去优化它们的<strong>变分下限</strong>（VLB）。</p>
+<p>由于KL散度非负，故有：</p>
+<p><span class="math display">\[
+-\log p_\theta(\mathbf{x}_0) \leq -\log p_\theta(\mathbf{x}_0) +
+D_{KL}(q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)\vert\vert
+p_\theta(\mathbf{x}_{1:T}\vert\mathbf{x}_0))
+\]</span></p>
+<p>将KL散度展开化简，并对式子两边同时取期望<span
+class="math inline">\(\mathbb{E}_{q(\mathbf{x}_0)}\)</span>可得：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{L}_{VLB} &amp;= \mathbb{E}_{q(\mathbf{x}_0)}\Big( -\log
+p_\theta(\mathbf{x}_0) +
+\mathbb{E}_{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}\Big[\log\frac{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}{p_\theta(\mathbf{x}_{0:T})}
++ \log p_\theta (\mathbf{x}_0)\Big]\Big)\\
+&amp;= \mathbb{E}_{q(\mathbf{x}_0)}\Big(
+\mathbb{E}_{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}\Big[\log\frac{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}{p_\theta(\mathbf{x}_{0:T})}\Big]\Big)
+\\
+&amp;=
+\mathbb{E}_{q(\mathbf{x}_{0:T})}\Big[\log\frac{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}{p_\theta(\mathbf{x}_{0:T})}\Big]
+\\
+&amp;\geq
+\mathbb{E}_{q(\mathbf{x}_0)}[-\log p_\theta(\mathbf{x}_0)]
+\end{aligned}
+\]</span></p>
+<p>上面式子的第二个等号用的是<a
+target="_blank" rel="noopener" href="https://handwiki.org/wiki/Fubini%27s_theorem"><strong>Fubini定理</strong></a>，也可由<strong>Jensen不等式</strong>得到一样的结果：</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; \mathbb{E}_{q(\mathbf{x}_0)}[-\log p_\theta(\mathbf{x}_0)] \\
+=&amp;
+-\mathbb{E}_{q(\mathbf{x}_0)}\Big[\log\Big(p_\theta(\mathbf{x}_0)\cdot\int
+p_\theta(\mathbf{x}_{1:T})d\mathbf{x}_{1:T}\Big)\Big] \\
+=&amp;  -\mathbb{E}_{q(\mathbf{x}_0)}\Big[\log\Big(\int
+p_\theta(\mathbf{x}_{0:T})d\mathbf{x}_{1:T}\Big)\Big] \\
+=&amp; -\mathbb{E}_{q(\mathbf{x}_0)}\Big[\log\Big(\int
+q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)\frac{p_\theta(\mathbf{x}_{0:T})}{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}d\mathbf{x}_{1:T}\Big)\Big]
+\\
+=&amp;
+-\mathbb{E}_{q(\mathbf{x}_{0:T})}\Big[\log\Big(\mathbb{E}_{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}\frac{p_\theta(\mathbf{x}_{0:T})}{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}\Big)\Big]
+\\
+\leq &amp;
+-\mathbb{E}_{q(\mathbf{x}_{0:T})}\Big[\log\frac{p_\theta(\mathbf{x}_{0:T})}{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}\Big]
+\\
+=&amp;
+\mathbb{E}_{q(\mathbf{x}_{0:T})}\Big[\log\frac{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}{p_\theta(\mathbf{x}_{0:T})}\Big]
+= \mathcal{L}_{VLB}
+\end{aligned}
+\]</span></p>
+<p>注意<span class="math inline">\(\log\)</span>为凹函数，<span
+class="math inline">\(-\log\)</span>为凸函数。</p>
+<p>故最终得到下式：</p>
+<p><span class="math display">\[
+\mathcal{L}_{VLB} =
+\mathbb{E}_{q(\mathbf{x}_{0:T})}\Big[\log\frac{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}{p_\theta(\mathbf{x}_{0:T})}\Big]
+\geq \mathbb{E}_{q(\mathbf{x}_0)}[-\log p_\theta(\mathbf{x}_0)]
+\]</span></p>
+<p>所以我们最小化<span
+class="math inline">\(\mathbf{L}_{VLB}\)</span>即可最小化目标损失函数<span
+class="math inline">\(\mathbb{E}_{q(\mathbf{x}_0)}[-\log
+p_\theta(\mathbf{x}_0)]\)</span>。</p>
+<p>对<span
+class="math inline">\(\mathbf{L}_{VLB}\)</span>进行推导有：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{L}_{VLB}
+&amp;= \mathbb{E}_{q(\mathbf{x}_{0:T})} \Big[
+\log\frac{q(\mathbf{x}_{1:T}\vert\mathbf{x}_0)}{p_\theta(\mathbf{x}_{0:T})}
+\Big] \\
+&amp;= \mathbb{E}_q \Big[ \log\frac{\prod_{t=1}^T
+q(\mathbf{x}_t\vert\mathbf{x}_{t-1})}{ p_\theta(\mathbf{x}_T)
+\prod_{t=1}^T p_\theta(\mathbf{x}_{t-1} \vert\mathbf{x}_t) } \Big] \\
+&amp;= \mathbb{E}_q \Big[ -\log p_\theta(\mathbf{x}_T) + \sum_{t=1}^T
+\log
+\frac{q(\mathbf{x}_t\vert\mathbf{x}_{t-1})}{p_\theta(\mathbf{x}_{t-1}
+\vert\mathbf{x}_t)} \Big] \\
+&amp;= \mathbb{E}_q \Big[ -\log p_\theta(\mathbf{x}_T) + \sum_{t=2}^T
+\log
+\frac{q(\mathbf{x}_t\vert\mathbf{x}_{t-1})}{p_\theta(\mathbf{x}_{t-1}
+\vert\mathbf{x}_t)} + \log\frac{q(\mathbf{x}_1 \vert
+\mathbf{x}_0)}{p_\theta(\mathbf{x}_0 \vert \mathbf{x}_1)} \Big] \\
+&amp;= \mathbb{E}_q \Big[ -\log p_\theta(\mathbf{x}_T) + \sum_{t=2}^T
+\log \Big( \frac{q(\mathbf{x}_{t-1} \vert \mathbf{x}_t,
+\mathbf{x}_0)}{p_\theta(\mathbf{x}_{t-1} \vert\mathbf{x}_t)}\cdot
+\frac{q(\mathbf{x}_t \vert
+\mathbf{x}_0)}{q(\mathbf{x}_{t-1}\vert\mathbf{x}_0)} \Big) + \log
+\frac{q(\mathbf{x}_1 \vert \mathbf{x}_0)}{p_\theta(\mathbf{x}_0 \vert
+\mathbf{x}_1)} \Big] \\
+&amp;= \mathbb{E}_q \Big[ -\log p_\theta(\mathbf{x}_T) + \sum_{t=2}^T
+\log \frac{q(\mathbf{x}_{t-1} \vert \mathbf{x}_t,
+\mathbf{x}_0)}{p_\theta(\mathbf{x}_{t-1} \vert\mathbf{x}_t)} +
+\sum_{t=2}^T \log \frac{q(\mathbf{x}_t \vert
+\mathbf{x}_0)}{q(\mathbf{x}_{t-1} \vert \mathbf{x}_0)} +
+\log\frac{q(\mathbf{x}_1 \vert \mathbf{x}_0)}{p_\theta(\mathbf{x}_0
+\vert \mathbf{x}_1)} \Big] \\
+&amp;= \mathbb{E}_q \Big[ -\log p_\theta(\mathbf{x}_T) + \sum_{t=2}^T
+\log \frac{q(\mathbf{x}_{t-1} \vert \mathbf{x}_t,
+\mathbf{x}_0)}{p_\theta(\mathbf{x}_{t-1} \vert\mathbf{x}_t)} +
+\log\frac{q(\mathbf{x}_T \vert \mathbf{x}_0)}{q(\mathbf{x}_1 \vert
+\mathbf{x}_0)} + \log \frac{q(\mathbf{x}_1 \vert
+\mathbf{x}_0)}{p_\theta(\mathbf{x}_0 \vert \mathbf{x}_1)} \Big]\\
+&amp;= \mathbb{E}_q \Big[ \log\frac{q(\mathbf{x}_T \vert
+\mathbf{x}_0)}{p_\theta(\mathbf{x}_T)} + \sum_{t=2}^T \log
+\frac{q(\mathbf{x}_{t-1} \vert \mathbf{x}_t,
+\mathbf{x}_0)}{p_\theta(\mathbf{x}_{t-1} \vert\mathbf{x}_t)} - \log
+p_\theta(\mathbf{x}_0 \vert \mathbf{x}_1) \Big] \\
+&amp;= \mathbb{E}_q [\underbrace{D_\text{KL}(q(\mathbf{x}_T \vert
+\mathbf{x}_0) \parallel p_\theta(\mathbf{x}_T))}_{L_T} + \sum_{t=2}^T
+\underbrace{D_\text{KL}(q(\mathbf{x}_{t-1} \vert \mathbf{x}_t,
+\mathbf{x}_0) \parallel p_\theta(\mathbf{x}_{t-1}
+\vert\mathbf{x}_t))}_{L_{t-1}} \underbrace{- \log p_\theta(\mathbf{x}_0
+\vert \mathbf{x}_1)}_{L_0} ]
+\end{aligned}
+\]</span></p>
+<p>即将<span
+class="math inline">\(\mathcal{L}_{VLB}\)</span>转为多个熵或KL散度的和的形式。最后由下面式子表示：</p>
+<p><span class="math display">\[
+\begin{aligned}
+\mathcal{L}_{VLB} &amp;= L_T + L_{T-1} + \dots + L_0 \\
+\text{where } L_T &amp;= D_\text{KL}(q(\mathbf{x}_T \vert \mathbf{x}_0)
+\parallel p_\theta(\mathbf{x}_T)) \\
+L_t &amp;= D_\text{KL}(q(\mathbf{x}_t \vert \mathbf{x}_{t+1},
+\mathbf{x}_0) \parallel p_\theta(\mathbf{x}_t \vert\mathbf{x}_{t+1}))
+\text{ for }1 \leq t \leq T-1 \\
+L_0 &amp;= - \log p_\theta(\mathbf{x}_0 \vert \mathbf{x}_1)
+\end{aligned}
+\]</span></p>
+<p>前向过程<span
+class="math inline">\(q\)</span>并没有可供学习的参数，且<span
+class="math inline">\(\mathbf{x}_T\)</span>为纯高斯噪声，所以<span
+class="math inline">\(L_T\)</span>可以视为常量。<span
+class="math inline">\(L_t\)</span>可以看作是拉近两个高斯分布的距离，由<strong>多元高斯分布的KL散度求解</strong>有：</p>
+<p><span class="math display">\[
+\mathcal{L}_{VLB} =
+\mathbb{E}_q\Big[\frac{1}{2{\vert\vert\Sigma_\theta(\mathbf{x}_t,
+t)\vert\vert}^2_2}{\vert\vert\tilde\mu_t(\mathbf{x}_t,
+\mathbf{x}_0)-\mu_\theta(\mathbf{x}_t, t)\vert\vert}^2\Big] + C
+\]</span></p>
+<p>其中<span class="math inline">\(C\)</span>与模型参数无关，将<span
+class="math inline">\((1), (2), (3)\)</span>代入上式，可得：</p>
+<p><span class="math display">\[
+\begin{aligned}
+L_t
+&amp;= \mathbb{E}_{\mathbf{x}_0, \boldsymbol{\epsilon}} \Big[\frac{1}{2
+\| \boldsymbol{\Sigma}_\theta(\mathbf{x}_t, t) \|^2_2} \|
+\tilde{\boldsymbol{\mu}}_t(\mathbf{x}_t, \mathbf{x}_0) -
+\boldsymbol{\mu}_\theta(\mathbf{x}_t, t) \|^2 \Big] \\
+&amp;= \mathbb{E}_{\mathbf{x}_0, \boldsymbol{\epsilon}}
+\Big[\frac{1}{2  \|\boldsymbol{\Sigma}_\theta \|^2_2} \|
+\frac{1}{\sqrt{\alpha_t} \Big( \mathbf{x}_t - \frac{1 -
+\alpha_t}{\sqrt{1 - \bar{\alpha}_t}} \boldsymbol{\epsilon}_t \Big)} -
+\frac{1}{\sqrt{\alpha_t}} \Big( \mathbf{x}_t - \frac{1 -
+\alpha_t}{\sqrt{1 - \bar{\alpha}_t}
+\boldsymbol{\boldsymbol{\epsilon}}_\theta(\mathbf{x}_t, t) \Big)} \|^2
+\Big] \\
+&amp;= \mathbb{E}_{\mathbf{x}_0, \boldsymbol{\epsilon}} \Big[\frac{ (1 -
+\alpha_t)^2 }{2 \alpha_t (1 - \bar{\alpha}_t) \|
+\boldsymbol{\Sigma}_\theta \|^2_2} \|\boldsymbol{\epsilon}_t -
+\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \Big] \\
+&amp;= \mathbb{E}_{\mathbf{x}_0, \boldsymbol{\epsilon}} \Big[\frac{ (1 -
+\alpha_t)^2 }{2 \alpha_t (1 - \bar{\alpha}_t) \|
+\boldsymbol{\Sigma}_\theta \|^2_2} \|\boldsymbol{\epsilon}_t -
+\boldsymbol{\epsilon}_\theta(\sqrt{\bar{\alpha}_t}\mathbf{x}_0 + \sqrt{1
+- \bar{\alpha}_t}\boldsymbol{\epsilon}_t, t)\|^2 \Big]
+\end{aligned}
+\]</span></p>
+<p>上式可以看出，模型训练的重点就是优化两个高斯噪声<span
+class="math inline">\(\boldsymbol\epsilon\)</span>和<span
+class="math inline">\(\boldsymbol\epsilon_\theta\)</span>之间的MAE。</p>
+<p>对于<span class="math inline">\(L_0\)</span>，DDPM针对<span
+class="math inline">\(p_\theta(\mathbf{x}_0\vert\mathbf{x}_1)\)</span>设计了一个离散化的分段积分累计，同时将<span
+class="math inline">\(\mathcal{L}_{VLB}\)</span>进行化简（忽略了系数），有：</p>
+<p><span class="math display">\[
+\begin{aligned}
+L_t^\text{simple}
+&amp;= \mathbb{E}_{t \sim [1, T], \mathbf{x}_0, \boldsymbol{\epsilon}_t}
+\Big[\|\boldsymbol{\epsilon}_t -
+\boldsymbol{\epsilon}_\theta(\mathbf{x}_t, t)\|^2 \Big] \\
+&amp;= \mathbb{E}_{t \sim [1, T], \mathbf{x}_0, \boldsymbol{\epsilon}_t}
+\Big[\|\boldsymbol{\epsilon}_t -
+\boldsymbol{\epsilon}_\theta(\sqrt{\bar{\alpha}_t}\mathbf{x}_0 + \sqrt{1
+- \bar{\alpha}_t}\boldsymbol{\epsilon}_t, t)\|^2 \Big] \\
+\Rightarrow &amp; L_{simple} = L^{simple}_t + C
+\end{aligned}
+\]</span></p>
+<p>如前面所提，DDPM并没有去计算<span
+class="math inline">\(\Sigma_\theta(\mathbf{x}_t,
+t)\)</span>，而是用一个不可训练的<span
+class="math inline">\(\beta_t\)</span>或<span
+class="math inline">\(\tilde\beta_t\)</span>。所以DDPM的训练流程大致如下：</p>
+<ul>
+<li>获取<span class="math inline">\(\mathbf{x}_0\)</span>，从<span
+class="math inline">\(1\dots T\)</span>中随机采样一个<span
+class="math inline">\(t\)</span></li>
+<li>从标准高斯分布随机采样一个噪声<span class="math inline">\(\epsilon_t
+\sim \mathcal{N}(\mathbf{0}, \mathbf{I})\)</span></li>
+<li>最小化<span class="math inline">\(\|\boldsymbol{\epsilon}_t -
+\boldsymbol{\epsilon}_\theta(\sqrt{\bar{\alpha}_t}\mathbf{x}_0 + \sqrt{1
+- \bar{\alpha}_t}\boldsymbol{\epsilon}_t, t) \|\)</span></li>
+</ul>
+<p>DDPM的训练流程图如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20240817/ddpm_training.png"
+title="ddpm training" /></p>
+<h2 id="appendix">Appendix</h2>
+<h3 id="a.-重参数reparameterization">A.
+重参数（reparameterization）</h3>
+<p>通常从某一个分布中随机采样一个样本的这个过程并不能进行反向传播。重参数使用了一个独立的随机变量将随机性引导出去。</p>
+<p>假设<span
+class="math inline">\(\mathbf{z}\)</span>服从一个期望为<span
+class="math inline">\(\mu_\theta\)</span>，方差为<span
+class="math inline">\(\sigma_\theta^2\)</span>的高斯分布。重随机采样用重参数可写成如下形式：</p>
+<p><span class="math display">\[
+\mathbf{z} = \mu_\theta + \sigma_\theta \odot \epsilon, \quad
+\epsilon\sim\mathcal{N}(\mathbf{0}, \mathbf{I})
+\]</span></p>
+<p>其中<span
+class="math inline">\(\odot\)</span>表示逐元素相乘。上式将<span
+class="math inline">\(\mathbf{z}\)</span>的随机性转移到了<span
+class="math inline">\(\epsilon\)</span>上，同时满足<span
+class="math inline">\(\mathbf{z}\sim \mathcal{N}(\mathbf{z}; \mu_\theta,
+\sigma^2_\theta\mathbf{I})\)</span>，并且这个过程可导。</p>
+<h3 id="b.-jensen不等式">B. Jensen不等式</h3>
+<p><span class="math inline">\(x\)</span>为一随机变量，且<span
+class="math inline">\(\phi\)</span>为<strong>凸函数</strong>，则有下式成立：</p>
+<p><span class="math display">\[
+\phi(E(x)) \leq E(\phi(x))
+\]</span></p>
+<p>若<span
+class="math inline">\(x\)</span>为离散随机变量，则可写为：<span
+class="math inline">\(\phi(\frac{1}{n}\sum
+x)\leq\frac{1}{n}\sum\phi(x)\)</span></p>
+<h3 id="c.-kl散度">C. KL散度</h3>
+<p>分布<span class="math inline">\(p(x)\)</span>和<span
+class="math inline">\(q(x)\)</span>的KL散度记为<span
+class="math inline">\(D_{KL}(p\|q)\)</span>，有：</p>
+<p><span class="math display">\[
+D_{KL}(p\|q) = E_{p(x)}[\log\frac{p(x)}{q(x)}]
+\]</span></p>
+<p>由Jensen不等式可以推导出KL散度恒大于0：</p>
+<p><span class="math display">\[
+\begin{aligned}
+D_{KL}(p\|q) &amp;= E_{p(x)}[\log\frac{p(x)}{q(x)}] \\
+&amp;= E_{p(x)}[-\log\frac{q(x)}{p(x)}] \\
+&amp;\ge-\log\Big( E_{p(x)}[\frac{q(x)}{p(x)}] \Big) \\
+&amp;=-\log\Big(\int p(x)\frac{q(x)}{p(x)} dx\Big) \\
+&amp;=-\log\Big(\int q(x)dx\Big) \\
+&amp;=-\log(1) = 0
+\end{aligned}
+\]</span></p>
+<h2 id="参考">参考</h2>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="http://arxiv.org/abs/2006.11239">Denoising Diffusion
+Probabilistic Models</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://lilianweng.github.io/posts/2021-07-11-diffusion-models/">What
+are Diffusion Models</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/525106459">由浅入深了解Diffusion
+Model</a></p>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/565901160">一文解释Diffusion
+Model DDPM</a></p>
+<p><a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/563661713">扩散模型之DDPM</a></p>
+</blockquote>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2024/08/17/2024-08-17-DDIM/" title="DDIM">
+                    <div class="nextTitle">DDIM</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2024/08/17/2024-08-17-LDM/" title="LDM">
+                    <div class="prevTitle">LDM</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+    <script src='//unpkg.com/@waline/client@v2/dist/waline.js'></script>
+    <link href='//unpkg.com/@waline/client@v2/dist/waline.css' rel='stylesheet' />
+    <div id="comment"></div>
+    <script>
+    Waline.init({
+        el: '#comment' ,
+        serverURL: "https://waline-vercel.nasaka3000.fun",
+        wordLimit: "600",
+        login: "enable",
+        dark: ""
+    });
+    </script>
+
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+        
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script>
+
+
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:guijiaguai@foxmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/simplestory" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#%E5%89%8D%E5%90%91%E8%BF%87%E7%A8%8Bforward"><span class="toc-number">1.</span> <span class="toc-text">前向过程（forward）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E9%80%86%E5%90%91%E8%BF%87%E7%A8%8Breverse"><span class="toc-number">2.</span> <span class="toc-text">逆向过程（reverse）</span></a></li><li class="toc-item toc-level-1"><a class="toc-link" href="#%E8%AE%AD%E7%BB%83%E8%BF%87%E7%A8%8Btraining"><span class="toc-number">3.</span> <span class="toc-text">训练过程（training）</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#appendix"><span class="toc-number">3.1.</span> <span class="toc-text">Appendix</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#a.-%E9%87%8D%E5%8F%82%E6%95%B0reparameterization"><span class="toc-number">3.1.1.</span> <span class="toc-text">A.
+重参数（reparameterization）</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#b.-jensen%E4%B8%8D%E7%AD%89%E5%BC%8F"><span class="toc-number">3.1.2.</span> <span class="toc-text">B. Jensen不等式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#c.-kl%E6%95%A3%E5%BA%A6"><span class="toc-number">3.1.3.</span> <span class="toc-text">C. KL散度</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%8F%82%E8%80%83"><span class="toc-number">3.2.</span> <span class="toc-text">参考</span></a></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 63
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDIM/">DDIM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDPM/">DDPM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-LDM/">LDM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-GAN/">GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VAE/">VAE</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_GAN/">VQ-GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_VAE/">VQ-VAE</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/24</span>
+            <a class="archive-post-title" href="/2023/06/24/2023-06-24-LSS/">LSS</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-MonoRCNN/">MonoRCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-YOLOStereo3D/">YOLOStereo3D</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/05</span>
+            <a class="archive-post-title" href="/2023/03/05/2023-03-05-VoxelNet_&&_SECOND/">VoxelNet and SECOND</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2023/01/27/2023-01-27-Stereo_RCNN/">Stereo RCNN</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/06</span>
+            <a class="archive-post-title" href="/2022/10/06/2022-10-06-OTA/">OTA</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/07</span>
+            <a class="archive-post-title" href="/2021/08/07/2021-08-07-PointNet%E7%B3%BB%E5%88%97/">PointNet系列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/06</span>
+            <a class="archive-post-title" href="/2021/08/06/2021-08-06-MV3D/">Multi-View 3D Object Detection Network</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span>
+            <a class="archive-post-title" href="/2021/08/05/2021-08-05-SORT_&&_DeepSORT/">SORT && DeepSORT</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/04</span>
+            <a class="archive-post-title" href="/2021/08/04/2021-08-04-%E5%8A%A8%E6%80%81%E7%BD%91%E7%BB%9C%E5%A4%B4/">Dynamic Head</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/03</span>
+            <a class="archive-post-title" href="/2021/08/03/2021-08-03-%E5%8A%A8%E6%80%81%E5%8D%B7%E7%A7%AF%E4%B8%8E%E5%8A%A8%E6%80%81ReLU/">动态卷积与动态ReLU</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/16</span>
+            <a class="archive-post-title" href="/2021/05/16/2021-05-16-CRF%E5%8F%8A%E5%85%B6%E5%9C%A8%E5%88%86%E5%89%B2%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8/">CRF及其在分割领域上的应用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/30</span>
+            <a class="archive-post-title" href="/2021/04/30/2021-04-30-%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C/">图像分割基础网络</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/20</span>
+            <a class="archive-post-title" href="/2020/11/20/2020-11-20-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B20%E5%B9%B4/">Object Detection</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/25</span>
+            <a class="archive-post-title" href="/2020/10/25/2020-10-25-Centernet_%E5%9F%BA%E4%BA%8E%E4%B8%AD%E5%BF%83%E7%82%B9%E6%A3%80%E6%B5%8B/">Anchor free--Centernet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/18</span>
+            <a class="archive-post-title" href="/2020/10/18/2020-10-18-%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">一些常见的损失函数</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2020/10/03/2020-10-03-Efficient%E6%A8%A1%E5%9E%8B%E5%AE%B6%E6%97%8F/">Efficient模型家族</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/26</span>
+            <a class="archive-post-title" href="/2020/09/26/2020-09-26-%E5%87%A0%E7%B1%BBIOU%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">几种IOU损失</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/26</span>
+            <a class="archive-post-title" href="/2020/04/26/2020-04-26-Mobilenetv2/">MobileNetV2</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2020/02/10/2020-02-10-mask_rcnn/">Mask RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span>
+            <a class="archive-post-title" href="/2020/01/17/2020-01-15-yolov3/">YOLO_v3</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/10</span>
+            <a class="archive-post-title" href="/2020/01/10/2020-01-10-yolov2/">YOLO_v2 and YOLO9000</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-emmm/">额。。。</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-yolov1/">YOLO_v1</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2019 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2019/10/03/2019-10-03-SSD/">SSD</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span>
+            <a class="archive-post-title" href="/2019/09/22/2019-09-22-faster_rcnn/">Faster RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/21</span>
+            <a class="archive-post-title" href="/2019/09/21/2019-09-21-fast_rcnn/">Fast RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span>
+            <a class="archive-post-title" href="/2019/09/19/2019-09-19-RCNN/">RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/10</span>
+            <a class="archive-post-title" href="/2019/09/10/2019-09-10-ResNet/">ResNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2019/08/11/2019-08-11-%E5%8C%BA%E5%88%86%E5%87%A0%E7%A7%8D%E5%BD%92%E4%B8%80%E5%8C%96%E7%AE%97%E6%B3%95/">区分几种归一化算法</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/30</span>
+            <a class="archive-post-title" href="/2019/07/30/2019-07-30-VGG/">VGG</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/22</span>
+            <a class="archive-post-title" href="/2019/07/22/2019-07-22-AlexNet/">AlexNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/21</span>
+            <a class="archive-post-title" href="/2019/07/21/2019-07-21-NOTICE/">NOTICE~~~</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/24</span>
+            <a class="archive-post-title" href="/2019/03/24/2019-03-24-LightGBM/">LightGBM模型</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/17</span>
+            <a class="archive-post-title" href="/2019/03/17/2019-03-17-Xgboost/">Xgboost模型</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2018 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/03</span>
+            <a class="archive-post-title" href="/2018/11/03/2018-11-03-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%BC%98%E5%8C%96/">深度学习优化</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/28</span>
+            <a class="archive-post-title" href="/2018/10/28/2018-10-28-FFM%E6%A8%A1%E5%9E%8B/">FFM模型原理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/29</span>
+            <a class="archive-post-title" href="/2018/08/29/2018-08-29-%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/26</span>
+            <a class="archive-post-title" href="/2018/08/26/2018-08-26-sklearn%E8%B0%83%E5%8C%85%E5%90%88%E9%9B%86/">Scikit-learn调包合集</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/19</span>
+            <a class="archive-post-title" href="/2018/08/19/2018-08-19-%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB/">贝叶斯分类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/16</span>
+            <a class="archive-post-title" href="/2018/08/16/2018-08-16-SVM%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA/">SVM支持向量机</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span>
+            <a class="archive-post-title" href="/2018/08/13/2018-08-13-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E5%92%8CLogistic%E5%9B%9E%E5%BD%92/">线性回归和Logistic回归</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/02</span>
+            <a class="archive-post-title" href="/2018/03/02/2018-03-02-g++%E4%B8%8Egdb%E4%BD%BF%E7%94%A8/">g++与gdb使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2018/02/19/2018-02-19-Ubuntu%E9%85%8D%E7%BD%AEDjango/">Ubuntu配置Django</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/04</span>
+            <a class="archive-post-title" href="/2018/02/04/2018-02-04-Linux%E9%85%8D%E7%BD%AETensorflow/">Linux配置Tensorflow</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/20</span>
+            <a class="archive-post-title" href="/2018/01/20/2018-01-20-Linux%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%91%BD%E4%BB%A4/">Linux渗透测试命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/05</span>
+            <a class="archive-post-title" href="/2018/01/05/2018-01-05-Anaconda%E9%83%A8%E5%88%86%E5%91%BD%E4%BB%A4/">Anaconda部分命令</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2017 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/17</span>
+            <a class="archive-post-title" href="/2017/12/17/2017-12-17-ubuntu%E9%85%8D%E7%BD%AEgit/">Ubuntu配置Git</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2017/12/01/2017-12-01-Linux%E4%B8%8B%E7%9A%84MySQL%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84/">Linux下的MySQL数据文件路径</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2017/11/07/2017-11-07-Linux%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/">Linux一些命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/05</span>
+            <a class="archive-post-title" href="/2017/11/05/2017-11-04-Opencv%E5%AE%9E%E7%8E%B0%E6%B1%BD%E8%BD%A6%E8%BF%9D%E8%A7%84%E6%A3%80%E6%B5%8B%E8%AF%86%E5%88%AB/">Opencv实现汽车违规检测识别</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/20</span>
+            <a class="archive-post-title" href="/2017/10/20/2017-10-20-Linux%E4%B8%8B%E5%AE%89%E8%A3%85OpenCV/">Linux下安装OpenCV</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/01</span>
+            <a class="archive-post-title" href="/2017/10/01/2017-10-01-Vscode%E4%B8%8B%E7%BC%96%E8%AF%91C%E5%92%8CC++/">Vscode下编译C/C++</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/20</span>
+            <a class="archive-post-title" href="/2017/08/20/2017-08-20-Python%E4%B9%8B%E7%B1%BB/">Python的类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/10</span>
+            <a class="archive-post-title" href="/2017/08/10/2017-08-10-Python%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">Python，面向对象</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/04</span>
+            <a class="archive-post-title" href="/2017/07/04/2017-07-04-Git%E4%BD%BF%E7%94%A8%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/">GIT使用基础教程</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="git">
+                <span class="iconfont-archer">&#xe606;</span>
+                git
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="C/C++">
+                <span class="iconfont-archer">&#xe606;</span>
+                C/C++
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="opencv">
+                <span class="iconfont-archer">&#xe606;</span>
+                opencv
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="machine learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                machine learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="mysql">
+                <span class="iconfont-archer">&#xe606;</span>
+                mysql
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tensorflow">
+                <span class="iconfont-archer">&#xe606;</span>
+                tensorflow
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="django">
+                <span class="iconfont-archer">&#xe606;</span>
+                django
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="deep learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                deep learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="talk">
+                <span class="iconfont-archer">&#xe606;</span>
+                talk
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="math">
+                <span class="iconfont-archer">&#xe606;</span>
+                math
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="2017">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2017
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2018">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2018
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2019">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2019
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2020">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2020
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2021">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2021
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2022">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2022
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2023">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2023
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2024">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2024
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+            <script src='https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js'></script>
+            <script>
+                if (window.mermaid) {
+                    mermaid.initialize({theme: 'dark'});
+                }
+            </script>
+        
+    </body>
+</html>

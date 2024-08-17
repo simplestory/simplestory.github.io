@@ -1,0 +1,2247 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="通常的目标检测算法都是基于Anchor来做的，这样虽然会生成许多无用的锚框，同时带来耗时的NMS后处理操作，但算法的准确率较高，因为锚框基本上覆盖来所有目标区域。在检测领域还有一种做法的基于Anchor free的，即无锚框，我了解的范围内主要有Cornernet、Centernet(Keypoint Triplets for Object Detection)和Centernet(Object">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Anchor free--Centernet">
+<meta property="og:url" content="http://example.com/2020/10/25/2020-10-25-Centernet_%E5%9F%BA%E4%BA%8E%E4%B8%AD%E5%BF%83%E7%82%B9%E6%A3%80%E6%B5%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="通常的目标检测算法都是基于Anchor来做的，这样虽然会生成许多无用的锚框，同时带来耗时的NMS后处理操作，但算法的准确率较高，因为锚框基本上覆盖来所有目标区域。在检测领域还有一种做法的基于Anchor free的，即无锚框，我了解的范围内主要有Cornernet、Centernet(Keypoint Triplets for Object Detection)和Centernet(Object">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-10-25T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-17T14:15:14.347Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="deep learning">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>Anchor free--Centernet · simplestory&#39;s blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+        <script>
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?f4ceef9ccf4caa1b456d8373672cfa7e";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+    
+    <!-- 谷歌统计  -->
+    
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNYWTSM2GG"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-DNYWTSM2GG');
+        </script>
+    
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Simplestory's Blog</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Simplestory&#39;s Blog</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">Anchor free--Centernet</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post_bg.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                Anchor free--Centernet
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+                    Objects as Points
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="deep learning">deep learning</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">2.3k</span>Reading time: <span class="post-count reading-time">9 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2020/10/25</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p>通常的目标检测算法都是基于Anchor来做的，这样虽然会生成许多无用的锚框，同时带来耗时的NMS后处理操作，但算法的准确率较高，因为锚框基本上覆盖来所有目标区域。在检测领域还有一种做法的基于Anchor
+free的，即无锚框，我了解的范围内主要有Cornernet、Centernet(Keypoint
+Triplets for Object Detection)和Centernet(Objects as
+Points)。这种类型的算法无需生成锚框，也就不需要耗时的NMS后处理。这里主要记录一下Centernet(Objects
+as Points)的处理方法。</p>
+</blockquote>
+<h2 id="模型结构">模型结构</h2>
+<p>Centernet主要是借用关键点检测的操作来检测目标的中心位置，再扩展到目标检测领域上，即通过回归得到框的大小。该算法可以方便地扩展到其它领域，例如论文里提到的目标检测、3D框预测、姿态等。在backbone方面作者主要采用了hourglass、resnet和DLA模型，对于目标检测，则在backbone后面加上三个分支，主要是：Heat
+maps分支用于获取目标中心点、Center offset用于矫正目标中心点、Box
+size用于回归目标框大小。大致结构如下（其中的cls表示检测的类别数）：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201025/centernet_arch.jpg"
+title="centernet_arch" /></p>
+<h2 id="数据流">数据流</h2>
+<p>说完模型结构，接下来是对数据的处理。作者是通过热图来标注目标中心点的，而热图是由高斯核得到的。</p>
+<p>首先对图片<span class="math inline">\(H\times W\times
+3\)</span>经过下采样处理（下采样倍数<span
+class="math inline">\(R\)</span>这里设置为<span
+class="math inline">\(4\)</span>）得到<span
+class="math inline">\(H/R\times W/R\times cls\)</span>的图像，其中<span
+class="math inline">\(cls\)</span>为类别数。之后计算真实框在缩放后图像上的中心点<span
+class="math inline">\(\hat{p}(x,y)=\lfloor\frac{p}{R}\rfloor\)</span>，通过高斯核<span
+class="math inline">\(exp(-\frac{(x-\hat{p}_x)^2+(y-\hat{p}_y)^2}{2\sigma_p^2})\)</span>对中心点进行映射，最后得到热图<span
+class="math inline">\(\hat{Y}\in
+[0,1]^{\frac{W}{R}\times\frac{H}{R}\times 3}\)</span>。</p>
+<p>生成的热图并非是中心点位置为1，其它位置为0。它是目标点为1，向周围扩散逐渐变小。高斯核映射中以<span
+class="math inline">\(\hat{p}\)</span>为中心画出对应的高斯函数，并截取以<span
+class="math inline">\(\hat{p}\)</span>为圆心，<span
+class="math inline">\(radius\)</span>为半径的区域，同时高斯核中的<span
+class="math inline">\(\sigma_p\)</span>为目标尺寸自适应标准差，作者实现中将其赋值为<span
+class="math inline">\(\frac{2\times
+radius}{6}\)</span>。这里截取区域半径<span
+class="math inline">\(radius\)</span>以及高斯核参数<span
+class="math inline">\(\sigma_p\)</span>的设计均参考了另一篇论文Cornernet。在Cornernet中，高斯核的标准差差设计为偏差允许区域半径（即<span
+class="math inline">\(radius\)</span>）的<span
+class="math inline">\(\frac{1}{3}\)</span>。考虑到在目标点（Cornernet的目标点为目标框的角点）附近的点生成的标记框与目标框会有较大的IoU，直接将该点赋值为0并不合适，所以通过设置IoU阈值（Centernet中设置为0.7）形成偏差允许区域，在该区域内按照高斯函数来逐渐递减目标点周围点的数值。由这些点生成的标记框与目标框有三种相交极限情况，分别计算这三种情况下的区域半径取值，最后取三种情况下的最小区域半径即为<span
+class="math inline">\(radius\)</span>的值。</p>
+<h3 id="radius的计算">radius的计算</h3>
+<p><strong>标记框全外切目标框</strong></p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201025/radius_1.png"
+title="radius_1" /></p>
+<p>由上图可计算出IoU：</p>
+<p><span class="math display">\[
+IoU = \frac{w\cdot h}{(w+2r)\cdot(h+2r)} \ge iou\_overlap
+\]</span></p>
+<p>则该情况下的最大半径满足下式：</p>
+<p><span class="math display">\[
+\begin{aligned}
+    &amp; \frac{w\cdot h}{(w+2r)\cdot(h+2r)} = k = iou\_overlap \\
+    \Rightarrow &amp; \ 4k\cdot r^2 + 2k(w+h)\cdot r + (k-1)wh = 0
+\end{aligned}
+\]</span></p>
+<p>这是一个一元二次方程，在保证有解的情况下，可由公式计算出<span
+class="math inline">\(r\)</span>的正解。（<span class="math inline">\(y
+= \frac{-b\pm\sqrt{b^2-4ac}}{2a}\)</span>，其中<span
+class="math inline">\(b^2-4ac\ge 0\)</span>）。</p>
+<p><strong>标记框全内切目标框</strong></p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201025/radius_2.png"
+title="radius_2" /></p>
+<p>由上图可计算出IoU：</p>
+<p><span class="math display">\[
+IoU = \frac{(w-2r)\cdot(h-2r)}{w\cdot h} \ge iou\_overlap
+\]</span></p>
+<p>则该情况下的最大半径满足下式：</p>
+<p><span class="math display">\[
+\begin{aligned}
+    &amp; \frac{(w-2r)\cdot(h-2r)}{w\cdot h} = k =iou\_overlap \\
+    \Rightarrow &amp; \ 4\cdot r^2 - 2(w+h)\cdot h + (1-k)wh = 0
+\end{aligned}
+\]</span></p>
+<p>同样可以求取<span class="math inline">\(r\)</span>的正解</p>
+<p><strong>标记框半外切半内切目标款</strong></p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201025/radius_3.png"
+title="radius_3" /></p>
+<p>可计算IoU如下：</p>
+<p><span class="math display">\[
+IoU = \frac{(w-r)\cdot(h-r)}{2\cdot h\cdot w - (w-r)\cdot(h-r)} \ge
+iou\_overlap
+\]</span></p>
+<p>则该情况下的最大半径满足下式：</p>
+<p><span class="math display">\[
+\begin{aligned}
+    &amp; \frac{(w-r)\cdot(h-r)}{2\cdot h\cdot w - (w-r)\cdot(h-r)} = k
+= iou\_overlap \\
+    \Rightarrow &amp; \ (1+k)\cdot r^2 - (w+h)(1+k)\cdot r + (1-k)wh = 0
+\\
+    \Rightarrow &amp; \ r^2 -(w+h)\cdot r + \frac{1-k}{1+k}wh = 0
+\end{aligned}
+\]</span></p>
+<p>同理可以求出<span class="math inline">\(r\)</span>的正解</p>
+<p>综合以上三种情况，取三者中的最小值作为<span
+class="math inline">\(radius\)</span>的取值。</p>
+<h2 id="损失函数">损失函数</h2>
+<p>该模型具有良好的可扩展性，通过添加不同的分支可以应用于不同的领域，其中有两个分支是固定的（Heat
+maps和Center
+offset），对应的损失函数分别为中心点损失和中心点偏差损失。</p>
+<h3 id="中心点损失">中心点损失</h3>
+<p>作者这里也是借鉴了Cornernet的损失函数来设计的，形式如下：</p>
+<p><span class="math display">\[
+L_k = -\frac{1}{N}
+\begin{cases}
+    (1-\hat{Y}_{xyc})^\alpha log(\hat{Y}_{xyc}) \ &amp; \text{if }
+Y_{xyc}=1 \\
+    (1-Y_{xyc})^\beta(\hat{Y}_{xyc})^\alpha log(1-\hat{Y}_{xyc}) \ &amp;
+\text{otherwise}
+\end{cases}
+\]</span></p>
+<p>其中<span
+class="math inline">\(N\)</span>表示图片中目标中心点的个数，<span
+class="math inline">\(\alpha\)</span>和<span
+class="math inline">\(\beta\)</span>为超参数，作者选用了<span
+class="math inline">\(\alpha=2\)</span>和<span
+class="math inline">\(\beta=4\)</span>。<span
+class="math inline">\(Y_{xyc}\)</span>表示真实标注热图上对应位置的取值，而<span
+class="math inline">\(\hat{Y}_{xyc}\)</span>表示模型预测的热图上对应位置的取值。</p>
+<p>从整体上看，这是一个改进后的<span class="math inline">\(focal \
+loss\)</span>函数。当<span
+class="math inline">\(Y_{xyc}=1\)</span>时，可以通过<span
+class="math inline">\((1-\hat{Y}_{xyc})^\alpha\)</span>来改变对应的权重，若模型预测值已经接近<span
+class="math inline">\(1\)</span>，表明该样本对于模型来说属于容易样本，则对应的损失权重会降低，反之属于困难样本，权重上升。</p>
+<p>当<span class="math inline">\(Y_{xyc}\neq
+1\)</span>时，这里可以分为两种情况，一种是预测点离目标点较近即<span
+class="math inline">\(1-Y_{xyc}\)</span>较小，此时模型预测值应该为0，若模型预测值接近1，对应样本损失的权重上升，但该点离目标点较近，模型在该点取得的预测值较大是可以接受的，所以用<span
+class="math inline">\((1-Y_{xyc})^\beta\)</span>来下降权重进行平衡；另一种是预测点离目标点较远，即<span
+class="math inline">\(1-Y_{xyc}\)</span>较大，在<span
+class="math inline">\((1-Y_{xyc})^\beta\)</span>的作用下，对应样本损失的权重会增大，但该点离目标点较远，模型在该点取得的预测值较小是可以接受的，所以用<span
+class="math inline">\(\hat{Y}_{xyc}^\alpha\)</span>来降低权重进行平衡。</p>
+<h3 id="中心点偏差损失">中心点偏差损失</h3>
+<p>由于在对真实标注进行下采样时对中心点坐标做了取舍，引入了偏差，所以使用L1损失来引导模型弥补这段差值：</p>
+<p><span class="math display">\[
+\begin{aligned}
+    L_{off} &amp;= \frac{1}{N}\sum_p\lvert \hat{O}_{\hat{p}} -
+(\frac{p}{R}-\hat{p})\rvert \\
+    &amp;= \frac{1}{N}\sum_p\lvert \hat{O}_{\hat{p}} -
+(\frac{p}{R}-\lfloor \frac{p}{R}\rfloor)\rvert)
+    \end{aligned}
+\]</span></p>
+<p>其中<span
+class="math inline">\(N\)</span>表示图片中目标中心点的个数，<span
+class="math inline">\(\hat{O}\in
+\mathcal{R}^{\frac{W}{R}\times\frac{H}{R}\times
+2}\)</span>表示模型预测的中心点偏差。注意该损失函数仅在对应的目标点上起作用，其余位置均忽略。</p>
+<h3 id="其它损失">其它损失</h3>
+<p>模型可以进行扩展，对应的损失函数也不太一样，这里只说明一下目标检测下的损失函数。</p>
+<p>令<span class="math inline">\((x_1^{(k)}, y_1^{(k)}, x_2^{(k)},
+y_2^{(k)})\)</span>表示类别<span
+class="math inline">\(c_k\)</span>中目标<span
+class="math inline">\(k\)</span>的目标框坐标，其中心点坐标为<span
+class="math inline">\(p_k=(\frac{x_1^{(k)}+x_2^{(k)}}{2},
+\frac{y_1^{(k)}+y_2^{(k)}}{2})\)</span>，对于目标检测，模型主要回归每个目标框的尺寸<span
+class="math inline">\(s_k=(x_2^{(k)}-x_1^{(k)},
+y_2^{(k)}-y_1^{(k)})\)</span>。为了减轻计算负担，作者对每个类别对象使用了统一的目标框尺寸，即每个类别下的所有目标只有一个尺寸大小。使用L1损失如下：</p>
+<p><span class="math display">\[
+L_{size} = \frac{1}{N}\sum_{k=1}^N\lvert \hat{S}_{p_k} - s_k\rvert
+\]</span></p>
+<p>其中<span
+class="math inline">\(N\)</span>表示图片中目标中心点的个数，<span
+class="math inline">\(\hat{S}\in \mathcal{R}^{\frac{W}{R}\times
+\frac{H}{R}\times 2}\)</span>表示模型预测的目标框尺寸。</p>
+<p>作者并没有对尺寸进行归一化，而是通过添加系数来缩放损失大小：</p>
+<p><span class="math display">\[
+L_{det} = L_k + \lambda_{size}L_{size} + \lambda_{off}L_{off}
+\]</span></p>
+<p>上式是针对于目标检测的，作者选取的两个超参数值为<span
+class="math inline">\(\lambda_{size}=0.1\)</span>和<span
+class="math inline">\(\lambda_{off}=1\)</span>。</p>
+<h2 id="推断阶段">推断阶段</h2>
+<p>在模型的热图输出上，对每个类别都提取出<span
+class="math inline">\(topK\)</span>个高峰。提取的点是在该点在周围8个点内为最大，这步操作可通过一个<span
+class="math inline">\(3\times
+3\)</span>的最大池化来完成。这里其实相当于进行NMS。之后通过获取的峰值点、中心点偏差预测值以及预测尺寸即可得到相应的预测框：</p>
+<p><span class="math display">\[
+\begin{aligned}
+    &amp;(\hat{x}_i+\delta\hat{x}_i-\hat{w}_i/2,\  \hat{y}_i+\delta\hat{y}_i-\hat{h}_i/2\\
+    &amp;\hat{x}_i+\delta\hat{x}_i+\hat{w}_i/2,\  \hat{y}_i+\delta\hat{y}_i+\hat{h}_i/2)
+\end{aligned}
+\]</span></p>
+<h2 id="致谢">致谢</h2>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1904.07850.pdf">Objects as
+Points</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1808.01244.pdf">CornerNet: Detecting
+Objects as Paired Keypoints</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/66048276">扔掉anchor！真正的CenterNet——Objects
+as Points论文解读</a></p>
+</blockquote>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2020/11/20/2020-11-20-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B20%E5%B9%B4/" title="Object Detection">
+                    <div class="nextTitle">Object Detection</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2020/10/18/2020-10-18-%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/" title="一些常见的损失函数">
+                    <div class="prevTitle">一些常见的损失函数</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+    <script src='//unpkg.com/@waline/client@v2/dist/waline.js'></script>
+    <link href='//unpkg.com/@waline/client@v2/dist/waline.css' rel='stylesheet' />
+    <div id="comment"></div>
+    <script>
+    Waline.init({
+        el: '#comment' ,
+        serverURL: "https://waline-vercel.nasaka3000.fun",
+        wordLimit: "600",
+        login: "enable",
+        dark: ""
+    });
+    </script>
+
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+        
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script>
+
+
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:guijiaguai@foxmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/simplestory" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 63
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDIM/">DDIM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDPM/">DDPM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-LDM/">LDM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-GAN/">GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VAE/">VAE</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_GAN/">VQ-GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_VAE/">VQ-VAE</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/24</span>
+            <a class="archive-post-title" href="/2023/06/24/2023-06-24-LSS/">LSS</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-MonoRCNN/">MonoRCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-YOLOStereo3D/">YOLOStereo3D</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/05</span>
+            <a class="archive-post-title" href="/2023/03/05/2023-03-05-VoxelNet_&&_SECOND/">VoxelNet and SECOND</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2023/01/27/2023-01-27-Stereo_RCNN/">Stereo RCNN</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/06</span>
+            <a class="archive-post-title" href="/2022/10/06/2022-10-06-OTA/">OTA</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/07</span>
+            <a class="archive-post-title" href="/2021/08/07/2021-08-07-PointNet%E7%B3%BB%E5%88%97/">PointNet系列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/06</span>
+            <a class="archive-post-title" href="/2021/08/06/2021-08-06-MV3D/">Multi-View 3D Object Detection Network</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span>
+            <a class="archive-post-title" href="/2021/08/05/2021-08-05-SORT_&&_DeepSORT/">SORT && DeepSORT</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/04</span>
+            <a class="archive-post-title" href="/2021/08/04/2021-08-04-%E5%8A%A8%E6%80%81%E7%BD%91%E7%BB%9C%E5%A4%B4/">Dynamic Head</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/03</span>
+            <a class="archive-post-title" href="/2021/08/03/2021-08-03-%E5%8A%A8%E6%80%81%E5%8D%B7%E7%A7%AF%E4%B8%8E%E5%8A%A8%E6%80%81ReLU/">动态卷积与动态ReLU</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/16</span>
+            <a class="archive-post-title" href="/2021/05/16/2021-05-16-CRF%E5%8F%8A%E5%85%B6%E5%9C%A8%E5%88%86%E5%89%B2%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8/">CRF及其在分割领域上的应用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/30</span>
+            <a class="archive-post-title" href="/2021/04/30/2021-04-30-%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C/">图像分割基础网络</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/20</span>
+            <a class="archive-post-title" href="/2020/11/20/2020-11-20-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B20%E5%B9%B4/">Object Detection</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/25</span>
+            <a class="archive-post-title" href="/2020/10/25/2020-10-25-Centernet_%E5%9F%BA%E4%BA%8E%E4%B8%AD%E5%BF%83%E7%82%B9%E6%A3%80%E6%B5%8B/">Anchor free--Centernet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/18</span>
+            <a class="archive-post-title" href="/2020/10/18/2020-10-18-%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">一些常见的损失函数</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2020/10/03/2020-10-03-Efficient%E6%A8%A1%E5%9E%8B%E5%AE%B6%E6%97%8F/">Efficient模型家族</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/26</span>
+            <a class="archive-post-title" href="/2020/09/26/2020-09-26-%E5%87%A0%E7%B1%BBIOU%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">几种IOU损失</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/26</span>
+            <a class="archive-post-title" href="/2020/04/26/2020-04-26-Mobilenetv2/">MobileNetV2</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2020/02/10/2020-02-10-mask_rcnn/">Mask RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span>
+            <a class="archive-post-title" href="/2020/01/17/2020-01-15-yolov3/">YOLO_v3</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/10</span>
+            <a class="archive-post-title" href="/2020/01/10/2020-01-10-yolov2/">YOLO_v2 and YOLO9000</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-emmm/">额。。。</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-yolov1/">YOLO_v1</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2019 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2019/10/03/2019-10-03-SSD/">SSD</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span>
+            <a class="archive-post-title" href="/2019/09/22/2019-09-22-faster_rcnn/">Faster RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/21</span>
+            <a class="archive-post-title" href="/2019/09/21/2019-09-21-fast_rcnn/">Fast RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span>
+            <a class="archive-post-title" href="/2019/09/19/2019-09-19-RCNN/">RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/10</span>
+            <a class="archive-post-title" href="/2019/09/10/2019-09-10-ResNet/">ResNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2019/08/11/2019-08-11-%E5%8C%BA%E5%88%86%E5%87%A0%E7%A7%8D%E5%BD%92%E4%B8%80%E5%8C%96%E7%AE%97%E6%B3%95/">区分几种归一化算法</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/30</span>
+            <a class="archive-post-title" href="/2019/07/30/2019-07-30-VGG/">VGG</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/22</span>
+            <a class="archive-post-title" href="/2019/07/22/2019-07-22-AlexNet/">AlexNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/21</span>
+            <a class="archive-post-title" href="/2019/07/21/2019-07-21-NOTICE/">NOTICE~~~</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/24</span>
+            <a class="archive-post-title" href="/2019/03/24/2019-03-24-LightGBM/">LightGBM模型</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/17</span>
+            <a class="archive-post-title" href="/2019/03/17/2019-03-17-Xgboost/">Xgboost模型</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2018 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/03</span>
+            <a class="archive-post-title" href="/2018/11/03/2018-11-03-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%BC%98%E5%8C%96/">深度学习优化</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/28</span>
+            <a class="archive-post-title" href="/2018/10/28/2018-10-28-FFM%E6%A8%A1%E5%9E%8B/">FFM模型原理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/29</span>
+            <a class="archive-post-title" href="/2018/08/29/2018-08-29-%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/26</span>
+            <a class="archive-post-title" href="/2018/08/26/2018-08-26-sklearn%E8%B0%83%E5%8C%85%E5%90%88%E9%9B%86/">Scikit-learn调包合集</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/19</span>
+            <a class="archive-post-title" href="/2018/08/19/2018-08-19-%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB/">贝叶斯分类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/16</span>
+            <a class="archive-post-title" href="/2018/08/16/2018-08-16-SVM%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA/">SVM支持向量机</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span>
+            <a class="archive-post-title" href="/2018/08/13/2018-08-13-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E5%92%8CLogistic%E5%9B%9E%E5%BD%92/">线性回归和Logistic回归</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/02</span>
+            <a class="archive-post-title" href="/2018/03/02/2018-03-02-g++%E4%B8%8Egdb%E4%BD%BF%E7%94%A8/">g++与gdb使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2018/02/19/2018-02-19-Ubuntu%E9%85%8D%E7%BD%AEDjango/">Ubuntu配置Django</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/04</span>
+            <a class="archive-post-title" href="/2018/02/04/2018-02-04-Linux%E9%85%8D%E7%BD%AETensorflow/">Linux配置Tensorflow</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/20</span>
+            <a class="archive-post-title" href="/2018/01/20/2018-01-20-Linux%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%91%BD%E4%BB%A4/">Linux渗透测试命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/05</span>
+            <a class="archive-post-title" href="/2018/01/05/2018-01-05-Anaconda%E9%83%A8%E5%88%86%E5%91%BD%E4%BB%A4/">Anaconda部分命令</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2017 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/17</span>
+            <a class="archive-post-title" href="/2017/12/17/2017-12-17-ubuntu%E9%85%8D%E7%BD%AEgit/">Ubuntu配置Git</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2017/12/01/2017-12-01-Linux%E4%B8%8B%E7%9A%84MySQL%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84/">Linux下的MySQL数据文件路径</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2017/11/07/2017-11-07-Linux%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/">Linux一些命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/05</span>
+            <a class="archive-post-title" href="/2017/11/05/2017-11-04-Opencv%E5%AE%9E%E7%8E%B0%E6%B1%BD%E8%BD%A6%E8%BF%9D%E8%A7%84%E6%A3%80%E6%B5%8B%E8%AF%86%E5%88%AB/">Opencv实现汽车违规检测识别</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/20</span>
+            <a class="archive-post-title" href="/2017/10/20/2017-10-20-Linux%E4%B8%8B%E5%AE%89%E8%A3%85OpenCV/">Linux下安装OpenCV</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/01</span>
+            <a class="archive-post-title" href="/2017/10/01/2017-10-01-Vscode%E4%B8%8B%E7%BC%96%E8%AF%91C%E5%92%8CC++/">Vscode下编译C/C++</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/20</span>
+            <a class="archive-post-title" href="/2017/08/20/2017-08-20-Python%E4%B9%8B%E7%B1%BB/">Python的类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/10</span>
+            <a class="archive-post-title" href="/2017/08/10/2017-08-10-Python%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">Python，面向对象</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/04</span>
+            <a class="archive-post-title" href="/2017/07/04/2017-07-04-Git%E4%BD%BF%E7%94%A8%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/">GIT使用基础教程</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="git">
+                <span class="iconfont-archer">&#xe606;</span>
+                git
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="C/C++">
+                <span class="iconfont-archer">&#xe606;</span>
+                C/C++
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="opencv">
+                <span class="iconfont-archer">&#xe606;</span>
+                opencv
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="machine learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                machine learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="mysql">
+                <span class="iconfont-archer">&#xe606;</span>
+                mysql
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tensorflow">
+                <span class="iconfont-archer">&#xe606;</span>
+                tensorflow
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="django">
+                <span class="iconfont-archer">&#xe606;</span>
+                django
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="deep learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                deep learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="talk">
+                <span class="iconfont-archer">&#xe606;</span>
+                talk
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="math">
+                <span class="iconfont-archer">&#xe606;</span>
+                math
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="2017">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2017
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2018">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2018
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2019">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2019
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2020">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2020
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2021">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2021
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2022">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2022
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2023">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2023
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2024">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2024
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+            <script src='https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js'></script>
+            <script>
+                if (window.mermaid) {
+                    mermaid.initialize({theme: 'dark'});
+                }
+            </script>
+        
+    </body>
+</html>

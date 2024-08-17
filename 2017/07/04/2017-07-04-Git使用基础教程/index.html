@@ -1,0 +1,2230 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="Git是一个极其优秀的分布式版本控制系统。该系统可以记录用户文件的每一次变动，还具有强大的团队协同工作能力，每个人都可以提交对文本的改动，而不必担心会覆盖他人的操作。Github更是一个通过Git进行版本控制的软件源代码托管服务。截至到2015年，Github已经有超过九百万注册用户和2110万代码库。Github已经成为了世界上最大的代码存放网站和开源社区。  GIT使用教程 创建版本库 选择">
+<meta property="og:type" content="article">
+<meta property="og:title" content="GIT使用基础教程">
+<meta property="og:url" content="http://example.com/2017/07/04/2017-07-04-Git%E4%BD%BF%E7%94%A8%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="Git是一个极其优秀的分布式版本控制系统。该系统可以记录用户文件的每一次变动，还具有强大的团队协同工作能力，每个人都可以提交对文本的改动，而不必担心会覆盖他人的操作。Github更是一个通过Git进行版本控制的软件源代码托管服务。截至到2015年，Github已经有超过九百万注册用户和2110万代码库。Github已经成为了世界上最大的代码存放网站和开源社区。  GIT使用教程 创建版本库 选择">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2017-07-04T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-17T14:15:14.347Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="git">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>GIT使用基础教程 · simplestory&#39;s blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+        <script>
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?f4ceef9ccf4caa1b456d8373672cfa7e";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+    
+    <!-- 谷歌统计  -->
+    
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNYWTSM2GG"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-DNYWTSM2GG');
+        </script>
+    
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Simplestory's Blog</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Simplestory&#39;s Blog</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">GIT使用基础教程</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post_bg.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                GIT使用基础教程
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+                    Git的一些基本操作
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="git">git</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">3.7k</span>Reading time: <span class="post-count reading-time">14 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2017/07/04</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p>Git是一个极其优秀的分布式版本控制系统。该系统可以记录用户文件的每一次变动，还具有强大的团队协同工作能力，每个人都可以提交对文本的改动，而不必担心会覆盖他人的操作。Github更是一个通过Git进行版本控制的软件源代码托管服务。截至到2015年，Github已经有超过九百万注册用户和2110万代码库。Github已经成为了世界上最大的代码存放网站和开源社区。</p>
+</blockquote>
+<h1 id="git使用教程">GIT使用教程</h1>
+<h2 id="创建版本库">创建版本库</h2>
+<p>选择一个合适的地方，创建一个空目录</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">mkdir</span> &lt;dir-name&gt;</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">cd</span> &lt;dir-name&gt;  <span class="comment">#在仓库中进行操作</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash"><span class="built_in">pwd</span>  <span class="comment">#可查看当前目录</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git init <span class="comment">#将目录变为Git可以管理的仓库，即初始化仓库</span></span></span><br></pre></td></tr></table></figure>
+<p>之后会在当前目录下产生一个.git的目录，该目录是Git用来跟踪管理版本库，也可以选用一个非空目录创建Git仓库</p>
+<h2 id="编写保存文件">编写保存文件</h2>
+<p>编写文件并存放至<code>&lt;dir-name&gt;</code>目录下（或子目录）</p>
+<p>用纯文本方式编辑并保存文件，文件编码格式保存为UTF-8编码格式</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git add &lt;filename1&gt; &lt;filename2&gt; ...  <span class="comment">#告知Git将文件添加至仓库</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git commit -m <span class="string">&quot;...&quot;</span>  <span class="comment">#将文件提交到仓库 -m后面输入本次提交的说明，可以一次提交多个文件</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git status  <span class="comment">#可查看仓库当前的状态，告知用户是否有文件被修改</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git diff  <span class="comment">#查看文件具体修改了什么，或对比文件</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git <span class="built_in">log</span>  <span class="comment">#显示从最近到最远的提交日志（可加上参数--pretty=oneline改变显示视图）</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git reset --hard HEAD^  <span class="comment">#文件回退至上一版本</span></span></span><br></pre></td></tr></table></figure>
+<p>Git中，用HEAD表示当前版本，上一版本就是HEAD<sup>，上上版本为HEAD</sup>^,往上N个版本可写为HEAD~N</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git reset --hard &lt;fileID&gt;  <span class="comment">#文件版本跳至版本ID为&lt;fileID&gt;的文件</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git reflog  <span class="comment">#记录用户的每一次操作，可借由此查看文件回退前的版本号</span></span></span><br></pre></td></tr></table></figure>
+<h2 id="工作区与暂存区">工作区与暂存区</h2>
+<ul>
+<li><h3 id="工作区">工作区</h3>
+<p>在计算机里可以看到的目录就是工作区，用于存放文件</p></li>
+<li><h3 id="版本库与暂存区">版本库与暂存区</h3>
+<p>工作区下有一个隐藏目录.git,这个是git的版本库，版本库里存有暂存区（stage/index)</p></li>
+<li><h3 id="git大致工作原理">Git大致工作原理</h3>
+<p>文件添加至Git版本库分为两步：</p></li>
+</ul>
+<ol type="1">
+<li><code>git add</code>将文件添加进暂存区，即把对文件的修改或相关操作添加到暂存区</li>
+<li><code>git commit</code>提交更改，即把暂存区的全部内容提交到当前分支</li>
+</ol>
+<h2 id="文件撤销操作">文件撤销操作</h2>
+<p><code>$ git checkout -- &lt;filename&gt;</code>
+将<filename>在工作区的修改全部撤销，命令<code>--</code>很重要，没有<code>--</code>就变成了切换到另一个分支的命令</p>
+<h3 id="文件撤销情况">文件撤销情况</h3>
+<p>关于文件需要撤销操作的，大致有两种情况： +
+<code>&lt;filename&gt;</code>自修改后还没放到暂存区，则命令执行后文件撤销修改就回到和版本库一模一样的状态
++
+<code>&lt;filename&gt;</code>已经添加到暂存区后，又作了修改，则命令执行后文件撤销修改就回到添加到暂存区后的状态
+总之，就是让文件回到最近一次<code>git commit</code>或<code>git add</code>时的状态</p>
+<h3 id="撤销与回退小结">撤销与回退小结</h3>
+<ol type="1">
+<li>当你改乱了工作区某个文件的内容，想直接丢弃工作区的修改时，用命令
+<code>git checkout -- &lt;filename&gt;</code></li>
+<li>当你不但改乱了工作区某个文件的内容，还添加到了暂存区时，想丢弃修改，分两步：用命令
+<code>git reset HEAD &lt;filename&gt;</code>，就回退到1中，然后继续1的操作</li>
+<li>当你已经提交了不合适的修改到版本库时，想要撤销本次提交，可参考版本回退，不过前提时没有推送到远程库</li>
+</ol>
+<p>版本回退：<code>git reset --hard &lt;ID&gt;</code>，将文件跳至版本号ID的文件，HEAD表示最新的文件版本</p>
+<h2 id="git撤销删除">Git撤销删除</h2>
+<p><strong>Git中删除也是一种修改操作</strong></p>
+<p>一般情况下，在提交至版本库后，我们直接在文件管理器中删除文件（或通过<code>rm</code>命令），<code>git status</code>会告知那些文件被删除，这时有两种选择：
+1.
+确实要从版本库中删除，可执行<code>git rm</code>命令删除，并<code>git commit</code>
+2.
+手误删除文件，这时可执行<code>git checkout -- &lt;filename&gt;</code>命令把误删的文件恢复到最新版本
+*
+<code>git checkout</code>其实是用版本库里的版本替换工作区的版本，无论工作区是修改还是删除，都可以"一键还原",
+命令<code>git rm</code>用于删除一个文件，如果一个文件已经被提交到版本库，那永远不用担心误删，但你只能恢复文件到最新版本，你会丢失最近一次修改提交后的内容</p>
+<h2 id="创建ssh-key">创建SSH Key</h2>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">ssh-keygen -t rsa -C <span class="string">&quot;youremail@example.com&quot;</span></span></span><br></pre></td></tr></table></figure>
+<p>创建后，可在用户主目录里找到<code>.ssh</code>目录，里面有<code>id_rsa</code>和<code>id_rsa.pub</code>两个文件，这两个文件就是<code>SSH Key</code>的秘钥对，<code>id——rsa</code>是私钥，不能泄露，<code>id_rsa.pub</code>是
+公钥，可以公布。之后登陆Github进行设置，进入"SSH Key"页面，点击"Add SSH
+Key"，填上任意标题，在Key文本框里粘贴<code>id_rsa.pub</code>文件里的内容</p>
+<p><strong>Github允许添加多个Key</strong></p>
+<h2 id="关联远程库">关联远程库</h2>
+<p>首先在Github上新建一个仓库（或者使用已有的仓库），在本地的一个仓库中运行以下命令：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git remote add origin git@github.com:&lt;accountname&gt;/&lt;localreponame&gt;.git</span></span><br></pre></td></tr></table></figure>
+<p>添加后，远程库名字Git默认为origin，可以更改:</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git push -u origin master</span></span><br></pre></td></tr></table></figure>
+<p>git push命令，实际是把当前分支master推送到远程,
+如果这是你第一次推送master分支，你需要加上-u参数，Git不但会把本地的master分支内容推送到远程的新的master分支，还会把本地的master分支和远程的master分支关联起来，
+在以后的推送或者拉取时可简化命令，之后只要本地作了提交，就可以通过命令：<code>$ git push origin master</code>完成提交
+在第一次使用Git的<code>clone</code>或<code>push</code>命令时会得到一个SSH警告，输入yes即可</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">#</span><span class="language-bash">关联一个远程库</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git remote add origin git@server-name:path/repo-anme.git</span></span><br></pre></td></tr></table></figure>
+<h2 id="克隆远程库到本地">克隆远程库到本地</h2>
+<p>在Github中新建库后，可以使用<code>git clone</code>克隆一个本地库
+<code>$ git clone git@github.com:&lt;git库地址&gt;</code></p>
+<p>Git支持多种协议，包括https</p>
+<p><strong>windows系统：</strong><code>$ git clone &lt;Git远程库的url&gt;</code></p>
+<h2 id="git分支">Git分支</h2>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git branch  <span class="comment">#查看分支</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git branch &lt;name&gt;  <span class="comment">#创建分支</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git checkout &lt;name&gt;  <span class="comment">#切换分支</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git checkout -b &lt;name&gt;  <span class="comment">#创建+切换分支</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git merge &lt;name&gt;  <span class="comment">#合并某分支到当前分支</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git branch -d &lt;name&gt;  <span class="comment">#删除分支</span></span></span><br></pre></td></tr></table></figure>
+<p>多个分支是共用暂存区，即如果在分支1上仅add而不commit，实际暂存区中已经记录该次修改，哪怕之后切换到分支2上再进行commit也是有效操作
+当Git无法自动合并分支时，需要首先解决冲突。解决冲突后再提交,
+用<code>git log --graph</code>命令可以看到分支合并图，<code>git status</code>也可以查看冲突的文件</p>
+<p><strong>e.g:</strong><code>$ git log --graph --pretty=oneline --abbrev-commit</code></p>
+<h2 id="git分支管理">Git分支管理</h2>
+<p>合并分支时，加上<code>--no-ff</code>参数就可以用普通模式合并，合并后的历史有分支，能看出曾经做过合并，而fast-forward合并就看不出曾经做过合并</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git merge --no-ff -m<span class="string">&quot;...&quot;</span> &lt;name&gt;</span></span><br></pre></td></tr></table></figure>
+<p>以普通方式合并分支（即禁用fast
+forward）因为本次合并要创建一个新的commit，所以加上-m参数，把commit描述写进去`</p>
+<h3 id="分支策略">分支策略：</h3>
+<ul>
+<li>在实际开发中，我们应该按照几个基本原则进行分制管理：</li>
+<li>master分支应该是非常稳定的，也就是仅用来发布新版本，平时不在上面干活；</li>
+<li>干活都在dev分支，即devd分支是不稳定的，到某个时候，再把dev分支合并到master分支上；</li>
+<li>每个人都在dev分支上工作，每个人都有自己的分支，要保存时往dev分支上合并就可以了</li>
+</ul>
+<h2 id="bug分支">Bug分支</h2>
+<p><code>$ git stash</code>命令相当于对当前工作环境做一个快照，等以后恢复环境后继续工作</p>
+<p><strong>在哪个分支上修复bug，就在从哪个分区创建临时分支</strong></p>
+<p>修复完后再提交并删除分支</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git stash list  <span class="comment">#查看是否存在stash</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git stash apply  <span class="comment">#恢复stash内容，该命令执行后并不删除stash内容</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git stash drop  <span class="comment">#删除stash内容</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git stash pop  <span class="comment">#恢复stash内容，在恢复的同时也删除内容</span></span></span><br></pre></td></tr></table></figure>
+<p>修复Bug时，当手头工作没有完成时，先把工作现场<code>git stash</code>一下，然后再去修复Bug，修复后，再<code>git stash pop</code>回到工作现场</p>
+<h2 id="feature分支添加新功能">Feature分支（添加新功能）</h2>
+<p>在开发新功能时最好新建一个分支，
+若要丢弃一个没有被合并过的分支，可以通过<code>git branch -D &lt;name&gt;</code>强行删除</p>
+<h2 id="多人协作">多人协作</h2>
+<p><code>$ git remote</code>查看远程库的信息</p>
+<p><code>$ git remote -v</code>查看远程库详细的信息（上面显示了抓取和推送的<远程库名字>的地址，如果没有推送权限，就看不到push的地址）</p>
+<ul>
+<li>推送分支：</li>
+</ul>
+<p>推送分支就是把该分支上的所有本地提交推送远程库。推送时，要指定本地分支</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git push &lt;远程库名字&gt; &lt;本地库名字&gt;</span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git pull  <span class="comment">#把最新的提交从远程库中抓取下来</span></span></span><br></pre></td></tr></table></figure>
+<p>抓取后在本地合并并解决冲突后再推送</p>
+<ul>
+<li>工作模式：</li>
+</ul>
+<ol type="1">
+<li>首先，可以试图用<code>git push origin branch-name</code>推送自己的修改</li>
+<li>如果推送失败，则因为远程分支比你的本地版本新，需要先用<code>git push</code>试图合并</li>
+<li>如果合并有冲突，则解决冲突，并在本地提交</li>
+<li>没有冲突或者解决掉冲突后，再用<code>git push origin branch-name</code>推送就能成功</li>
+</ol>
+<p>如果<code>git pull</code>提示"no tracking
+information"，则说明本地分支和远程分支的链接关系没有创建，用命令<code>git branch --set-upstream branch-name origin/branch-name</code>(该命令用于建立本地分支和远程分支的关联）</p>
+<h2 id="标签管理">标签管理</h2>
+<p>发布一个版本时，我们通常先在版本库中打一个标签<em>tag</em>，这样，就唯一确定了打标签时的版本。在将来的某个时候，取某一个标签的某一版本，就是把那个打标签的时刻对应的版本取出。标签也是版本库的一个快照</p>
+<p>Git标签虽然是版本库的快照，但其实它是指向某个commit的指针（分支可以移动，标签不能移动）</p>
+<p>Tag就是一个让人容易记住的名字，它与某个commit绑定在一起</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git tag &lt;name&gt;  <span class="comment">#在git中打标签应先切换至需要打标签的分支</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git tag  <span class="comment">#查看所有标签默认标签是打在最新提交的commit上的</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git tag &lt;name&gt; &lt;commit ID&gt;  <span class="comment">#给对应ID的commit打上标签</span></span></span><br></pre></td></tr></table></figure>
+<p>标签不是按时间顺序列出，而是按字母排序的，可以用<code>git show &lt;tagname&gt;</code>查看标签信息</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git tag -a &lt;tagname&gt; -m <span class="string">&quot;...&quot;</span>  <span class="comment">#创建带说明的标签，-a指定标签名，-m指定说明文字</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git tag -d &lt;tagname&gt;  <span class="comment">#删除本地标签，因为创建的标签都只储存在本地，不会自动推送至远程</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git push &lt;远程库名字&gt; &lt;tagname&gt;  <span class="comment">#推送某个标签到远程</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git push &lt;远程库名字&gt; --tags  <span class="comment">#一次性推送全部尚未推送到远程的本地标签</span></span></span><br></pre></td></tr></table></figure>
+<p>其中在上面第一行代码中若用参数-s替换-a则可以用PGP签名标签</p>
+<p>已推送到远程的标签的删除：</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git push &lt;远程库名字&gt; :refs/tags/&lt;tagname&gt;</span></span><br></pre></td></tr></table></figure>
+<p>在Github上，可以任意Fork开源仓库；</p>
+<p>自己拥有Fork后的仓库的读写权限；</p>
+<p>可以推送Pull request给他人仓库来贡献代码；</p>
+<p>Fork他人仓库之后再在自己的账号下clone仓库，这样才能推送修改</p>
+<h2 id="自定义git">自定义Git</h2>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git config --global color.ui <span class="literal">true</span>  <span class="comment">#git会适当显示不同的颜色</span></span></span><br></pre></td></tr></table></figure>
+<ul>
+<li><strong>忽略文件</strong></li>
+</ul>
+<p>在Git工作区的根目录下有一个.gitignore文件（没有可创建），然后把要忽略的文件名填进去，Git就会自动忽略这些文件</p>
+<p>忽略文件的原则：</p>
+<ol type="1">
+<li>忽略操作系统自动生成的文件，比如缩略图等；</li>
+<li>忽略编译生成的中间文件、可执行文件等，也就是一个文件通过另一个文件自动生成的，那自动生成的文件就没必要放进版本库；</li>
+<li>忽略你自己的带有敏感信息的配置文件，比如存放口令的配置文件</li>
+</ol>
+<p>之后将.gitignore也提交到Git，就完成了忽略文件设置</p>
+<figure class="highlight shell"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git check-ignore  <span class="comment">#检查.gitignore文件</span></span></span><br><span class="line"><span class="meta prompt_">$ </span><span class="language-bash">git add -f &lt;filename&gt;  <span class="comment">#强制添加文件</span></span></span><br></pre></td></tr></table></figure>
+<p>我们可以对.gitignore进行版本管理</p>
+<ul>
+<li><strong>设置别名</strong></li>
+</ul>
+<p><code>$ git config --global alias &lt;别名&gt; &lt;命令原名&gt;</code>
+--global参数是全局参数，也就是这些命令在电脑的所有Git仓库下都有效</p>
+<p>配置Git时，加上<code>--global</code>是针对当前用户启作用，如果不加，则只针对当前仓库起作用。
+每个仓库的Git配置文件都放在.git/config文件中，
+别名在[alias]后面，删除别名则直接删除对应行即可。
+当前用户的Git配置文件在用户主目录的一个隐藏文件.gitconfig中</p>
+<h2 id="搭建git服务器linux-ubuntu-or-debian">搭建Git服务器（linux ubuntu
+or debian）</h2>
+<ol type="1">
+<li>安装git:<code>$ sudo apt-get install git</code>;</li>
+<li>创建一个git用户，用来运行git服务：<code>$ sudo adduser git</code>;</li>
+<li>创建证书登录：收集所有需要登录的用户的公钥，即他们的id_rs.pub文件，将所有公钥导入到/home/git/.shh/authorized_keys文件中（可改名）;</li>
+<li>初始化Git仓库：<code>$ sudo git init --bare &lt;reponame&gt;</code>;参数--bare为创建一个裸仓库，即没有工作区（服务器上的Git仓库通常都以.git结尾，创建后把owner改为git
+<code>$ sudo chown -R git:git &lt;reponame&gt;</code>；</li>
+<li>禁用shell登录：出于安全考录，2中创建的git用户不允许登录shell，可通过编辑/etc/passwd文件实现
+找到类似一行：<code>git:x:1001:1001:,,,:/home/git:/bin/bash</code>
+改为：<code>git:x:1001:1001:,,,:/home/git:/usr/bin/got-shell</code>
+这样当用户用shell登录时会自动退出；</li>
+<li>克隆远程仓库：<code>$ git clone git@server:/srv/&lt;reponame&gt;</code>;在各自的电脑中运行</li>
+</ol>
+<h2 id="致谢">致谢：</h2>
+<blockquote>
+<p>廖雪峰的<a
+target="_blank" rel="noopener" href="http://www.liaoxuefeng.com/wiki/0013739516305929606dd18361248578c67b8067c8c017b000">Git教程</a>（转载请保留连接）</p>
+</blockquote>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2017/08/10/2017-08-10-Python%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/" title="Python，面向对象">
+                    <div class="nextTitle">Python，面向对象</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+    <script src='//unpkg.com/@waline/client@v2/dist/waline.js'></script>
+    <link href='//unpkg.com/@waline/client@v2/dist/waline.css' rel='stylesheet' />
+    <div id="comment"></div>
+    <script>
+    Waline.init({
+        el: '#comment' ,
+        serverURL: "https://waline-vercel.nasaka3000.fun",
+        wordLimit: "600",
+        login: "enable",
+        dark: ""
+    });
+    </script>
+
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:guijiaguai@foxmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/simplestory" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-1"><a class="toc-link" href="#git%E4%BD%BF%E7%94%A8%E6%95%99%E7%A8%8B"><span class="toc-number">1.</span> <span class="toc-text">GIT使用教程</span></a><ol class="toc-child"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BA%E7%89%88%E6%9C%AC%E5%BA%93"><span class="toc-number">1.1.</span> <span class="toc-text">创建版本库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E7%BC%96%E5%86%99%E4%BF%9D%E5%AD%98%E6%96%87%E4%BB%B6"><span class="toc-number">1.2.</span> <span class="toc-text">编写保存文件</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8C%BA%E4%B8%8E%E6%9A%82%E5%AD%98%E5%8C%BA"><span class="toc-number">1.3.</span> <span class="toc-text">工作区与暂存区</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%B7%A5%E4%BD%9C%E5%8C%BA"><span class="toc-number">1.3.1.</span> <span class="toc-text">工作区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%89%88%E6%9C%AC%E5%BA%93%E4%B8%8E%E6%9A%82%E5%AD%98%E5%8C%BA"><span class="toc-number">1.3.2.</span> <span class="toc-text">版本库与暂存区</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#git%E5%A4%A7%E8%87%B4%E5%B7%A5%E4%BD%9C%E5%8E%9F%E7%90%86"><span class="toc-number">1.3.3.</span> <span class="toc-text">Git大致工作原理</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%92%A4%E9%94%80%E6%93%8D%E4%BD%9C"><span class="toc-number">1.4.</span> <span class="toc-text">文件撤销操作</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%96%87%E4%BB%B6%E6%92%A4%E9%94%80%E6%83%85%E5%86%B5"><span class="toc-number">1.4.1.</span> <span class="toc-text">文件撤销情况</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E6%92%A4%E9%94%80%E4%B8%8E%E5%9B%9E%E9%80%80%E5%B0%8F%E7%BB%93"><span class="toc-number">1.4.2.</span> <span class="toc-text">撤销与回退小结</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git%E6%92%A4%E9%94%80%E5%88%A0%E9%99%A4"><span class="toc-number">1.5.</span> <span class="toc-text">Git撤销删除</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%88%9B%E5%BB%BAssh-key"><span class="toc-number">1.6.</span> <span class="toc-text">创建SSH Key</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%B3%E8%81%94%E8%BF%9C%E7%A8%8B%E5%BA%93"><span class="toc-number">1.7.</span> <span class="toc-text">关联远程库</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%85%8B%E9%9A%86%E8%BF%9C%E7%A8%8B%E5%BA%93%E5%88%B0%E6%9C%AC%E5%9C%B0"><span class="toc-number">1.8.</span> <span class="toc-text">克隆远程库到本地</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git%E5%88%86%E6%94%AF"><span class="toc-number">1.9.</span> <span class="toc-text">Git分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#git%E5%88%86%E6%94%AF%E7%AE%A1%E7%90%86"><span class="toc-number">1.10.</span> <span class="toc-text">Git分支管理</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E5%88%86%E6%94%AF%E7%AD%96%E7%95%A5"><span class="toc-number">1.10.1.</span> <span class="toc-text">分支策略：</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#bug%E5%88%86%E6%94%AF"><span class="toc-number">1.11.</span> <span class="toc-text">Bug分支</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#feature%E5%88%86%E6%94%AF%E6%B7%BB%E5%8A%A0%E6%96%B0%E5%8A%9F%E8%83%BD"><span class="toc-number">1.12.</span> <span class="toc-text">Feature分支（添加新功能）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%A4%9A%E4%BA%BA%E5%8D%8F%E4%BD%9C"><span class="toc-number">1.13.</span> <span class="toc-text">多人协作</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A0%87%E7%AD%BE%E7%AE%A1%E7%90%86"><span class="toc-number">1.14.</span> <span class="toc-text">标签管理</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%AA%E5%AE%9A%E4%B9%89git"><span class="toc-number">1.15.</span> <span class="toc-text">自定义Git</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%90%AD%E5%BB%BAgit%E6%9C%8D%E5%8A%A1%E5%99%A8linux-ubuntu-or-debian"><span class="toc-number">1.16.</span> <span class="toc-text">搭建Git服务器（linux ubuntu
+or debian）</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%B4%E8%B0%A2"><span class="toc-number">1.17.</span> <span class="toc-text">致谢：</span></a></li></ol></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 63
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDIM/">DDIM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDPM/">DDPM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-LDM/">LDM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-GAN/">GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VAE/">VAE</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_GAN/">VQ-GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_VAE/">VQ-VAE</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/24</span>
+            <a class="archive-post-title" href="/2023/06/24/2023-06-24-LSS/">LSS</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-MonoRCNN/">MonoRCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-YOLOStereo3D/">YOLOStereo3D</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/05</span>
+            <a class="archive-post-title" href="/2023/03/05/2023-03-05-VoxelNet_&&_SECOND/">VoxelNet and SECOND</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2023/01/27/2023-01-27-Stereo_RCNN/">Stereo RCNN</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/06</span>
+            <a class="archive-post-title" href="/2022/10/06/2022-10-06-OTA/">OTA</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/07</span>
+            <a class="archive-post-title" href="/2021/08/07/2021-08-07-PointNet%E7%B3%BB%E5%88%97/">PointNet系列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/06</span>
+            <a class="archive-post-title" href="/2021/08/06/2021-08-06-MV3D/">Multi-View 3D Object Detection Network</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span>
+            <a class="archive-post-title" href="/2021/08/05/2021-08-05-SORT_&&_DeepSORT/">SORT && DeepSORT</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/04</span>
+            <a class="archive-post-title" href="/2021/08/04/2021-08-04-%E5%8A%A8%E6%80%81%E7%BD%91%E7%BB%9C%E5%A4%B4/">Dynamic Head</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/03</span>
+            <a class="archive-post-title" href="/2021/08/03/2021-08-03-%E5%8A%A8%E6%80%81%E5%8D%B7%E7%A7%AF%E4%B8%8E%E5%8A%A8%E6%80%81ReLU/">动态卷积与动态ReLU</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/16</span>
+            <a class="archive-post-title" href="/2021/05/16/2021-05-16-CRF%E5%8F%8A%E5%85%B6%E5%9C%A8%E5%88%86%E5%89%B2%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8/">CRF及其在分割领域上的应用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/30</span>
+            <a class="archive-post-title" href="/2021/04/30/2021-04-30-%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C/">图像分割基础网络</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/20</span>
+            <a class="archive-post-title" href="/2020/11/20/2020-11-20-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B20%E5%B9%B4/">Object Detection</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/25</span>
+            <a class="archive-post-title" href="/2020/10/25/2020-10-25-Centernet_%E5%9F%BA%E4%BA%8E%E4%B8%AD%E5%BF%83%E7%82%B9%E6%A3%80%E6%B5%8B/">Anchor free--Centernet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/18</span>
+            <a class="archive-post-title" href="/2020/10/18/2020-10-18-%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">一些常见的损失函数</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2020/10/03/2020-10-03-Efficient%E6%A8%A1%E5%9E%8B%E5%AE%B6%E6%97%8F/">Efficient模型家族</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/26</span>
+            <a class="archive-post-title" href="/2020/09/26/2020-09-26-%E5%87%A0%E7%B1%BBIOU%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">几种IOU损失</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/26</span>
+            <a class="archive-post-title" href="/2020/04/26/2020-04-26-Mobilenetv2/">MobileNetV2</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2020/02/10/2020-02-10-mask_rcnn/">Mask RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span>
+            <a class="archive-post-title" href="/2020/01/17/2020-01-15-yolov3/">YOLO_v3</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/10</span>
+            <a class="archive-post-title" href="/2020/01/10/2020-01-10-yolov2/">YOLO_v2 and YOLO9000</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-emmm/">额。。。</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-yolov1/">YOLO_v1</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2019 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2019/10/03/2019-10-03-SSD/">SSD</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span>
+            <a class="archive-post-title" href="/2019/09/22/2019-09-22-faster_rcnn/">Faster RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/21</span>
+            <a class="archive-post-title" href="/2019/09/21/2019-09-21-fast_rcnn/">Fast RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span>
+            <a class="archive-post-title" href="/2019/09/19/2019-09-19-RCNN/">RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/10</span>
+            <a class="archive-post-title" href="/2019/09/10/2019-09-10-ResNet/">ResNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2019/08/11/2019-08-11-%E5%8C%BA%E5%88%86%E5%87%A0%E7%A7%8D%E5%BD%92%E4%B8%80%E5%8C%96%E7%AE%97%E6%B3%95/">区分几种归一化算法</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/30</span>
+            <a class="archive-post-title" href="/2019/07/30/2019-07-30-VGG/">VGG</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/22</span>
+            <a class="archive-post-title" href="/2019/07/22/2019-07-22-AlexNet/">AlexNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/21</span>
+            <a class="archive-post-title" href="/2019/07/21/2019-07-21-NOTICE/">NOTICE~~~</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/24</span>
+            <a class="archive-post-title" href="/2019/03/24/2019-03-24-LightGBM/">LightGBM模型</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/17</span>
+            <a class="archive-post-title" href="/2019/03/17/2019-03-17-Xgboost/">Xgboost模型</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2018 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/03</span>
+            <a class="archive-post-title" href="/2018/11/03/2018-11-03-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%BC%98%E5%8C%96/">深度学习优化</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/28</span>
+            <a class="archive-post-title" href="/2018/10/28/2018-10-28-FFM%E6%A8%A1%E5%9E%8B/">FFM模型原理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/29</span>
+            <a class="archive-post-title" href="/2018/08/29/2018-08-29-%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/26</span>
+            <a class="archive-post-title" href="/2018/08/26/2018-08-26-sklearn%E8%B0%83%E5%8C%85%E5%90%88%E9%9B%86/">Scikit-learn调包合集</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/19</span>
+            <a class="archive-post-title" href="/2018/08/19/2018-08-19-%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB/">贝叶斯分类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/16</span>
+            <a class="archive-post-title" href="/2018/08/16/2018-08-16-SVM%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA/">SVM支持向量机</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span>
+            <a class="archive-post-title" href="/2018/08/13/2018-08-13-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E5%92%8CLogistic%E5%9B%9E%E5%BD%92/">线性回归和Logistic回归</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/02</span>
+            <a class="archive-post-title" href="/2018/03/02/2018-03-02-g++%E4%B8%8Egdb%E4%BD%BF%E7%94%A8/">g++与gdb使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2018/02/19/2018-02-19-Ubuntu%E9%85%8D%E7%BD%AEDjango/">Ubuntu配置Django</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/04</span>
+            <a class="archive-post-title" href="/2018/02/04/2018-02-04-Linux%E9%85%8D%E7%BD%AETensorflow/">Linux配置Tensorflow</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/20</span>
+            <a class="archive-post-title" href="/2018/01/20/2018-01-20-Linux%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%91%BD%E4%BB%A4/">Linux渗透测试命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/05</span>
+            <a class="archive-post-title" href="/2018/01/05/2018-01-05-Anaconda%E9%83%A8%E5%88%86%E5%91%BD%E4%BB%A4/">Anaconda部分命令</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2017 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/17</span>
+            <a class="archive-post-title" href="/2017/12/17/2017-12-17-ubuntu%E9%85%8D%E7%BD%AEgit/">Ubuntu配置Git</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2017/12/01/2017-12-01-Linux%E4%B8%8B%E7%9A%84MySQL%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84/">Linux下的MySQL数据文件路径</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2017/11/07/2017-11-07-Linux%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/">Linux一些命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/05</span>
+            <a class="archive-post-title" href="/2017/11/05/2017-11-04-Opencv%E5%AE%9E%E7%8E%B0%E6%B1%BD%E8%BD%A6%E8%BF%9D%E8%A7%84%E6%A3%80%E6%B5%8B%E8%AF%86%E5%88%AB/">Opencv实现汽车违规检测识别</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/20</span>
+            <a class="archive-post-title" href="/2017/10/20/2017-10-20-Linux%E4%B8%8B%E5%AE%89%E8%A3%85OpenCV/">Linux下安装OpenCV</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/01</span>
+            <a class="archive-post-title" href="/2017/10/01/2017-10-01-Vscode%E4%B8%8B%E7%BC%96%E8%AF%91C%E5%92%8CC++/">Vscode下编译C/C++</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/20</span>
+            <a class="archive-post-title" href="/2017/08/20/2017-08-20-Python%E4%B9%8B%E7%B1%BB/">Python的类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/10</span>
+            <a class="archive-post-title" href="/2017/08/10/2017-08-10-Python%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">Python，面向对象</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/04</span>
+            <a class="archive-post-title" href="/2017/07/04/2017-07-04-Git%E4%BD%BF%E7%94%A8%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/">GIT使用基础教程</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="git">
+                <span class="iconfont-archer">&#xe606;</span>
+                git
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="C/C++">
+                <span class="iconfont-archer">&#xe606;</span>
+                C/C++
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="opencv">
+                <span class="iconfont-archer">&#xe606;</span>
+                opencv
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="machine learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                machine learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="mysql">
+                <span class="iconfont-archer">&#xe606;</span>
+                mysql
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tensorflow">
+                <span class="iconfont-archer">&#xe606;</span>
+                tensorflow
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="django">
+                <span class="iconfont-archer">&#xe606;</span>
+                django
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="deep learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                deep learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="talk">
+                <span class="iconfont-archer">&#xe606;</span>
+                talk
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="math">
+                <span class="iconfont-archer">&#xe606;</span>
+                math
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="2017">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2017
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2018">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2018
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2019">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2019
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2020">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2020
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2021">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2021
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2022">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2022
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2023">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2023
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2024">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2024
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+            <script src='https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js'></script>
+            <script>
+                if (window.mermaid) {
+                    mermaid.initialize({theme: 'dark'});
+                }
+            </script>
+        
+    </body>
+</html>

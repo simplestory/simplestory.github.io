@@ -1,0 +1,2503 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="目标检测是计算机视觉领域里的一个重要分支，其本质内容是：What objects are where？ 它同时作为一个基础任务为领域内一些更复杂的问题（如实例分割、图片文本识别、目标跟踪等）提供支持。从应用的角度来看，目标检测可以划分为两大类：通用目标检测和检测应用。通用目标检测主要是探索在统一的算法框架下检测不同类型目标的方法，类似于人类的视觉感知；检测应用则侧重于实际场景，例如行人检测、人脸">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Object Detection">
+<meta property="og:url" content="http://example.com/2020/11/20/2020-11-20-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B20%E5%B9%B4/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="目标检测是计算机视觉领域里的一个重要分支，其本质内容是：What objects are where？ 它同时作为一个基础任务为领域内一些更复杂的问题（如实例分割、图片文本识别、目标跟踪等）提供支持。从应用的角度来看，目标检测可以划分为两大类：通用目标检测和检测应用。通用目标检测主要是探索在统一的算法框架下检测不同类型目标的方法，类似于人类的视觉感知；检测应用则侧重于实际场景，例如行人检测、人脸">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2020-11-20T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-17T14:15:14.347Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="deep learning">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>Object Detection · simplestory&#39;s blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+        <script>
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?f4ceef9ccf4caa1b456d8373672cfa7e";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+    
+    <!-- 谷歌统计  -->
+    
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNYWTSM2GG"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-DNYWTSM2GG');
+        </script>
+    
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Simplestory's Blog</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Simplestory&#39;s Blog</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">Object Detection</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/post_bg_miui6.jpg)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                Object Detection
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+                    Object Detection in 20 Years
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="deep learning">deep learning</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">5.5k</span>Reading time: <span class="post-count reading-time">20 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2020/11/20</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p>目标检测是计算机视觉领域里的一个重要分支，其本质内容是：What objects
+are where？
+它同时作为一个基础任务为领域内一些更复杂的问题（如实例分割、图片文本识别、目标跟踪等）提供支持。从应用的角度来看，目标检测可以划分为两大类：通用目标检测和检测应用。通用目标检测主要是探索在统一的算法框架下检测不同类型目标的方法，类似于人类的视觉感知；检测应用则侧重于实际场景，例如行人检测、人脸检测和文本检测等。</p>
+</blockquote>
+<h2 id="map">Map</h2>
+<p>目标检测领域从1999年发展至今已过了大约20个年头。这期间相关的算法模型发展路线如下图所示（摘自原论文）：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/roadmap.png"
+title="roadmap" /></p>
+<p>本文以此为依据按照发展历程记录各个算法的关键贡献。</p>
+<h2 id="traditional-detection-methods">Traditional Detection
+Methods</h2>
+<p>在发展前期，该领域内的算法主要以传统算法为准，即需要自己去设计相关特征供机器学习。</p>
+<h3 id="viola-jones-detectors">Viola-Jones Detectors</h3>
+<p>2001年，P.Viola和M.Jones发表了经典的目标检测算法（Viola-Jones
+Detector）。该算法是在Adaboost的基础上使用类Haar特征作为输入进行检测，同时使用滑窗的方式来判断某一区域是否有目标。滑窗的引入增加了大量的计算负担，为此作者采用了几种方法对算法进行了加速：</p>
+<ul>
+<li>Integral
+image：Haar特征考虑的是某一特定位置相邻的矩形区域，把每个矩形区域的像素相加然后再相减（example）。为了计算Haar-like特征，需要对矩形区域的所有像素求和，一个图像所能形成的矩形区域有大有小，如果每个矩形区域都用遍历所有像素再求和的运算方法。积分图就是对于图像中的任何一点，该点的积分图像值等于位于该点左上角的所有像素之和，公式如下：</li>
+</ul>
+<p><span class="math display">\[
+I(x,y) = \sum_{x&#39;&lt; x}\sum_{y&#39; &lt; y}f(x&#39;,y&#39;)
+\]</span></p>
+<p>积分图中存在如下关系：</p>
+<p><span class="math display">\[
+I(x,y) = f(x,y)+I(x,y-1)+I(x-1,y)-I(x-1,y-1)
+\]</span></p>
+<p>以上<span class="math inline">\(I\)</span>表示积分图，<span
+class="math inline">\(f\)</span>表示原图像。通过积分图，可以计算图像上任意矩形区域的像素和：</p>
+<p><span class="math display">\[
+S_{abcd} = I(d)-I(b)-I(c)+I(a)
+\]</span></p>
+<ul>
+<li>Feature
+selection：图像提取出来的Haar特征是比较多的，作者假设这些特征中只有一小部分是有用的，并使用了Adaboost进行了特征筛选，通过减少特征数目来减轻运算负担。</li>
+<li>Detection
+cascades：为了进一步降低计算量，作者没有使用传统的Adaboost分类器，而是使用多个小型Adaboost级联，同时一旦在某一级分类器中检测出不是目标，则立即停止该区域的检测。</li>
+</ul>
+<h3 id="hog-detectors">HOG Detectors</h3>
+<p>2005年，N.Dalal和B.Triggs提出了HOG（Histogram of Oriented
+Gradients）特征提取算法，它通过计算和统计图像局部区域的梯度方向直方图来构成特征。这么做是因为图像中局部目标的表象和形状能够被梯度或边缘的方向密度分布很好地描述。具体是对灰度图像进行分块，在计算各块中各像素点的梯度或边缘方向直方图，最后组合这些直方图构成特征。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/hog_process.png"
+title="hog_process" /></p>
+<p>上图展示了一个典型的HOG检测器执行的具体步骤。这里使用Gamma矫正目的是调节图像的对比度，降低图像局部的阴影和光照变化所造成的影响，同时可以抑制噪音的干扰。由于局部光照的变化以及前景背景对比度的变化，使得梯度强度的变化范围非常大。这就需要对梯度强度做归一化，归一化能够进一步地对光照、阴影和边缘进行压缩。作者通过联合几个cell的特征来进行归一化操作。</p>
+<h3 id="deformable-part-based-model-dpm">Deformable Part-based Model
+(DPM)</h3>
+<p>2008年，P.Felzenszwalb提出了可变组件模型（Deformable Part
+Model），<span
+class="math inline">\(v_i\)</span>即一种基于组件的检测算法，是HOG检测器的一种扩展。一个典型的DPM模型包括一个根滤波器和一些组件滤波器，其中根滤波器覆盖了整个目标，而组件滤波器是覆盖目标某一部分的高分辨率模板。对于一个目标，该模型在形式上将其定义为一个元组：<span
+class="math inline">\((F_0,P_0,P_1,...,P_n,b)\)</span>，<span
+class="math inline">\(F_0\)</span>为根滤波器，<span
+class="math inline">\(P_i\)</span>为第<span
+class="math inline">\(i\)</span>个部件的模型，
+是表示偏差值。每一个部件模型用一个三元组表示<span
+class="math inline">\((F_I, v_i, d_i)\)</span>，<span
+class="math inline">\(F_i\)</span>是第<span
+class="math inline">\(i\)</span>个部件的模型，是一个二维向量，指定第<span
+class="math inline">\(i\)</span>个滤波器的锚点位置（改位置为未发生形变的标准位置）相对于根的坐标，<span
+class="math inline">\(d_i\)</span>是一个四维向量，指定了一个二次函数的参数，此二次函数表示部件的每一个可能位置相对于锚点位置的偏移代价。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/dpm_filters.png"
+title="dpm_filters.png" /></p>
+<p>上图是根模型、组件模型和组件偏移代价的可视化图。这里以行人为例，其中左边的图片是根模型，它比较粗略地表示了一个直立行人；中间图片是组件模型，各组件模型为矩形框内的部分，分辨率为根模型的两倍，这样可以获得更好的效果；右边图片则是组件模型的偏离损失，越亮的区域表示偏离损失代价越大，组件模型的标准位置的偏离损失为0。为了降低模型的复杂度，根模型和组件模型都是轴对称的。</p>
+<p>DPM采用了传统的滑动窗口检测方式，通过构建尺度金字塔在各个尺度搜索。下图为某一尺度下的行人检测流程，即行人模型的匹配过程。
+某一位置与根模型或组件模型的响应得分，为该模型与以该位置为锚点（即左上角坐标）的子窗口区域内的特征的内积。也可以将模型看作一个滤波算子，响应得分为特征与待匹配模型的相似程度，越相似则得分越高。左侧为根模型的检测流程，滤波后的图中，越亮的区域代表响应得分越高。右侧为各组件模型的检测过程。首先，将特征图像与模型进行匹配得到滤波后的图像。然后，进行响应变换。响应变换是以锚点为参考位置，综合组件模型与特征的匹配程度和组件模型相对标准位置的偏离损失，得到的最优的组件模型位置和响应得分。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/dpm.png"
+title="dpm" /></p>
+<h3 id="deep-larning-detection-methods">Deep Larning Detection
+Methods</h3>
+<p>自从2012年Alex神经网络在Imagenet上获得SOTA的成绩，神经网络开始被人重视，这里介绍几种关键算法。</p>
+<h3 id="rcnn">RCNN</h3>
+<p>2014年，R.Girshick等人发表了RCNN，首次将神经网络模型引入目标检测领域。RCNN通过selective
+search从原图中获得大量的候选框，对于每个候选框使用卷积神经网络获取图像特征，之后对该图像特征调用线性SVM分类器进行分类，最后即可得到图像中目标的类别和位置大小。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/rcnn.png"
+title="rcnn" /></p>
+<p>整体上模型可分为三部分：</p>
+<ul>
+<li>生成与类别无关的候选区域</li>
+<li>用来从每一个候选区域中提取固定长度特征向量的卷积网络</li>
+<li>一组线性SVM分类器</li>
+</ul>
+<h3 id="sppnet">SPPNet</h3>
+<p>对于RCNN，它需要将每个候选区域缩放到固定尺寸，然后对每个区域提取卷积特征。这两步操作带来了一些性能瓶颈。为了解决这些瓶颈问题，2014年，K.He等人提出了SPPNet模型。作者在特征提取网络最后的全连接层前添加了一个池化层来对任意输入产生固定的输出，以此来解决RCNN中需要固定尺寸的候选区域输入问题。模型还借助了空间金字塔的思路，即将一副图像划分为不同尺度的块，对每一块提取特征最后拼接在一起。</p>
+<p>下图展示了SPPNet和RCNN在处理不同尺寸的输入图像的差别。RCNN会通过裁剪或缩放来获取固定大小的图片，再传入卷积神经网络进行计算。SPPNet则通过先经过卷积网络提取特征，再由池化层获得固定大小的特征向量作为全连接层的输入。最重要的一点是每幅图片只需要提取一次特征。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/sppnet.png"
+title="sppnet" /></p>
+<p>空间金字塔池化层，其主要目的是对于任意尺寸的输入产生固定大小的输出。思路是对于任意大小的feature
+map首先分成16、4、1个块，然后在每个块上做最大池化操作，池化后的特征拼接得到一个固定维度的输出。以满足全连接层的需要。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/sppnet_pooling.png"
+title="sppnet_pooling" /></p>
+<h3 id="fast-rcnn">Fast RCNN</h3>
+<p>和RCNN一样，SPPNet也需要训练CNN提取特征，然后训练SVM分类这些特征。需要巨大的存储空间，并且分开训练也很复杂。2015年，R.Girshick推出了Fast
+RCNN模型，他将检测器和框回归器统一在一个框架内，方便进行统一训练。它将整个图像和一组候选框都作为输入，模型首先用一组卷积层和最大池化层对整张图像进行特征提取，再在提取出的特征图上，针对每一个候选框用RoI
+pooling提取出一个固定长度的特征向量，之后送入全连接层，最终分成两个分支分别进行目标识别和边界框回归。虽然和RCNN和SPPNet相比，Fast
+RCNN有着很大的提升，但是该模型还是使用selective
+search生成候选框，这是该模型的主要速度瓶颈。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/fast_rcnn.png"
+title="fast_rcnn" /></p>
+<h3 id="faster-rcnn">Faster RCNN</h3>
+<p>对于RCNN、SPPNet以及Fast RCNN采用的都是selective
+search来获得目标候选框，这部分的操作拖慢了整个模型的运行速度。2015年，S.Ren等人提出了Faster
+RCNN，这是首个端到端的、运行速度接近实时的深度学习目标检测模型。主要贡献是提出了RPN层。通过RPN层可以快速的生成候选区域，同时也引入了锚框来框选候选区域。大致结构如下，其中红框表示RPN层（图片摘自网络）</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/faster_rcnn.png"
+title="faster_rcnn" /></p>
+<p>Faster RCNN抛弃了传统的通过滑动窗口和selective
+search来生成候选框的做法，直接使用RPN生成检测框，这也是Faster
+RCNN的巨大优势，能极大提升检测框的生成速度，也是从这里，目标检测引入了Anchor来作为目标候选框。</p>
+<p>Anchor的生成主要由长宽比和缩放尺度这两个参数决定的。例如右图是Faster
+RCNN在三个长宽比（ratios=[0.5, 1.0, 2.0]）和三个缩放尺度（scales=[8, 16,
+32]）下生成的九个锚框。</p>
+<p>锚框是分布在特征图的每一个像素点上的，即锚框的中心位置为特征图像素点的位置。最后生成的锚框会布满整个特征图，并且同一像素点下的各个锚框尺度并不一样，所以实际上通过锚框就引入了检测中常用到的多尺度方法。</p>
+<p>大致计算方式如下：</p>
+<p><span class="math display">\[
+\begin{cases}
+w\times h = s \\
+\frac{w}{h} = ratio
+\end{cases}
+\Rightarrow
+\begin{cases}
+h =  \sqrt{\frac{s}{ratio}} \\
+w = ratio\cdot h = \sqrt{s\cdot ratio}
+\end{cases}
+\]</span></p>
+<p>进一步可以得到</p>
+<p><span class="math display">\[
+\begin{cases}
+h =  \sqrt{\frac{s}{ratio}\cdot scale} \\
+w = ratio\cdot h = \sqrt{s\cdot ratio \cdot scale}
+\end{cases}
+\]</span></p>
+<p>一张特征图生成锚框大致如下图（摘自网络）：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/anchors.jpg"
+title="anchors" /></p>
+<p>对于RPN层，下图是RPN网络的具体结构。可以看到RPN网络实际分为2条线，上面一条通过softmax分类anchors获得positive和negative分类，下面一条用于计算对于anchors的bounding
+box
+回归偏移量，以获得精确的proposal。而最后的Proposal层则负责综合positive
+anchors和对应bounding box
+regression偏移量获取proposals，同时剔除太小和超出边界的proposals。其实整个网络到了Proposal
+Layer这里，就完成了相当于目标定位的功能。</p>
+<p><strong>RPN大致流程：</strong></p>
+<p>生成anchors -&gt; softmax分类器提取positvie anchors -&gt; bbox
+reg回归positive anchors -&gt; Proposal Layer生成proposals</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/rpn_detail.png"
+title="rpn_detail" /></p>
+<h3 id="feature-pyramid-networks-fpn">Feature Pyramid Networks
+(FPN)</h3>
+<p>在2017年，T.-Y.Lin等人在Faster
+RCNN的基础上提出了FPN。之前的神经网络目标检测模型都是只提取了最顶层输出的特征进行检测，而卷积网络较深层的功能有利于类别识别，但它不利于目标的定位。FPN包含了一种具有横向连接的自顶向下的网络结构，可用于构建各种规模的高级语义。后续提出的各种网络中，基本上都包含了这种结构。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/fpn.png"
+title="fpn" /></p>
+<p>在FPN自顶向下的结构中，网络层之间的详细操作如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/fpn_detail.png"
+title="fpn_detail" /></p>
+<h3 id="you-only-look-once-yolo">You Only Look Once (YOLO)</h3>
+<p>2015年，R.Joseph提出了首个深度学习目标检测领域的单阶段模型YOLO。该模型将图片划分为<span
+class="math inline">\(S\times
+S\)</span>个网格，如果有目标对象的中心落在某个网格内，则该网格负责预测该对象。每个网格都会预测<span
+class="math inline">\(B\)</span>个边界框以及这些框的置信度，这里置信度是指该框里是否有对象和做出这个判断的把握：<span
+class="math inline">\(Pr(Object)*IOU^{truth}_{pred}\)</span>。如果没有对象在框内，则<span
+class="math inline">\(Pr(Object)\)</span>为0,否则使用预测框和真实框之间的<span
+class="math inline">\(IOU\)</span>作为其置信度数值。</p>
+<p>作者将目标检测的流程统一为单个神经网络。该神经网络采用整个图像信息在预测目标的bounding
+boxes的同时识别目标的类别，实现端到端实时目标检测任务。每个bounding
+boxes预测五个变量：x、y、w、h、conf，其中前四个是坐标变量，其中x、y为框的中心，w、h则表示宽和长。这里注意中心坐标是相对网格大小的，而长宽是相对整张图像的，conf表示预测框与正类框的IOU。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/yolo1.png"
+title="yolo1" /></p>
+<p>后面作者也吸取了其它网络模型的特点，对YOLO进行了改进推出了YOLO2和YOLO3。</p>
+<h3 id="single-shot-multibox-detector-ssd">Single Shot MultiBox Detector
+(SSD)</h3>
+<p>与YOLO一样，SSD是一个单阶段检测模型，在2015年由W.Liu等人提出。SSD主要特点是使用了多尺度检测结构。与FPN类似，SSD从不同的卷积层抽取特征图进行检测。由于不同层的感受野大小不一样，所以采取这种方式可以顾及到不同尺寸的目标。SSD还使用了卷积层替换全连接层进行最后的分类回归操作。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/ssd.png"
+title="ssd" /></p>
+<h3 id="retinanet">RetinaNet</h3>
+<p>虽然单阶段模型的运行速度要快于二阶段模型，但精度普遍偏低。2017年，T.-Y.Lin等人提出了RetinaNet。作者认为造成单阶段模型精度低的原因是正负样本的极度不均衡，并为此设计出了focal
+loss损失函数来重新平衡正负样本，这也是RetinaNet的主要贡献点。</p>
+<p>最后推出的损失函数为：</p>
+<p><span class="math display">\[
+loss = -\alpha(1-p_t)^\gamma * log(p_t)
+\]</span></p>
+<p>其中<span class="math inline">\(\alpha\)</span>和<span
+class="math inline">\(\gamma\)</span>都为超参数。作者在自己的模型上实验显示<span
+class="math inline">\(\alpha=0.25\)</span>，<span
+class="math inline">\(\gamma=2\)</span>时效果最好。该函数仅在计算分类损失时用到。</p>
+<h3 id="cornernet">CornerNet</h3>
+<p>最后这个方法虽然不在作者的路线图里，但我个人觉得无锚框这个思想还是挺有意思的，就加了进来。在单阶段的目标检测网络中，基本上都使用了Anchor-box的方法，但这种方法需要大量的anchor，这导致了正负样本不平衡，降低训练效率，同时anchor的设置引入了许多超参数（如：数量、大小、长宽比），增加了网络设计的难度。2018年，Hei
+Law发表了CornerNet，通过检测目标框的角点来获得目标的位置，这样就无需设置anchor这一步骤。大致结构如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/cornernet_overview.png"
+title="cornernet_overview" /></p>
+<p>其中的特征提取网络主要为Hourglass。Hourglass结构是Newell等人在2016年提出的，主要通过重复自底向上和自顶向下同时联合中间结果，在人体姿态估计中可以很好地利用身体不同部位的空间关系。大致如下图：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/hourglass.png"
+title="hourglass" /></p>
+<p>corner
+pooling用于定位目标的顶点。为了更好地适应corner的检测，在目标检测的任务中，目标的角点往往在目标之外，所以角点的检测不能根据局部的特征，而是应该对该点所在行的所有特征与列的所有特征进行扫描。下图以左上角为例。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/cornernet_pooling_tl.png"
+title="cornernet_pooling_tl" /></p>
+<p>这里注意对各行各列求池化是有方向的，如下图以黑色箭头的方向进行行或列的最大池化：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/cornernet_pooling_detail.png"
+title="cornernet_pooling_detail" /></p>
+<h2 id="datasets">Datasets</h2>
+<h3 id="pascal-voc"><a
+target="_blank" rel="noopener" href="http://host.robots.ox.ac.uk/pascal/VOC/">Pascal VOC</a></h3>
+<p>在早期的计算机视觉（2005年到2012年）中，VOC是一个非常重要的开源数据集，其中用于目标检测任务最多的是VOC07和VOC12这两部分。VOC07大致有5k训练图片，包含有12k+标注目标；VOC12有11k的训练图片，包含27k+的标注目标，两者都是对日常生活中常见的20类物品进行标注。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/voc.png"
+title="voc" /></p>
+<h3 id="ilsvrc"><a
+target="_blank" rel="noopener" href="http://image-net.org/challenges/LSVRC/">ILSVRC</a></h3>
+<p>该数据集（2010年到2017年）包含有200个类别，总的图片数量要比VOC丰富得多，例如ILSVRC-14包含有517k图片数量、534k标注目标。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/imagenet.jpeg"
+title="imagenet" /></p>
+<h3 id="ms-coco"><a target="_blank" rel="noopener" href="http://cocodataset.org/">MS-COCO</a></h3>
+<p>2015年起发展到现在的COCO数据集是当前目标检测领域最具挑战性的数据集，它的类别数没有ILSVRC的多，但标注目标远多于ILSVRC。在MS-COCO-17数据集上一共有164k图片，包含80个类别的897k标注目标。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/coco.png"
+title="coco" /></p>
+<h3 id="open-images"><a
+target="_blank" rel="noopener" href="https://storage.googleapis.com/openimages/web/index.html">Open
+Images</a></h3>
+<p>2018年开始的Open
+Images检测挑战赛公布的数据集比起COCO数据集的规模更大。对于目标检测任务，Open
+Images包含有1910k图片，600个种类的15440k标注目标。</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/open_images.png"
+title="open_images" /></p>
+<h2 id="metrics">Metrics</h2>
+<p>准确率与召回率的计算：</p>
+<table>
+<thead>
+<tr>
+<th style="text-align:center">
+</th>
+<th style="text-align:center">
+实际为正类
+</th>
+<th style="text-align:center">
+实际为负类
+</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td style="text-align:center">
+预测为正类
+</td>
+<td style="text-align:center">
+TP
+</td>
+<td style="text-align:center">
+FP
+</td>
+</tr>
+<tr>
+<td style="text-align:center">
+预测为负类
+</td>
+<td style="text-align:center">
+FN
+</td>
+<td style="text-align:center">
+TN
+</td>
+</tr>
+</tbody>
+</table>
+<p>准确率（Precision）：预测为正类的样本中，真正类所占的比例。</p>
+<p><span class="math display">\[
+P = \frac{TP}{FP+TP}
+\]</span></p>
+<p>召回率（Recall）：在真正类样本中，被预测为正类所占的比例。</p>
+<p><span class="math display">\[
+R = \frac{TP}{FN+TP}
+\]</span></p>
+<p>在早期，通用的目标检测评估指标是单图虚检（FPPI)，即平均每张图片中能正确检索到的目标数目：</p>
+<p><span class="math display">\[
+FPPI = \frac{FP}{N}
+\]</span></p>
+<p>VOC2007引入了AP值。AP值是在不同召回率下准确率的平均值。这定义是针对于单类的，对于多类，通过mAP（各类AP的平均）来评估。</p>
+<p>在目标检测中，判断某个框是否正确可以通过计算该框与真实框的重合度（IOU），与设置的重合度阈值比较来得出。</p>
+<p><span class="math display">\[
+IOU(A,B) = \frac{A\cap B}{A\cup B}
+\]</span></p>
+<p>这样通过设置不同的IOU阈值可以改变评估标准的严厉程度。2014年后，MS-COCO数据集的评估标准将AP值定义为IOU阈值在0.5到0.95下的AP平均值。</p>
+<p>下图列举了各类检测算法的精度：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20201120/metrics.png"
+title="metrics" /></p>
+<h2 id="challenge">Challenge</h2>
+<ul class="task-list">
+<li><p><input type="checkbox" disabled="" /><strong>Lightweight object
+detection:</strong>
+目标检测算法的总体性能和人眼还是有一定的差距的，在速度上的差距更加明显。所以轻量化的模型设计是一个重要的研究方向；</p></li>
+<li><p><input type="checkbox" disabled="" /><strong>Detection meets
+AutoML:</strong>
+现今的检测模型越来越复杂，同时也依赖于人们的经验。网络结构搜索可以很大程度上减少人们参与模型结构设计的程度，这方面目前已经有模型实现了，例如Efficientdet，在未来也会是一个发展方向；</p></li>
+<li><p><input type="checkbox" disabled="" /><strong>Weakly supervised
+detection:</strong>
+从数据集的发展，我们可以看出检测模型对于数据量的要求是十分巨大的，而数据集的标注十分消耗人力和时间，而且不同人的标注会有一些偏差。所以怎样实现弱监督目标检测是一个重要问题；</p></li>
+<li><p><input type="checkbox" disabled="" /><strong>Detection in
+videos:</strong>
+如何在视频中进行目标检测也是检测领域一个重要的问题。通常的办法是对视频的每一帧都进行检测，但这样做忽略了视频帧与帧之间的关联信息。挖掘视频中空间与时间上的关联对于视频上的目标检测是非常重要的</p></li>
+</ul>
+<h2 id="致谢">致谢</h2>
+<p>本文主要参考了以下文章，更详细的内容建议看原论文：<a
+target="_blank" rel="noopener" href="https://arxiv.org/pdf/1905.05055.pdf">Object Detection in 20
+Years: A Survey</a></p>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/990517">Rapid object
+detection using a boosted cascade of simple features</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="https://lear.inrialpes.fr/people/triggs/pubs/Dalal-cvpr05.pdf">Histograms
+of oriented gradients for human detection</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/4587597">A
+discriminatively trained, multiscale, deformable part model</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://ieeexplore.ieee.org/document/6909475">Rich feature
+hierarchies for accurate object detection and semantic
+segmentation</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1406.4729">Spatial Pyramid Pooling in
+Deep Convolutional Networks for Visual Recognition</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1504.08083">Fast R-CNN</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1506.01497">Faster R-CNN: Towards
+Real-Time Object Detection with Region Proposal Networks</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1612.03144.pdf">Feature Pyramid
+Networks for Object Detection</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://pjreddie.com/media/files/papers/yolo_1.pdf">You Only
+Look Once: Unified, Real-Time Object Detection</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1512.02325">SSD: Single Shot MultiBox
+Detector</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1708.02002.pdf">Focal Loss for Dense
+Object Detection</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="https://openaccess.thecvf.com/content_ECCV_2018/papers/Hei_Law_CornerNet_Detecting_Objects_ECCV_2018_paper.pdf">CornerNet:
+Detecting Objects as Paired Keypoints</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/41825737">CornerNet：目标检测算法新思路</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="http://homepages.inf.ed.ac.uk/ckiw/postscript/ijcv_voc09.pdf">The
+PASCAL Visual Object Classes (VOC) Challenge</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1409.0575.pdf">ImageNet Large Scale
+Visual Recognition Challenge</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1405.0312.pdf">Microsoft coco: Common
+objects in context</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/abs/1811.00982">The Open Images Dataset
+V4: Unified image classification, object detection, and visual
+relationship detection at scale</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/32423092">何恺明大神的「Focal
+Loss」，如何更好地理解？</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/31427288">SSD目标检测</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.jianshu.com/p/cad68ca85e27">YOLO
+v1深入理解</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://zhuanlan.zhihu.com/p/31426458">一文读懂Faster
+RCNN</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="https://blog.csdn.net/forever__1234/article/details/79910175">SPP-Net</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="https://blog.csdn.net/ttransposition/article/details/12966521">DPM(Deformable
+Parts Model)</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="https://blog.csdn.net/hujingshuang/article/details/47337707">HOG特征算法</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://www.cnblogs.com/hrlnw/p/3374707.html">Viola Jones
+Face Detector</a></p>
+</blockquote>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2021/04/30/2021-04-30-%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C/" title="图像分割基础网络">
+                    <div class="nextTitle">图像分割基础网络</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2020/10/25/2020-10-25-Centernet_%E5%9F%BA%E4%BA%8E%E4%B8%AD%E5%BF%83%E7%82%B9%E6%A3%80%E6%B5%8B/" title="Anchor free--Centernet">
+                    <div class="prevTitle">Anchor free--Centernet</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+    <script src='//unpkg.com/@waline/client@v2/dist/waline.js'></script>
+    <link href='//unpkg.com/@waline/client@v2/dist/waline.css' rel='stylesheet' />
+    <div id="comment"></div>
+    <script>
+    Waline.init({
+        el: '#comment' ,
+        serverURL: "https://waline-vercel.nasaka3000.fun",
+        wordLimit: "600",
+        login: "enable",
+        dark: ""
+    });
+    </script>
+
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+        
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script>
+
+
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:guijiaguai@foxmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/simplestory" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#map"><span class="toc-number">1.</span> <span class="toc-text">Map</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#traditional-detection-methods"><span class="toc-number">2.</span> <span class="toc-text">Traditional Detection
+Methods</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#viola-jones-detectors"><span class="toc-number">2.1.</span> <span class="toc-text">Viola-Jones Detectors</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#hog-detectors"><span class="toc-number">2.2.</span> <span class="toc-text">HOG Detectors</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#deformable-part-based-model-dpm"><span class="toc-number">2.3.</span> <span class="toc-text">Deformable Part-based Model
+(DPM)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#deep-larning-detection-methods"><span class="toc-number">2.4.</span> <span class="toc-text">Deep Larning Detection
+Methods</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#rcnn"><span class="toc-number">2.5.</span> <span class="toc-text">RCNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#sppnet"><span class="toc-number">2.6.</span> <span class="toc-text">SPPNet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#fast-rcnn"><span class="toc-number">2.7.</span> <span class="toc-text">Fast RCNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#faster-rcnn"><span class="toc-number">2.8.</span> <span class="toc-text">Faster RCNN</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#feature-pyramid-networks-fpn"><span class="toc-number">2.9.</span> <span class="toc-text">Feature Pyramid Networks
+(FPN)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#you-only-look-once-yolo"><span class="toc-number">2.10.</span> <span class="toc-text">You Only Look Once (YOLO)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#single-shot-multibox-detector-ssd"><span class="toc-number">2.11.</span> <span class="toc-text">Single Shot MultiBox Detector
+(SSD)</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#retinanet"><span class="toc-number">2.12.</span> <span class="toc-text">RetinaNet</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#cornernet"><span class="toc-number">2.13.</span> <span class="toc-text">CornerNet</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#datasets"><span class="toc-number">3.</span> <span class="toc-text">Datasets</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#pascal-voc"><span class="toc-number">3.1.</span> <span class="toc-text">Pascal VOC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ilsvrc"><span class="toc-number">3.2.</span> <span class="toc-text">ILSVRC</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#ms-coco"><span class="toc-number">3.3.</span> <span class="toc-text">MS-COCO</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#open-images"><span class="toc-number">3.4.</span> <span class="toc-text">Open
+Images</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#metrics"><span class="toc-number">4.</span> <span class="toc-text">Metrics</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#challenge"><span class="toc-number">5.</span> <span class="toc-text">Challenge</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%B4%E8%B0%A2"><span class="toc-number">6.</span> <span class="toc-text">致谢</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 63
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDIM/">DDIM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDPM/">DDPM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-LDM/">LDM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-GAN/">GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VAE/">VAE</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_GAN/">VQ-GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_VAE/">VQ-VAE</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/24</span>
+            <a class="archive-post-title" href="/2023/06/24/2023-06-24-LSS/">LSS</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-MonoRCNN/">MonoRCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-YOLOStereo3D/">YOLOStereo3D</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/05</span>
+            <a class="archive-post-title" href="/2023/03/05/2023-03-05-VoxelNet_&&_SECOND/">VoxelNet and SECOND</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2023/01/27/2023-01-27-Stereo_RCNN/">Stereo RCNN</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/06</span>
+            <a class="archive-post-title" href="/2022/10/06/2022-10-06-OTA/">OTA</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/07</span>
+            <a class="archive-post-title" href="/2021/08/07/2021-08-07-PointNet%E7%B3%BB%E5%88%97/">PointNet系列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/06</span>
+            <a class="archive-post-title" href="/2021/08/06/2021-08-06-MV3D/">Multi-View 3D Object Detection Network</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span>
+            <a class="archive-post-title" href="/2021/08/05/2021-08-05-SORT_&&_DeepSORT/">SORT && DeepSORT</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/04</span>
+            <a class="archive-post-title" href="/2021/08/04/2021-08-04-%E5%8A%A8%E6%80%81%E7%BD%91%E7%BB%9C%E5%A4%B4/">Dynamic Head</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/03</span>
+            <a class="archive-post-title" href="/2021/08/03/2021-08-03-%E5%8A%A8%E6%80%81%E5%8D%B7%E7%A7%AF%E4%B8%8E%E5%8A%A8%E6%80%81ReLU/">动态卷积与动态ReLU</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/16</span>
+            <a class="archive-post-title" href="/2021/05/16/2021-05-16-CRF%E5%8F%8A%E5%85%B6%E5%9C%A8%E5%88%86%E5%89%B2%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8/">CRF及其在分割领域上的应用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/30</span>
+            <a class="archive-post-title" href="/2021/04/30/2021-04-30-%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C/">图像分割基础网络</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/20</span>
+            <a class="archive-post-title" href="/2020/11/20/2020-11-20-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B20%E5%B9%B4/">Object Detection</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/25</span>
+            <a class="archive-post-title" href="/2020/10/25/2020-10-25-Centernet_%E5%9F%BA%E4%BA%8E%E4%B8%AD%E5%BF%83%E7%82%B9%E6%A3%80%E6%B5%8B/">Anchor free--Centernet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/18</span>
+            <a class="archive-post-title" href="/2020/10/18/2020-10-18-%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">一些常见的损失函数</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2020/10/03/2020-10-03-Efficient%E6%A8%A1%E5%9E%8B%E5%AE%B6%E6%97%8F/">Efficient模型家族</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/26</span>
+            <a class="archive-post-title" href="/2020/09/26/2020-09-26-%E5%87%A0%E7%B1%BBIOU%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">几种IOU损失</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/26</span>
+            <a class="archive-post-title" href="/2020/04/26/2020-04-26-Mobilenetv2/">MobileNetV2</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2020/02/10/2020-02-10-mask_rcnn/">Mask RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span>
+            <a class="archive-post-title" href="/2020/01/17/2020-01-15-yolov3/">YOLO_v3</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/10</span>
+            <a class="archive-post-title" href="/2020/01/10/2020-01-10-yolov2/">YOLO_v2 and YOLO9000</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-emmm/">额。。。</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-yolov1/">YOLO_v1</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2019 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2019/10/03/2019-10-03-SSD/">SSD</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span>
+            <a class="archive-post-title" href="/2019/09/22/2019-09-22-faster_rcnn/">Faster RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/21</span>
+            <a class="archive-post-title" href="/2019/09/21/2019-09-21-fast_rcnn/">Fast RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span>
+            <a class="archive-post-title" href="/2019/09/19/2019-09-19-RCNN/">RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/10</span>
+            <a class="archive-post-title" href="/2019/09/10/2019-09-10-ResNet/">ResNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2019/08/11/2019-08-11-%E5%8C%BA%E5%88%86%E5%87%A0%E7%A7%8D%E5%BD%92%E4%B8%80%E5%8C%96%E7%AE%97%E6%B3%95/">区分几种归一化算法</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/30</span>
+            <a class="archive-post-title" href="/2019/07/30/2019-07-30-VGG/">VGG</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/22</span>
+            <a class="archive-post-title" href="/2019/07/22/2019-07-22-AlexNet/">AlexNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/21</span>
+            <a class="archive-post-title" href="/2019/07/21/2019-07-21-NOTICE/">NOTICE~~~</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/24</span>
+            <a class="archive-post-title" href="/2019/03/24/2019-03-24-LightGBM/">LightGBM模型</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/17</span>
+            <a class="archive-post-title" href="/2019/03/17/2019-03-17-Xgboost/">Xgboost模型</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2018 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/03</span>
+            <a class="archive-post-title" href="/2018/11/03/2018-11-03-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%BC%98%E5%8C%96/">深度学习优化</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/28</span>
+            <a class="archive-post-title" href="/2018/10/28/2018-10-28-FFM%E6%A8%A1%E5%9E%8B/">FFM模型原理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/29</span>
+            <a class="archive-post-title" href="/2018/08/29/2018-08-29-%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/26</span>
+            <a class="archive-post-title" href="/2018/08/26/2018-08-26-sklearn%E8%B0%83%E5%8C%85%E5%90%88%E9%9B%86/">Scikit-learn调包合集</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/19</span>
+            <a class="archive-post-title" href="/2018/08/19/2018-08-19-%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB/">贝叶斯分类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/16</span>
+            <a class="archive-post-title" href="/2018/08/16/2018-08-16-SVM%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA/">SVM支持向量机</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span>
+            <a class="archive-post-title" href="/2018/08/13/2018-08-13-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E5%92%8CLogistic%E5%9B%9E%E5%BD%92/">线性回归和Logistic回归</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/02</span>
+            <a class="archive-post-title" href="/2018/03/02/2018-03-02-g++%E4%B8%8Egdb%E4%BD%BF%E7%94%A8/">g++与gdb使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2018/02/19/2018-02-19-Ubuntu%E9%85%8D%E7%BD%AEDjango/">Ubuntu配置Django</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/04</span>
+            <a class="archive-post-title" href="/2018/02/04/2018-02-04-Linux%E9%85%8D%E7%BD%AETensorflow/">Linux配置Tensorflow</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/20</span>
+            <a class="archive-post-title" href="/2018/01/20/2018-01-20-Linux%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%91%BD%E4%BB%A4/">Linux渗透测试命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/05</span>
+            <a class="archive-post-title" href="/2018/01/05/2018-01-05-Anaconda%E9%83%A8%E5%88%86%E5%91%BD%E4%BB%A4/">Anaconda部分命令</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2017 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/17</span>
+            <a class="archive-post-title" href="/2017/12/17/2017-12-17-ubuntu%E9%85%8D%E7%BD%AEgit/">Ubuntu配置Git</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2017/12/01/2017-12-01-Linux%E4%B8%8B%E7%9A%84MySQL%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84/">Linux下的MySQL数据文件路径</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2017/11/07/2017-11-07-Linux%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/">Linux一些命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/05</span>
+            <a class="archive-post-title" href="/2017/11/05/2017-11-04-Opencv%E5%AE%9E%E7%8E%B0%E6%B1%BD%E8%BD%A6%E8%BF%9D%E8%A7%84%E6%A3%80%E6%B5%8B%E8%AF%86%E5%88%AB/">Opencv实现汽车违规检测识别</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/20</span>
+            <a class="archive-post-title" href="/2017/10/20/2017-10-20-Linux%E4%B8%8B%E5%AE%89%E8%A3%85OpenCV/">Linux下安装OpenCV</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/01</span>
+            <a class="archive-post-title" href="/2017/10/01/2017-10-01-Vscode%E4%B8%8B%E7%BC%96%E8%AF%91C%E5%92%8CC++/">Vscode下编译C/C++</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/20</span>
+            <a class="archive-post-title" href="/2017/08/20/2017-08-20-Python%E4%B9%8B%E7%B1%BB/">Python的类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/10</span>
+            <a class="archive-post-title" href="/2017/08/10/2017-08-10-Python%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">Python，面向对象</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/04</span>
+            <a class="archive-post-title" href="/2017/07/04/2017-07-04-Git%E4%BD%BF%E7%94%A8%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/">GIT使用基础教程</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="git">
+                <span class="iconfont-archer">&#xe606;</span>
+                git
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="C/C++">
+                <span class="iconfont-archer">&#xe606;</span>
+                C/C++
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="opencv">
+                <span class="iconfont-archer">&#xe606;</span>
+                opencv
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="machine learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                machine learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="mysql">
+                <span class="iconfont-archer">&#xe606;</span>
+                mysql
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tensorflow">
+                <span class="iconfont-archer">&#xe606;</span>
+                tensorflow
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="django">
+                <span class="iconfont-archer">&#xe606;</span>
+                django
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="deep learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                deep learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="talk">
+                <span class="iconfont-archer">&#xe606;</span>
+                talk
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="math">
+                <span class="iconfont-archer">&#xe606;</span>
+                math
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="2017">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2017
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2018">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2018
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2019">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2019
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2020">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2020
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2021">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2021
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2022">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2022
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2023">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2023
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2024">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2024
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+            <script src='https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js'></script>
+            <script>
+                if (window.mermaid) {
+                    mermaid.initialize({theme: 'dark'});
+                }
+            </script>
+        
+    </body>
+</html>

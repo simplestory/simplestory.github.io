@@ -1,0 +1,2406 @@
+<!DOCTYPE html>
+<html lang="en">
+    <!-- title -->
+
+
+    
+
+<!-- keywords -->
+
+
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <meta name="author" content="John Doe">
+    <meta name="renderer" content="webkit">
+    <meta name="copyright" content="John Doe">
+    
+        <meta name="keywords" content="hexo,hexo-theme,hexo-blog">
+    
+    <meta name="description" content="">
+    <meta name="description" content="数学是科学之王。 ——高斯  概率无向图模型 在了解概率无向图模型之前，先看看概率图模型（PGM，probabilistic graphical model）的定义：它是由图表示的概率分布。设有联合概率分布\(P(Y)\)，\(Y\in \mathcal{Y}\)是一组随机变量，由无向图\(G&#x3D;(V, E)\)表示概率分布\(P(Y)\)，即在图\(G\)中，结点\(v\in V\)表示一个随机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="CRF及其在分割领域上的应用">
+<meta property="og:url" content="http://example.com/2021/05/16/2021-05-16-CRF%E5%8F%8A%E5%85%B6%E5%9C%A8%E5%88%86%E5%89%B2%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8/index.html">
+<meta property="og:site_name" content="Hexo">
+<meta property="og:description" content="数学是科学之王。 ——高斯  概率无向图模型 在了解概率无向图模型之前，先看看概率图模型（PGM，probabilistic graphical model）的定义：它是由图表示的概率分布。设有联合概率分布\(P(Y)\)，\(Y\in \mathcal{Y}\)是一组随机变量，由无向图\(G&#x3D;(V, E)\)表示概率分布\(P(Y)\)，即在图\(G\)中，结点\(v\in V\)表示一个随机">
+<meta property="og:locale" content="en_US">
+<meta property="article:published_time" content="2021-05-16T00:00:00.000Z">
+<meta property="article:modified_time" content="2024-08-17T14:15:14.351Z">
+<meta property="article:author" content="John Doe">
+<meta property="article:tag" content="math">
+<meta name="twitter:card" content="summary">
+    <meta http-equiv="Cache-control" content="no-cache">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
+    <link rel="icon" href="/assets/favicon.ico">
+    
+    <title>CRF及其在分割领域上的应用 · simplestory&#39;s blog</title>
+    <!-- /*! loadCSS. [c]2017 Filament Group, Inc. MIT License */
+/* This file is meant as a standalone workflow for
+- testing support for link[rel=preload]
+- enabling async CSS loading in browsers that do not support rel=preload
+- applying rel preload css once loaded, whether supported or not.
+*/ -->
+<script>
+    (function (w) {
+        'use strict'
+        // rel=preload support test
+        if (!w.loadCSS) {
+            w.loadCSS = function () {}
+        }
+        // define on the loadCSS obj
+        var rp = (loadCSS.relpreload = {})
+        // rel=preload feature support test
+        // runs once and returns a function for compat purposes
+        rp.support = (function () {
+            var ret
+            try {
+                ret = w.document.createElement('link').relList.supports('preload')
+            } catch (e) {
+                ret = false
+            }
+            return function () {
+                return ret
+            }
+        })()
+
+        // if preload isn't supported, get an asynchronous load by using a non-matching media attribute
+        // then change that media back to its intended value on load
+        rp.bindMediaToggle = function (link) {
+            // remember existing media attr for ultimate state, or default to 'all'
+            var finalMedia = link.media || 'all'
+
+            function enableStylesheet() {
+                link.media = finalMedia
+            }
+
+            // bind load handlers to enable media
+            if (link.addEventListener) {
+                link.addEventListener('load', enableStylesheet)
+            } else if (link.attachEvent) {
+                link.attachEvent('onload', enableStylesheet)
+            }
+
+            // Set rel and non-applicable media type to start an async request
+            // note: timeout allows this to happen async to let rendering continue in IE
+            setTimeout(function () {
+                link.rel = 'stylesheet'
+                link.media = 'only x'
+            })
+            // also enable media after 3 seconds,
+            // which will catch very old browsers (android 2.x, old firefox) that don't support onload on link
+            setTimeout(enableStylesheet, 3000)
+        }
+
+        // loop through link elements in DOM
+        rp.poly = function () {
+            // double check this to prevent external calls from running
+            if (rp.support()) {
+                return
+            }
+            var links = w.document.getElementsByTagName('link')
+            for (var i = 0; i < links.length; i++) {
+                var link = links[i]
+                // qualify links to those with rel=preload and as=style attrs
+                if (
+                    link.rel === 'preload' &&
+                    link.getAttribute('as') === 'style' &&
+                    !link.getAttribute('data-loadcss')
+                ) {
+                    // prevent rerunning on link
+                    link.setAttribute('data-loadcss', true)
+                    // bind listeners to toggle media back
+                    rp.bindMediaToggle(link)
+                }
+            }
+        }
+
+        // if unsupported, run the polyfill
+        if (!rp.support()) {
+            // run once at least
+            rp.poly()
+
+            // rerun poly on an interval until onload
+            var run = w.setInterval(rp.poly, 500)
+            if (w.addEventListener) {
+                w.addEventListener('load', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            } else if (w.attachEvent) {
+                w.attachEvent('onload', function () {
+                    rp.poly()
+                    w.clearInterval(run)
+                })
+            }
+        }
+
+        // commonjs
+        if (typeof exports !== 'undefined') {
+            exports.loadCSS = loadCSS
+        } else {
+            w.loadCSS = loadCSS
+        }
+    })(typeof global !== 'undefined' ? global : this)
+</script>
+
+    <style type="text/css">
+    @font-face {
+        font-family: 'Oswald-Regular';
+        src: url("/font/Oswald-Regular.ttf");
+    }
+
+    body {
+        margin: 0;
+    }
+
+    header,
+    footer,
+    .back-top,
+    .sidebar,
+    .container,
+    .site-intro-meta,
+    .toc-wrapper {
+        display: none;
+    }
+
+    .site-intro {
+        position: relative;
+        z-index: 3;
+        width: 100%;
+        /* height: 50vh; */
+        overflow: hidden;
+    }
+
+    .site-intro-placeholder {
+        position: absolute;
+        z-index: -2;
+        top: 0;
+        left: 0;
+        width: calc(100% + 300px);
+        height: 100%;
+        background: repeating-linear-gradient(-45deg, #444 0, #444 80px, #333 80px, #333 160px);
+        background-position: center center;
+        transform: translate3d(-226px, 0, 0);
+        animation: gradient-move 2.5s ease-out 0s infinite;
+    }
+
+    @keyframes gradient-move {
+        0% {
+            transform: translate3d(-226px, 0, 0);
+        }
+        100% {
+            transform: translate3d(0, 0, 0);
+        }
+    }
+</style>
+
+    <link rel="preload" href="/css/style.css?v=20211217" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="/css/dark.css?v=20211217" as="style">
+    <link rel="stylesheet" href="/css/dark.css">
+    <link rel="stylesheet" href="/css/mobile.css?v=20211217" media="(max-width: 960px)">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.css" as="style" onload="this.onload=null;this.rel='stylesheet'">
+    <link rel="preload" href="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js" as="script">
+    <link rel="preload" href="/scripts/main.js?v=20211217" as="script">
+    <link rel="preload" href="/scripts/dark.js?v=20211217" as="script">
+    <link rel="preload" href="/font/Oswald-Regular.ttf" as="font" crossorigin>
+    <link rel="preload" href="https://at.alicdn.com/t/font_327081_1dta1rlogw17zaor.woff" as="font" crossorigin>
+    <!-- algolia -->
+    
+    <!-- 百度统计  -->
+    
+        <script>
+            var _hmt = _hmt || [];
+            (function () {
+                var hm = document.createElement("script");
+                hm.src = "https://hm.baidu.com/hm.js?f4ceef9ccf4caa1b456d8373672cfa7e";
+                var s = document.getElementsByTagName("script")[0];
+                s.parentNode.insertBefore(hm, s);
+            })();
+        </script>
+    
+    <!-- 谷歌统计  -->
+    
+        <script async src="https://www.googletagmanager.com/gtag/js?id=G-DNYWTSM2GG"></script>
+        <script>
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-DNYWTSM2GG');
+        </script>
+    
+<meta name="generator" content="Hexo 6.2.0"></head>
+
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+    <script type="text/javascript">
+        if (typeof window.$ == undefined) {
+            console.warn('jquery load from jsdelivr failed, will load local script')
+            document.write('<script src="/lib/jquery.min.js" />')
+        }
+    </script>
+    
+        <body class="post-body">
+    
+        <!-- header -->
+        <header class="header header-mobile">
+    <!-- top read progress line -->
+    <div class="header-element">
+        <div class="read-progress"></div>
+    </div>
+    <!-- sidebar menu button -->
+    <div class="header-element">
+        
+            <div class="header-sidebar-menu">
+        
+            
+                <div style="padding-left: 1px;">&#xe775;</div>
+            
+        </div>
+    </div>
+    <!-- header actions -->
+    <div class="header-actions">
+        <!-- theme mode switch button -->
+        <span class="header-theme-btn header-element">
+            <i class="fas fa-adjust"></i>
+        </span>
+        <!-- back to home page text -->
+        <span class="home-link header-element">
+            <a href=/>Simplestory's Blog</a>
+        </span>
+    </div>
+    <!-- toggle banner for post layout -->
+    
+        
+            <div class="banner">
+        
+            <div class="blog-title header-element">
+                <a href="/">Simplestory&#39;s Blog</a>
+            </div>
+            <div class="post-title header-element">
+                <a href="#" class="post-name">CRF及其在分割领域上的应用</a>
+            </div>
+        </div>
+    
+</header>
+
+        <!-- fixed footer -->
+        <footer class="footer-fixed">
+    <!-- back to top button -->
+    <div class="footer-fixed-element">
+        
+            <div class="back-top back-top-hidden">
+        
+        
+            <div>&#xe639;</div>
+        
+        </div>
+    </div>
+</footer>
+
+        <!-- wrapper -->
+        <div class="wrapper">
+            <div class="site-intro" style="
+
+
+
+
+
+
+
+    height:50vh;
+
+">
+    
+    <!-- 主页  -->
+    
+        
+    <!-- 404页  -->
+            
+    <div class="site-intro-placeholder"></div>
+    <div class="site-intro-img" style="background-image: url(/intro/post_bg.png)"></div>
+    <div class="site-intro-meta">
+        <!-- 标题  -->
+        <h1 class="intro-title">
+            <!-- 主页  -->
+            
+                CRF及其在分割领域上的应用
+            <!-- 404 -->
+            
+        </h1>
+        <!-- 副标题 -->
+        <p class="intro-subtitle">
+            <!-- 主页副标题  -->
+            
+                
+                    条件随机场
+                
+            <!-- 404 -->
+            
+        </p>
+        <!-- 文章页 meta -->
+        
+            <div class="post-intros">
+                <!-- 文章页标签  -->
+                
+                    <div class= post-intro-tags >
+    
+    
+        <a class="post-tag" href="javascript:void(0);" data-tags="math">math</a>
+    
+</div>
+
+                
+                
+                    <div class="post-intro-read">
+                        <span>Word count: <span class="post-count word-count">3.3k</span>Reading time: <span class="post-count reading-time">13 min</span></span>
+                    </div>
+                
+                <div class="post-intro-meta">
+                    <!-- 撰写日期 -->
+                    <span class="iconfont-archer post-intro-calander">&#xe676;</span>
+                    <span class="post-intro-time">2021/05/16</span>
+                    <!-- busuanzi -->
+                    
+                    <!-- 文章分享 -->
+                    <span class="share-wrapper">
+                        <span class="iconfont-archer share-icon">&#xe71d;</span>
+                        <span class="share-text">Share</span>
+                        <ul class="share-list">
+                            <li class="iconfont-archer share-qr" data-type="qr">&#xe75b;
+                                <div class="share-qrcode"></div>
+                            </li>
+                            <li class="iconfont-archer" data-type="weibo">&#xe619;</li>
+                            <li class="iconfont-archer" data-type="qzone">&#xe62e;</li>
+                            <li class="iconfont-archer" data-type="twitter">&#xe634;</li>
+                            <li class="iconfont-archer" data-type="facebook">&#xe67a;</li>
+                        </ul>
+                    </span>
+                </div>
+            </div>
+        
+    </div>
+</div>
+
+            <script>
+  // get user agent
+  function getBrowserVersions() {
+    var u = window.navigator.userAgent
+    return {
+      userAgent: u,
+      trident: u.indexOf('Trident') > -1, //IE内核
+      presto: u.indexOf('Presto') > -1, //opera内核
+      webKit: u.indexOf('AppleWebKit') > -1, //苹果、谷歌内核
+      gecko: u.indexOf('Gecko') > -1 && u.indexOf('KHTML') == -1, //火狐内核
+      mobile: !!u.match(/AppleWebKit.*Mobile.*/), //是否为移动终端
+      ios: !!u.match(/\(i[^;]+;( U;)? CPU.+Mac OS X/), //ios终端
+      android: u.indexOf('Android') > -1 || u.indexOf('Linux') > -1, //android终端或者uc浏览器
+      iPhone: u.indexOf('iPhone') > -1 || u.indexOf('Mac') > -1, //是否为iPhone或者安卓QQ浏览器
+      iPad: u.indexOf('iPad') > -1, //是否为iPad
+      webApp: u.indexOf('Safari') == -1, //是否为web应用程序，没有头部与底部
+      weixin: u.indexOf('MicroMessenger') == -1, //是否为微信浏览器
+      uc: u.indexOf('UCBrowser') > -1, //是否为android下的UC浏览器
+    }
+  }
+  var browser = {
+    versions: getBrowserVersions(),
+  }
+  console.log('userAgent: ' + browser.versions.userAgent)
+
+  // callback
+  function fontLoaded() {
+    console.log('font loaded')
+    if (document.getElementsByClassName('site-intro-meta')) {
+      document
+        .getElementsByClassName('intro-title')[0]
+        .classList.add('intro-fade-in')
+      document
+        .getElementsByClassName('intro-subtitle')[0]
+        .classList.add('intro-fade-in')
+      var postIntros = document.getElementsByClassName('post-intros')[0]
+      if (postIntros) {
+        postIntros.classList.add('post-fade-in')
+      }
+    }
+  }
+
+  // UC不支持跨域，所以直接显示
+  function asyncCb() {
+    if (browser.versions.uc) {
+      console.log('UCBrowser')
+      fontLoaded()
+    } else {
+      WebFont.load({
+        custom: {
+          families: ['Oswald-Regular'],
+        },
+        loading: function () {
+          // 所有字体开始加载
+          // console.log('font loading');
+        },
+        active: function () {
+          // 所有字体已渲染
+          fontLoaded()
+        },
+        inactive: function () {
+          // 字体预加载失败，无效字体或浏览器不支持加载
+          console.log('inactive: timeout')
+          fontLoaded()
+        },
+        timeout: 5000, // Set the timeout to two seconds
+      })
+    }
+  }
+
+  function asyncErr() {
+    console.warn('script load from CDN failed, will load local script')
+  }
+
+  // load webfont-loader async, and add callback function
+  function async(u, cb, err) {
+    var d = document,
+      t = 'script',
+      o = d.createElement(t),
+      s = d.getElementsByTagName(t)[0]
+    o.src = u
+    if (cb) {
+      o.addEventListener(
+        'load',
+        function (e) {
+          cb(null, e)
+        },
+        false
+      )
+    }
+    if (err) {
+      o.addEventListener(
+        'error',
+        function (e) {
+          err(null, e)
+        },
+        false
+      )
+    }
+    s.parentNode.insertBefore(o, s)
+  }
+
+  var asyncLoadWithFallBack = function (arr, success, reject) {
+    var currReject = function () {
+      reject()
+      arr.shift()
+      if (arr.length) async(arr[0], success, currReject)
+    }
+
+    async(arr[0], success, currReject)
+  }
+
+  asyncLoadWithFallBack(
+    [
+      'https://cdn.jsdelivr.net/npm/webfontloader@1.6.28/webfontloader.min.js',
+      'https://cdn.bootcss.com/webfont/1.6.28/webfontloader.js',
+      "/lib/webfontloader.min.js",
+    ],
+    asyncCb,
+    asyncErr
+  )
+</script>
+
+            <img class="loading" src="/assets/loading.svg" style="display: block; margin: 6rem auto 0 auto; width: 6rem; height: 6rem;" />
+            <div class="container container-unloaded">
+                <main class="main post-page">
+    <article class="article-entry">
+        <blockquote>
+<p>数学是科学之王。 ——高斯</p>
+</blockquote>
+<h2 id="概率无向图模型">概率无向图模型</h2>
+<p>在了解概率无向图模型之前，先看看概率图模型（PGM，probabilistic
+graphical model）的定义：它是由图表示的概率分布。设有联合概率分布<span
+class="math inline">\(P(Y)\)</span>，<span class="math inline">\(Y\in
+\mathcal{Y}\)</span>是一组随机变量，由无向图<span
+class="math inline">\(G=(V, E)\)</span>表示概率分布<span
+class="math inline">\(P(Y)\)</span>，即在图<span
+class="math inline">\(G\)</span>中，结点<span class="math inline">\(v\in
+V\)</span>表示一个随机变量<span
+class="math inline">\(Y_v\)</span>，<span
+class="math inline">\(Y_v=(Y_v)_{v\in V}\)</span>；边<span
+class="math inline">\(e\in
+E\)</span>表示随机变量之间的概率依赖关系。</p>
+<p>给定一个概率联合分布<span
+class="math inline">\(P(Y)\)</span>和表示它的无向图<span
+class="math inline">\(G\)</span>。以下说明三个性质。</p>
+<ol type="1">
+<li><p>成对马尔可夫性（pairwise Markov property）</p>
+<p><span class="math display">\[
+P(Y_u,Y_v\mid Y_O) = P(Y_u\mid Y_O)P(Y_v\mid Y_O)
+\]</span></p>
+<p>其中<span class="math inline">\(u\)</span>，<span
+class="math inline">\(v\)</span>为无向图中任意两个没有边连接的结点，对应的随机变量分别为<span
+class="math inline">\(Y_u\)</span>和<span
+class="math inline">\(Y_v\)</span>，<span
+class="math inline">\(O\)</span>为无向图中除了<span
+class="math inline">\(u\)</span>、<span
+class="math inline">\(v\)</span>外的其他所有结点，对应的随机变量组为<span
+class="math inline">\(Y_O\)</span>。即给定随机变量组为<span
+class="math inline">\(Y_O\)</span>的条件下，随机变量<span
+class="math inline">\(Y_u\)</span>和<span
+class="math inline">\(Y_v\)</span>是条件独立的。</p></li>
+<li><p>局部马尔可夫性（local Markov property）</p>
+<p><span class="math display">\[
+P(Y_u,Y_O\mid Y_W) = P(Y_v\mid Y_W)P(Y_O\mid Y_W)
+\]</span></p>
+<p>其中<span class="math inline">\(v\in V\)</span>为无向图<span
+class="math inline">\(G\)</span>中任意一个结点，对应的随机变量为<span
+class="math inline">\(Y_v\)</span>，<span
+class="math inline">\(W\)</span>是与<span
+class="math inline">\(v\)</span>有边连接的所有结点，对应随机变量组为<span
+class="math inline">\(Y_W\)</span>，<span
+class="math inline">\(O\)</span>是<span
+class="math inline">\(v\)</span>，<span
+class="math inline">\(W\)</span>之外的其他所有结点，对应随机变量组为<span
+class="math inline">\(Y_O\)</span>。即给定随机变量组<span
+class="math inline">\(Y_W\)</span>的条件下随机变量<span
+class="math inline">\(Y_v\)</span>与随机变量组<span
+class="math inline">\(Y_O\)</span>是独立的。</p></li>
+<li><p>全局马尔可夫性（global Markov property）</p>
+<p><span class="math display">\[
+P(Y_A,Y_B\mid Y_C) = P(Y_A\mid Y_C)P(Y_B\mid Y_C)
+\]</span></p>
+<p>其中结点集合<span class="math inline">\(A\)</span>、<span
+class="math inline">\(B\)</span>是在无向图<span
+class="math inline">\(G\)</span>中被结点集合<span
+class="math inline">\(C\)</span>分开的任意结点集合，对应的随机变量组分别为<span
+class="math inline">\(Y_A\)</span>，<span
+class="math inline">\(Y_B\)</span>，<span
+class="math inline">\(Y_C\)</span>。即给定随机变量组<span
+class="math inline">\(Y_C\)</span>条件下随机变量组<span
+class="math inline">\(Y_A\)</span>和<span
+class="math inline">\(Y_B\)</span>是条件独立的。</p></li>
+</ol>
+<p><strong>上述三种定义是等价的。</strong></p>
+<p>综合以上给出概率无向图模型的定义。设有联合概率分布<span
+class="math inline">\(P(Y)\)</span>，由无向图<span
+class="math inline">\(G=(V,E)\)</span>表示，在图<span
+class="math inline">\(G\)</span>中，结点表示随机变量，边表示随机变量之间的依赖关系，如果联合概率分布<span
+class="math inline">\(P(Y)\)</span>满足成对、局部或全局马尔可夫性，就称此联合概率分布为概率无向图模型（probability
+undirected graphical model），或马尔可夫随机场（MRF，Markov random
+field）。</p>
+<h2 id="因子分解">因子分解</h2>
+<p><strong>概率图模型的核心是计算联合概率分布</strong></p>
+<p>无向图<span
+class="math inline">\(G\)</span>中任何两个结点均有边连接的结点子集称为团（clique）。若<span
+class="math inline">\(C\)</span>是无向图<span
+class="math inline">\(G\)</span>的一个团，并且不能再加进任何一个<span
+class="math inline">\(G\)</span>的结点使其成为一个更大的团，则称此<span
+class="math inline">\(C\)</span>为最大团（maximal clique）。</p>
+<p>将概率无向图模型的联合概率分布表示为其最大团上的随机变量的函数的乘积形式的操作为概率无向图模型的因子分解（factorization）。</p>
+<p>给定概率无向图模型，设其无向图为<span
+class="math inline">\(G\)</span>，<span
+class="math inline">\(C\)</span>为<span
+class="math inline">\(G\)</span>上的最大团，<span
+class="math inline">\(Y_c\)</span>表示<span
+class="math inline">\(C\)</span>对应的随机变量。由Hammersley-Cliffoed定理有<strong>当且仅当随机变量的联合概率密度严格为正时，概率无向图模型等价于吉布斯随机场（GRF，Gibbs
+Random Field）。</strong>而GRF的联合概率分布<span
+class="math inline">\(P(Y)\)</span>可写成图中所有最大团<span
+class="math inline">\(C\)</span>上的函数<span
+class="math inline">\(\Psi_C(Y_C)\)</span>的乘积形式，即：</p>
+<p><span class="math display">\[
+\begin{aligned}
+    P(Y) &amp; = \frac{1}{Z}\prod_C\Psi_C(Y_C) \\
+    Z &amp; = \sum_Y\prod_C\Psi_C(Y_C)
+\end{aligned}
+\]</span></p>
+<p>其中<span class="math inline">\(Z\)</span>是规范化因子（normalization
+factor），用于保证<span
+class="math inline">\(P(Y)\)</span>构成一个概率分布，即和为1。函数<span
+class="math inline">\(\Psi_C(Y_C)\)</span>称为势函数（potential
+function）。这里要求势函数是严格为正的，为了方便，通常定义为指数函数：</p>
+<p><span class="math display">\[
+\Psi_C(Y_C) = exp\{-E(Y_C)\}
+\]</span></p>
+<h2 id="条件随机场">条件随机场</h2>
+<p>定义：设<span class="math inline">\(X\)</span>与<span
+class="math inline">\(Y\)</span>是随机变量，<span
+class="math inline">\(P(X\mid Y)\)</span>是在给定<span
+class="math inline">\(X\)</span>的条件下<span
+class="math inline">\(Y\)</span>的条件概率分布，若随机变量<span
+class="math inline">\(Y\)</span>构成一个由无向图<span
+class="math inline">\(G=(V,E)\)</span>表示的马尔可夫随机场，即</p>
+<p><span class="math display">\[
+P(Y_v\mid X,Y_w,w\ne v) = P(Y_v\mid X,Y_w,w\sim v)
+\]</span></p>
+<p>对任意结点<span class="math inline">\(v\)</span>成立，则称<span
+class="math inline">\(P(Y\mid X)\)</span>为条件随机场。其中<span
+class="math inline">\(w\sim v\)</span>表示在图<span
+class="math inline">\(G=(V,E)\)</span>中与结点<span
+class="math inline">\(v\)</span>有边连接的所有结点<span
+class="math inline">\(w\)</span>，<span class="math inline">\(w\ne
+v\)</span>表示结点<span
+class="math inline">\(v\)</span>以外的所有结点，<span
+class="math inline">\(Y_v\)</span>、<span
+class="math inline">\(Y_u\)</span>与<span
+class="math inline">\(Y_w\)</span>为结点<span
+class="math inline">\(v\)</span>，<span
+class="math inline">\(u\)</span>与<span
+class="math inline">\(w\)</span>对应的随机变量。</p>
+<p><span class="math inline">\(X\)</span>、<span
+class="math inline">\(Y\)</span>可以有不同的图结构，但一般情况下假设他们有<strong>相同的图结构</strong>，这就有线性条件随机场（linear
+chain conditional random field)。设<span
+class="math inline">\(X=(X_1,X_2,\cdots,X_n)\)</span>，<span
+class="math inline">\(Y=(Y_1,Y_2,\cdots,Y_n)\)</span>均为线性链表示的随机变量序列，若在给定随机变量序列<span
+class="math inline">\(X\)</span>的条件下，随机变量序列<span
+class="math inline">\(Y\)</span>的条件概率分布<span
+class="math inline">\(P(Y\mid
+X)\)</span>构成条件随机场，即满足马尔可夫性</p>
+<p><span class="math display">\[
+P(Y_i\mid X,Y_1,\cdots,Y_{i-1},Y_{i+1},\cdots,Y_n) = P(Y_i\mid
+X,Y_{i-1},Y_{i+1}) \\
+i=1,2,\cdots,n \ (在i=1和n时只考虑单边)
+\]</span></p>
+<p>则称<span class="math inline">\(P(Y\mid
+X)\)</span>为线性链条件随机场，也是对数线性模型（log linear model)。</p>
+<h3 id="线性链条件随机场参数化形式">线性链条件随机场参数化形式</h3>
+<p>对于线性链条件随机场<span class="math inline">\(P(Y\mid
+X)\)</span>，在随机变量<span class="math inline">\(X\)</span>取值为<span
+class="math inline">\(x\)</span>的条件下，随机变量<span
+class="math inline">\(Y\)</span>取值为<span
+class="math inline">\(y\)</span>的条件概率有参数化形式如下：</p>
+<p><span class="math display">\[
+P(y\mid x) =
+\frac{1}{Z(x)}exp\left(\sum_{i,k}\lambda_kt_k(y_{i-1},y_i,x,i)+\sum_{i,l}\mu_ls_l(y_i,x,i)\right)
+\]</span></p>
+<p>其中</p>
+<p><span class="math display">\[
+Z(x) =
+\sum_yexp\left(\sum_{i,k}\lambda_kt_k(y_{i-1},y_i,x,i)+\sum_{i,l}\mu_ls_l(y_i,x,i)\right)
+\]</span></p>
+<p>式中，<span class="math inline">\(t_k\)</span>和<span
+class="math inline">\(s_l\)</span>是特征函数，<span
+class="math inline">\(\lambda_k\)</span>和<span
+class="math inline">\(\mu_l\)</span>是对应的权重，<span
+class="math inline">\(Z(x)\)</span>是规范化因子，求和是在所有可能的输出序列上进行的。<span
+class="math inline">\(t_k\)</span>是定义在边上的特征函数，为转移特征，依赖于当前和前一个位置，<span
+class="math inline">\(s_l\)</span>是定义在结点<span
+class="math inline">\(l\)</span>上的特征函数，为状态特征，依赖于当前位置，这两个特征函数都依赖于位置，是局部特征函数，而且一般取值为1或0，满足条件时为1否则为0。</p>
+<h3 id="线性链条件随机场简化形式">线性链条件随机场简化形式</h3>
+<p>设转移特征有<span
+class="math inline">\(K_1\)</span>个，状态特征有<span
+class="math inline">\(K_2\)</span>个，且<span
+class="math inline">\(K=K_1+K_2\)</span>，有</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; f_k(y_{i-1},y_i,x,i) =
+\begin{cases}
+t_k(y_{i-1},y_i,x,i), &amp;\ k=1,2,\cdots, K_1 \\
+s_l(y_i,x,i), &amp;\ k=K_1+l;\ l=1,2,\cdots, K_2
+\end{cases}
+\\
+&amp; \Rightarrow
+f_k(y,x) = \sum_{i=1}^nf_k(y_{i-1},y_i,x,i), \qquad k=1,2,\cdots,K
+\end{aligned}
+\]</span></p>
+<p>同样，用<span class="math inline">\(w_k\)</span>来统一表达权值：</p>
+<p><span class="math display">\[
+w_k =
+\begin{cases}
+\lambda_k, &amp;\ k=1,2,\cdots,K_1 \\
+\mu_l, &amp;\ k=K_1+l;\ l=1,2,\cdots,K
+\end{cases}
+\]</span></p>
+<p>综上可得：</p>
+<p><span class="math display">\[
+P(y\mid x) = \frac{1}{Z(x)}exp\sum_{k=1}^{K}w_kf_k(y,x) \\
+Z(x) = \sum_yexp\sum_{k=1}^Kw_kf_k(y,x)
+\]</span></p>
+<p>若用<span
+class="math inline">\(w=(w_1,w_2,\cdots,w_K)^T\)</span>表示权值向量，<span
+class="math inline">\(F(y,x)=(f_1(y,x),f_2(y,x),\cdots,f_K(y,x))^T\)</span>表示全局特征向量，则上式可进一步表达如下：</p>
+<p><span class="math display">\[
+P_w(y\mid x) = \frac{exp(w\cdot F(y,x))}{Z_w(x)} \\
+Z_w(x) = \sum_yexp(w\cdot F(y,x))
+\]</span></p>
+<h3 id="线性链条件随机场矩阵形式">线性链条件随机场矩阵形式</h3>
+<p>对于输入序列<span class="math inline">\(x\)</span>的每个位置<span
+class="math inline">\(i=1,2,\cdots,n+1\)</span>，定义一个<span
+class="math inline">\(m\)</span>阶矩阵（<span
+class="math inline">\(m\)</span>是标记<span
+class="math inline">\(y_i\)</span>取值的个数）：</p>
+<p><span class="math display">\[
+M_i(x) = [M_i(y_{i-1},y_i\mid x)] \\
+M_i(y_{i-1},y_i\mid x) = exp(W_i(y_{i-1},y_i\mid x)) \\
+W_i(y_{i-1},y_i\mid x) = \sum_{k=1}^Kw_kf_k(y_{i-1},y_i,x,i)
+\]</span></p>
+<p>由上面的简化形式结合这里的<span
+class="math inline">\(m\)</span>阶矩阵有</p>
+<p><span class="math display">\[
+\begin{aligned}
+&amp; exp\sum_{k=1}^Kw_k\sum_{i=1}^nf_k(y_{i-1},y_i,x,i) \\
+= &amp; exp\sum_{k=1}^K\sum_{i=1}^nw_kf_k(y_{i-1},y_i,x,i) \\
+= &amp; exp\sum_{i=1}^n\sum_{k=1}^Kw_kf_k(y_{i-1},y_i,x,i) \\
+= &amp; exp\sum_{i=1}^nW_i(y_{i-1},y_i\mid x) \\
+= &amp; \prod_{i=1}^nexp(W_i(y_{i-1},y_i\mid x)) \\
+= &amp; \prod_{i=1}^nM_i(y_{i-1},y_i\mid x) \\
+= &amp; \prod_{i=1}^{n+1}M_i(y_{i-1},y_i\mid x)
+\qquad (添加起点状态和终止状态)
+\end{aligned}
+\]</span></p>
+<p>上面推导的最后一步中<span
+class="math inline">\(y_0=start\)</span>和<span
+class="math inline">\(y_{n+1}=stop\)</span>分别表示考试状态和终止状态。可得：</p>
+<p><span class="math display">\[
+P_w(y\mid x) = \frac{1}{Z(x)}\prod_{i=1}^{n+1}M_i(y_{i-1},y_i\mid x) \\
+Z_w(x) = (M_1(x)M_2(x)\cdots M_{n+1}(x))_{start,stop}
+\]</span></p>
+<p><strong>规范化因子<span
+class="math inline">\(Z_w(x)\)</span>是以start为起点stop为终点通过状态的所有路径<span
+class="math inline">\(y_1y_2\cdots y_n\)</span>的非规范化概率<span
+class="math inline">\(\prod_{i=1}^{n+1}M_i(y_{i-1},y_i\mid
+x)\)</span>之和。</strong></p>
+<h2 id="一些应用">一些应用</h2>
+<p>CRF适用于对上下文相关的样本间存在依赖关系的情况。在NLP领域有着大量的应用，对于CV领域，受限于本人的见识，目前见到的应用都是在图片分割领域。分割是像素级的，所以图像中的每一个像素都是一个结点<span
+class="math inline">\(x\)</span>，对应的标签即为<span
+class="math inline">\(y\)</span>，像素与像素之间的关系可以表示为边，由于周围像素对标签的影响程度要远大于其它像素，所以我们可以通过周围像素的标签来推断出目标像素的标签，这一套下来就形成了条件随机场。</p>
+<h3 id="densecrf">DenseCRF</h3>
+<p><strong>DenseCRF为全连接条件随机场，与普通条件随机场的不同就在于，二元势函数描述的是每一个像素与其他所有像素的关系。</strong></p>
+<p>由之前的定义可知，CRF的势函数为<span
+class="math inline">\(\Phi_c(X_c)=e^{-E(X_c)}\)</span>（可选用其它函数，但需保证<span
+class="math inline">\(\Phi_c(X_c) &gt; 0\)</span>恒成立），其中<span
+class="math inline">\(E(X_c)\)</span>为能量函数，对于分割领域，能量函数表达式一般如下：</p>
+<p><span class="math display">\[
+E(X) = \sum_i\phi_u(x_i)+\sum_{i&lt;j}\phi_p(x_i,x_j)
+\]</span></p>
+<p>其中第一项为一元势函数，用于衡量单一像素分类错误导致的能量增加情况。第二项为二元势函数，描述像素点与像素点之间的关系，鼓励相似像素分配相同的标签，而相差较大的像素分配不同标签，而这个“相似”的定义与颜色值和实际相对距离有关，表达式如下：</p>
+<p><span class="math display">\[
+\Phi_p(x_i,x_j) = \mu(x_i,x_j)\sum_{m=1}^Kw^{(m)}k^{(m)}(f_i,f_j)
+\]</span></p>
+<p>其中<span class="math inline">\(\mu(x_i,x_j\)</span>为label
+compatibility，它约束了像素之间的传导。只有相同标签的情况下，能量才可以传导。<span
+class="math inline">\(w^{(m)}\)</span>为权值参数，<span
+class="math inline">\(k^{(m)}(f_i,f_j)\)</span>为高斯核特征函数：</p>
+<p><span class="math display">\[
+k^{(m)}(f_i,f_j) = w^{(1)}exp\left(-\frac{\vert
+p_i-p_j\vert^2}{\theta_{\alpha}^2}-\frac{\vert
+I_i-I_j\vert^2}{2\theta_{\beta}^2}\right) + w^{(2)}exp\left(-\frac{\vert
+p_i-p_j\vert^2}{2\theta_{\gamma}^2} \right)
+\]</span></p>
+<p>式中以特征的方式表示了不同像素之间的相似度，其中第一项为表面核（appearence
+kernel），主要是考虑到附近类似颜色的像素很可能属于同一类的事实，第二项为平滑核（smoothess
+kernel），主要用于消除一些小的独立像素区域（即噪声）。</p>
+<p><strong>一元势函数的输入为概率分布图，即由模型输出的特征图经过softmax函数运算得到的结果；二元势函数中的位置信息和颜色信息则由原始影像提供。</strong></p>
+<p>CRF通常是放置在卷积神经网络之后用于调整平滑网络的输出。一般来说，能量越大的物质存在的概率越小，能量越小的物质存在的概率越大。所以我们需要最小化这个能量函数<span
+class="math inline">\(E(X)\)</span>就可以得到当前图片下最有可能的分割结果。这一步最小化操作为了节省计算量一般会通过平均场近似（Mean
+Field
+Approximation）来计算，即最小化近似分布与目标分布之间的KL散度，由于公式繁多，这里就不作推导，详情可以参考DenseCRF的论文补充材料。</p>
+<h3 id="crfasrnn">CRFasRNN</h3>
+<p>上面的DenseCRF是作为后处理的方式添加在卷积模型后面的，而CRFasRNN是将CRF的迭代过程整合到卷积网络中形成一个end-to-end的模型。</p>
+<p>论文与DenseCRF类似也使用来平均场近似来最小化能量函数，由于计算过程只设计到了加乘，所以可以利用类似卷积的结构将计算过程表达出来，并以此合并到卷积网络中，同时为了获得更精确的结果，作者还吧迭代过程也结合进去了，即在这一层“卷积层”中会进行迭代计算，类似与RNN的操作。</p>
+<p>下图是平均场近似的迭代算法</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20210516/crfasrnn_algorithm.png"
+title="crfasrnn_algorithm" /></p>
+<p>将平均场近似计算中的步骤转换如下：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20210516/crfasrnn_cnn.png"
+title="crfasrnn_cnn" /></p>
+<p>最后的CRFasRNN大致结构：</p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20210516/crfasrnn.png"
+title="crfasrnn" /></p>
+<p><img
+src="https://simplestory-blog-img.oss-cn-guangzhou.aliyuncs.com/in_posts/20210516/crfasrnn_model.png"
+title="crfasrnn_model" /></p>
+<p>其中有</p>
+<p><span class="math display">\[
+\begin{aligned}
+H_1(t) &amp; =
+\begin{cases}
+softmax(U), &amp;\ t=0 \\
+H_2(t-1), &amp;\ 0&lt;t\le T
+\end{cases}
+\\
+H_2(t) &amp; = f_{\theta}(U,H_1(t),I), \ 0\le t\le T \\
+Y(t) &amp; =
+\begin{cases}
+0, &amp;\ 0\le t&lt;T \\
+H_2(t), &amp;\ t=T
+\end{cases}
+\end{aligned}
+\]</span></p>
+<p><span
+class="math inline">\(T\)</span>为平均场计算的迭代次数，一般为10以内，论文设置为5。</p>
+<p>以上就是我这段时间参考学习的条件随机场和一些应用，在图像分割上概率图模型的应用不止于此，还有好一些我后续再<strong>视情况</strong>更新。:&gt;</p>
+<h2 id="致谢">致谢</h2>
+<blockquote>
+<p>统计学习方法 李航</p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1210.5644.pdf">Efficient Inference in
+Fully Connected CRFs with Gaussian Edge Potentials</a></p>
+</blockquote>
+<blockquote>
+<p><a
+target="_blank" rel="noopener" href="http://graphics.stanford.edu/projects/densecrf/densecrf-supplement.pdf">Efficient
+Inference in Fully Connected CRFs with Gaussian Edge Potentials
+Supplementary Material</a></p>
+</blockquote>
+<blockquote>
+<p><a target="_blank" rel="noopener" href="https://arxiv.org/pdf/1502.03240.pdf">Conditional Random
+Fields as Recurrent Neural Networks</a></p>
+</blockquote>
+
+    </article>
+    <!-- license -->
+    
+    <!-- paginator -->
+    <ul class="post-paginator">
+        <li class="next">
+            
+                <div class="nextSlogan">Next Post</div>
+                <a href="/2021/08/03/2021-08-03-%E5%8A%A8%E6%80%81%E5%8D%B7%E7%A7%AF%E4%B8%8E%E5%8A%A8%E6%80%81ReLU/" title="动态卷积与动态ReLU">
+                    <div class="nextTitle">动态卷积与动态ReLU</div>
+                </a>
+            
+        </li>
+        <li class="previous">
+            
+                <div class="prevSlogan">Previous Post</div>
+                <a href="/2021/04/30/2021-04-30-%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C/" title="图像分割基础网络">
+                    <div class="prevTitle">图像分割基础网络</div>
+                </a>
+            
+        </li>
+    </ul>
+    <!-- comment -->
+    
+        <div class="post-comment">
+            <!-- 来必力 City 版安装代码 -->
+
+
+            
+
+            
+
+            
+
+            <!-- utteranc评论 -->
+
+
+            <!-- partial('_partial/comment/changyan') -->
+            <!--PC版-->
+
+
+            
+            
+
+            
+    <script src='//unpkg.com/@waline/client@v2/dist/waline.js'></script>
+    <link href='//unpkg.com/@waline/client@v2/dist/waline.css' rel='stylesheet' />
+    <div id="comment"></div>
+    <script>
+    Waline.init({
+        el: '#comment' ,
+        serverURL: "https://waline-vercel.nasaka3000.fun",
+        wordLimit: "600",
+        login: "enable",
+        dark: ""
+    });
+    </script>
+
+
+        </div>
+    
+    <!-- timeliness note -->
+    <!-- idea from: https://hexo.fluid-dev.com/posts/hexo-injector/#%E6%96%87%E7%AB%A0%E6%97%B6%E6%95%88%E6%80%A7%E6%8F%90%E7%A4%BA -->
+    
+    <!-- Mathjax -->
+    
+        
+    <script>
+        MathJax = {
+            tex: {
+                inlineMath: [['$', '$'], ['\\(', '\\)']],
+                skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+            }
+        };
+    </script>
+
+    <script src="https://polyfill.io/v3/polyfill.min.js?features=es6"></script>
+    <script id="MathJax-script" async src="https://cdn.jsdelivr.net/npm/mathjax@3.2.0/es5/tex-mml-chtml.js"></script>
+
+
+    
+</main>
+
+                <!-- profile -->
+                
+            </div>
+            <footer class="footer footer-unloaded">
+    <!-- social  -->
+    
+        <div class="social">
+            
+    
+        
+            
+                <a href="mailto:guijiaguai@foxmail.com" class="iconfont-archer email" title=email ></a>
+            
+        
+    
+        
+            
+                <a href="https://github.com/simplestory" class="iconfont-archer github" target="_blank" title=github></a>
+            
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+        
+    
+
+
+        </div>
+    
+    <!-- powered by Hexo  -->
+    <div class="copyright">
+        <span id="hexo-power">Powered by <a href="https://hexo.io/" target="_blank">Hexo</a></span><span class="iconfont-archer power">&#xe635;</span><span id="theme-info">theme <a href="https://github.com/fi3ework/hexo-theme-archer" target="_blank">Archer</a></span>
+    </div>
+    <!-- website approve for Chinese user -->
+    
+    <!-- 不蒜子  -->
+    	
+</footer>
+
+        </div>
+        <!-- toc -->
+        
+            <div class="toc-wrapper toc-wrapper-loding" style=
+
+
+
+
+
+
+
+    top:50vh;
+
+>
+                <div class="toc-catalog">
+                    <span class="iconfont-archer catalog-icon">&#xe613;</span><span>CATALOG</span>
+                </div>
+                <ol class="toc"><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%A6%82%E7%8E%87%E6%97%A0%E5%90%91%E5%9B%BE%E6%A8%A1%E5%9E%8B"><span class="toc-number">1.</span> <span class="toc-text">概率无向图模型</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E5%9B%A0%E5%AD%90%E5%88%86%E8%A7%A3"><span class="toc-number">2.</span> <span class="toc-text">因子分解</span></a></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E6%9D%A1%E4%BB%B6%E9%9A%8F%E6%9C%BA%E5%9C%BA"><span class="toc-number">3.</span> <span class="toc-text">条件随机场</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E9%93%BE%E6%9D%A1%E4%BB%B6%E9%9A%8F%E6%9C%BA%E5%9C%BA%E5%8F%82%E6%95%B0%E5%8C%96%E5%BD%A2%E5%BC%8F"><span class="toc-number">3.1.</span> <span class="toc-text">线性链条件随机场参数化形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E9%93%BE%E6%9D%A1%E4%BB%B6%E9%9A%8F%E6%9C%BA%E5%9C%BA%E7%AE%80%E5%8C%96%E5%BD%A2%E5%BC%8F"><span class="toc-number">3.2.</span> <span class="toc-text">线性链条件随机场简化形式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#%E7%BA%BF%E6%80%A7%E9%93%BE%E6%9D%A1%E4%BB%B6%E9%9A%8F%E6%9C%BA%E5%9C%BA%E7%9F%A9%E9%98%B5%E5%BD%A2%E5%BC%8F"><span class="toc-number">3.3.</span> <span class="toc-text">线性链条件随机场矩阵形式</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E4%B8%80%E4%BA%9B%E5%BA%94%E7%94%A8"><span class="toc-number">4.</span> <span class="toc-text">一些应用</span></a><ol class="toc-child"><li class="toc-item toc-level-3"><a class="toc-link" href="#densecrf"><span class="toc-number">4.1.</span> <span class="toc-text">DenseCRF</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#crfasrnn"><span class="toc-number">4.2.</span> <span class="toc-text">CRFasRNN</span></a></li></ol></li><li class="toc-item toc-level-2"><a class="toc-link" href="#%E8%87%B4%E8%B0%A2"><span class="toc-number">5.</span> <span class="toc-text">致谢</span></a></li></ol>
+            </div>
+        
+        <!-- sidebar -->
+        <div class="sidebar sidebar-hide">
+    <ul class="sidebar-tabs sidebar-tabs-active-0">
+        <li class="sidebar-tab-archives"><span class="iconfont-archer">&#xe67d;</span><span class="tab-name">Archive</span></li>
+        <li class="sidebar-tab-tags"><span class="iconfont-archer">&#xe61b;</span><span class="tab-name">Tag</span></li>
+        <li class="sidebar-tab-categories"><span class="iconfont-archer">&#xe666;</span><span class="tab-name">Cate</span></li>
+    </ul>
+    <div class="sidebar-content sidebar-content-show-archive">
+        <div class="sidebar-panel-archives">
+    <!-- 在 ejs 中将 archive 按照时间排序 -->
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+        
+    
+    
+    
+    
+    <div class="total-and-search">
+        <div class="total-archive">
+        Total : 63
+        </div>
+        <!-- search  -->
+        
+    </div>
+    
+    <div class="post-archive">
+    
+        
+            
+            
+            <div class="archive-year"> 2024 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDIM/">DDIM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-DDPM/">DDPM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/17</span>
+            <a class="archive-post-title" href="/2024/08/17/2024-08-17-LDM/">LDM</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-GAN/">GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VAE/">VAE</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_GAN/">VQ-GAN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2024/08/11/2024-08-11-VQ_VAE/">VQ-VAE</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2023 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/24</span>
+            <a class="archive-post-title" href="/2023/06/24/2023-06-24-LSS/">LSS</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-MonoRCNN/">MonoRCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">06/23</span>
+            <a class="archive-post-title" href="/2023/06/23/2023-06-23-YOLOStereo3D/">YOLOStereo3D</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/05</span>
+            <a class="archive-post-title" href="/2023/03/05/2023-03-05-VoxelNet_&&_SECOND/">VoxelNet and SECOND</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/27</span>
+            <a class="archive-post-title" href="/2023/01/27/2023-01-27-Stereo_RCNN/">Stereo RCNN</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2022 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/06</span>
+            <a class="archive-post-title" href="/2022/10/06/2022-10-06-OTA/">OTA</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2021 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/07</span>
+            <a class="archive-post-title" href="/2021/08/07/2021-08-07-PointNet%E7%B3%BB%E5%88%97/">PointNet系列</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/06</span>
+            <a class="archive-post-title" href="/2021/08/06/2021-08-06-MV3D/">Multi-View 3D Object Detection Network</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/05</span>
+            <a class="archive-post-title" href="/2021/08/05/2021-08-05-SORT_&&_DeepSORT/">SORT && DeepSORT</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/04</span>
+            <a class="archive-post-title" href="/2021/08/04/2021-08-04-%E5%8A%A8%E6%80%81%E7%BD%91%E7%BB%9C%E5%A4%B4/">Dynamic Head</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/03</span>
+            <a class="archive-post-title" href="/2021/08/03/2021-08-03-%E5%8A%A8%E6%80%81%E5%8D%B7%E7%A7%AF%E4%B8%8E%E5%8A%A8%E6%80%81ReLU/">动态卷积与动态ReLU</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">05/16</span>
+            <a class="archive-post-title" href="/2021/05/16/2021-05-16-CRF%E5%8F%8A%E5%85%B6%E5%9C%A8%E5%88%86%E5%89%B2%E9%A2%86%E5%9F%9F%E7%9A%84%E5%BA%94%E7%94%A8/">CRF及其在分割领域上的应用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/30</span>
+            <a class="archive-post-title" href="/2021/04/30/2021-04-30-%E5%9B%BE%E5%83%8F%E5%88%86%E5%89%B2%E5%9F%BA%E7%A1%80%E7%BD%91%E7%BB%9C/">图像分割基础网络</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2020 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/20</span>
+            <a class="archive-post-title" href="/2020/11/20/2020-11-20-%E7%9B%AE%E6%A0%87%E6%A3%80%E6%B5%8B20%E5%B9%B4/">Object Detection</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/25</span>
+            <a class="archive-post-title" href="/2020/10/25/2020-10-25-Centernet_%E5%9F%BA%E4%BA%8E%E4%B8%AD%E5%BF%83%E7%82%B9%E6%A3%80%E6%B5%8B/">Anchor free--Centernet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/18</span>
+            <a class="archive-post-title" href="/2020/10/18/2020-10-18-%E4%B8%80%E4%BA%9B%E5%B8%B8%E8%A7%81%E7%9A%84%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">一些常见的损失函数</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2020/10/03/2020-10-03-Efficient%E6%A8%A1%E5%9E%8B%E5%AE%B6%E6%97%8F/">Efficient模型家族</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/26</span>
+            <a class="archive-post-title" href="/2020/09/26/2020-09-26-%E5%87%A0%E7%B1%BBIOU%E6%8D%9F%E5%A4%B1%E5%87%BD%E6%95%B0/">几种IOU损失</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">04/26</span>
+            <a class="archive-post-title" href="/2020/04/26/2020-04-26-Mobilenetv2/">MobileNetV2</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/10</span>
+            <a class="archive-post-title" href="/2020/02/10/2020-02-10-mask_rcnn/">Mask RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/17</span>
+            <a class="archive-post-title" href="/2020/01/17/2020-01-15-yolov3/">YOLO_v3</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/10</span>
+            <a class="archive-post-title" href="/2020/01/10/2020-01-10-yolov2/">YOLO_v2 and YOLO9000</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-emmm/">额。。。</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/01</span>
+            <a class="archive-post-title" href="/2020/01/01/2020-01-01-yolov1/">YOLO_v1</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2019 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/03</span>
+            <a class="archive-post-title" href="/2019/10/03/2019-10-03-SSD/">SSD</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/22</span>
+            <a class="archive-post-title" href="/2019/09/22/2019-09-22-faster_rcnn/">Faster RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/21</span>
+            <a class="archive-post-title" href="/2019/09/21/2019-09-21-fast_rcnn/">Fast RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/19</span>
+            <a class="archive-post-title" href="/2019/09/19/2019-09-19-RCNN/">RCNN</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">09/10</span>
+            <a class="archive-post-title" href="/2019/09/10/2019-09-10-ResNet/">ResNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/11</span>
+            <a class="archive-post-title" href="/2019/08/11/2019-08-11-%E5%8C%BA%E5%88%86%E5%87%A0%E7%A7%8D%E5%BD%92%E4%B8%80%E5%8C%96%E7%AE%97%E6%B3%95/">区分几种归一化算法</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/30</span>
+            <a class="archive-post-title" href="/2019/07/30/2019-07-30-VGG/">VGG</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/22</span>
+            <a class="archive-post-title" href="/2019/07/22/2019-07-22-AlexNet/">AlexNet</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/21</span>
+            <a class="archive-post-title" href="/2019/07/21/2019-07-21-NOTICE/">NOTICE~~~</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/24</span>
+            <a class="archive-post-title" href="/2019/03/24/2019-03-24-LightGBM/">LightGBM模型</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/17</span>
+            <a class="archive-post-title" href="/2019/03/17/2019-03-17-Xgboost/">Xgboost模型</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2018 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/03</span>
+            <a class="archive-post-title" href="/2018/11/03/2018-11-03-%E6%B7%B1%E5%BA%A6%E5%AD%A6%E4%B9%A0%E4%BC%98%E5%8C%96/">深度学习优化</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/28</span>
+            <a class="archive-post-title" href="/2018/10/28/2018-10-28-FFM%E6%A8%A1%E5%9E%8B/">FFM模型原理</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/29</span>
+            <a class="archive-post-title" href="/2018/08/29/2018-08-29-%E5%86%B3%E7%AD%96%E6%A0%91/">决策树</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/26</span>
+            <a class="archive-post-title" href="/2018/08/26/2018-08-26-sklearn%E8%B0%83%E5%8C%85%E5%90%88%E9%9B%86/">Scikit-learn调包合集</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/19</span>
+            <a class="archive-post-title" href="/2018/08/19/2018-08-19-%E8%B4%9D%E5%8F%B6%E6%96%AF%E5%88%86%E7%B1%BB/">贝叶斯分类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/16</span>
+            <a class="archive-post-title" href="/2018/08/16/2018-08-16-SVM%E6%94%AF%E6%8C%81%E5%90%91%E9%87%8F%E6%9C%BA/">SVM支持向量机</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/13</span>
+            <a class="archive-post-title" href="/2018/08/13/2018-08-13-%E7%BA%BF%E6%80%A7%E5%9B%9E%E5%BD%92%E5%92%8CLogistic%E5%9B%9E%E5%BD%92/">线性回归和Logistic回归</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">03/02</span>
+            <a class="archive-post-title" href="/2018/03/02/2018-03-02-g++%E4%B8%8Egdb%E4%BD%BF%E7%94%A8/">g++与gdb使用</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/19</span>
+            <a class="archive-post-title" href="/2018/02/19/2018-02-19-Ubuntu%E9%85%8D%E7%BD%AEDjango/">Ubuntu配置Django</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">02/04</span>
+            <a class="archive-post-title" href="/2018/02/04/2018-02-04-Linux%E9%85%8D%E7%BD%AETensorflow/">Linux配置Tensorflow</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/20</span>
+            <a class="archive-post-title" href="/2018/01/20/2018-01-20-Linux%E6%B8%97%E9%80%8F%E6%B5%8B%E8%AF%95%E5%91%BD%E4%BB%A4/">Linux渗透测试命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">01/05</span>
+            <a class="archive-post-title" href="/2018/01/05/2018-01-05-Anaconda%E9%83%A8%E5%88%86%E5%91%BD%E4%BB%A4/">Anaconda部分命令</a>
+        </li>
+    
+        
+            
+            
+                
+                </ul>
+            
+            <div class="archive-year"> 2017 </div>
+            <ul class="year-list">
+            
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/17</span>
+            <a class="archive-post-title" href="/2017/12/17/2017-12-17-ubuntu%E9%85%8D%E7%BD%AEgit/">Ubuntu配置Git</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">12/01</span>
+            <a class="archive-post-title" href="/2017/12/01/2017-12-01-Linux%E4%B8%8B%E7%9A%84MySQL%E6%95%B0%E6%8D%AE%E6%96%87%E4%BB%B6%E8%B7%AF%E5%BE%84/">Linux下的MySQL数据文件路径</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/07</span>
+            <a class="archive-post-title" href="/2017/11/07/2017-11-07-Linux%E4%B8%80%E4%BA%9B%E5%91%BD%E4%BB%A4/">Linux一些命令</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">11/05</span>
+            <a class="archive-post-title" href="/2017/11/05/2017-11-04-Opencv%E5%AE%9E%E7%8E%B0%E6%B1%BD%E8%BD%A6%E8%BF%9D%E8%A7%84%E6%A3%80%E6%B5%8B%E8%AF%86%E5%88%AB/">Opencv实现汽车违规检测识别</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/20</span>
+            <a class="archive-post-title" href="/2017/10/20/2017-10-20-Linux%E4%B8%8B%E5%AE%89%E8%A3%85OpenCV/">Linux下安装OpenCV</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">10/01</span>
+            <a class="archive-post-title" href="/2017/10/01/2017-10-01-Vscode%E4%B8%8B%E7%BC%96%E8%AF%91C%E5%92%8CC++/">Vscode下编译C/C++</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/20</span>
+            <a class="archive-post-title" href="/2017/08/20/2017-08-20-Python%E4%B9%8B%E7%B1%BB/">Python的类</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">08/10</span>
+            <a class="archive-post-title" href="/2017/08/10/2017-08-10-Python%E9%9D%A2%E5%90%91%E5%AF%B9%E8%B1%A1/">Python，面向对象</a>
+        </li>
+    
+        
+        <li class="archive-post-item">
+            <span class="archive-post-date">07/04</span>
+            <a class="archive-post-title" href="/2017/07/04/2017-07-04-Git%E4%BD%BF%E7%94%A8%E5%9F%BA%E7%A1%80%E6%95%99%E7%A8%8B/">GIT使用基础教程</a>
+        </li>
+    
+    </div>
+</div>
+
+        <div class="sidebar-panel-tags">
+    <div class="sidebar-tags-name">
+        
+            <span class="sidebar-tag-name" data-tags="git">
+                <span class="iconfont-archer">&#xe606;</span>
+                git
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="python">
+                <span class="iconfont-archer">&#xe606;</span>
+                python
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="C/C++">
+                <span class="iconfont-archer">&#xe606;</span>
+                C/C++
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="opencv">
+                <span class="iconfont-archer">&#xe606;</span>
+                opencv
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="linux">
+                <span class="iconfont-archer">&#xe606;</span>
+                linux
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="machine learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                machine learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="mysql">
+                <span class="iconfont-archer">&#xe606;</span>
+                mysql
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="tensorflow">
+                <span class="iconfont-archer">&#xe606;</span>
+                tensorflow
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="django">
+                <span class="iconfont-archer">&#xe606;</span>
+                django
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="deep learning">
+                <span class="iconfont-archer">&#xe606;</span>
+                deep learning
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="talk">
+                <span class="iconfont-archer">&#xe606;</span>
+                talk
+            </span>
+        
+            <span class="sidebar-tag-name" data-tags="math">
+                <span class="iconfont-archer">&#xe606;</span>
+                math
+            </span>
+        
+    </div>
+    <div class="iconfont-archer sidebar-tags-empty">&#xe678;</div>
+    <div class="tag-load-fail" style="display: none; color: #ccc; font-size: 0.6rem;">
+        缺失模块，请参考主题文档进行安装配置：https://github.com/fi3ework/hexo-theme-archer#%E5%AE%89%E8%A3%85%E4%B8%BB%E9%A2%98
+    </div> 
+    <div class="sidebar-tags-list"></div>
+</div>
+
+        <div class="sidebar-panel-categories">
+    <div class="sidebar-categories-name">
+    
+        <span class="sidebar-category-name" data-categories="2017">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2017
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2018">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2018
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2019">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2019
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2020">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2020
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2021">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2021
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2022">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2022
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2023">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2023
+        </span>
+    
+        <span class="sidebar-category-name" data-categories="2024">
+            <span class="iconfont-archer">&#xe60a;</span>
+            2024
+        </span>
+    
+    </div>
+    <div class="iconfont-archer sidebar-categories-empty">&#xe678;</div>
+    <div class="sidebar-categories-list"></div>
+</div>
+
+    </div>
+</div>
+
+        <!-- site-meta -->
+        <script>
+    var siteMetaRoot = "/"
+    if (siteMetaRoot === "undefined") {
+        siteMetaRoot = '/'
+    }
+    var siteMeta = {
+        url: "http://example.com",
+        root: siteMetaRoot,
+        author: "John Doe"
+    }
+</script>
+
+        <!-- import experimental options here -->
+        <!-- Custom Font -->
+
+
+        <!-- main func -->
+        <script src="/scripts/main.js?v=20211217"></script>
+        <!-- dark mode -->
+        <script src="/scripts/dark.js?v=20211217"></script>
+        <!-- fancybox -->
+        <script src="https://cdn.jsdelivr.net/npm/@fancyapps/fancybox@3.5.7/dist/jquery.fancybox.min.js" defer></script>
+        <!-- algolia -->
+        
+        <!-- busuanzi -->
+        
+        <!-- CNZZ -->
+        
+        <!-- async load share.js -->
+        
+            <script src="/scripts/share.js?v=20211217" async></script>
+        
+        <!-- mermaid -->
+        
+            <script src='https://cdn.jsdelivr.net/npm/mermaid@8.11.0/dist/mermaid.min.js'></script>
+            <script>
+                if (window.mermaid) {
+                    mermaid.initialize({theme: 'dark'});
+                }
+            </script>
+        
+    </body>
+</html>
